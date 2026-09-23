@@ -1,0 +1,12 @@
+{
+  "$comment": "Regras de TypeScript comuns a todos os pacotes. Cada pacote estende este arquivo.",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
