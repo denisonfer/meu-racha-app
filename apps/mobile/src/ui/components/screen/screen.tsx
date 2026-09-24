@@ -27,6 +27,7 @@ export const Screen = ({
       <KeyboardAvoidingView
         style={styles.screen}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
+        enabled={!isScrollable}
       >
         <View
           {...props}
@@ -45,13 +46,17 @@ export const Screen = ({
             headerComponent={headerComponent}
           />
 
-          {isScrollable ? (
-            <ScrollContainer backgroundColor={backgroundColor}>
-              {children}
-            </ScrollContainer>
-          ) : (
-            <Container backgroundColor={backgroundColor}>{children}</Container>
-          )}
+          <View style={styles.content}>
+            {isScrollable ? (
+              <ScrollContainer backgroundColor={backgroundColor}>
+                {children}
+              </ScrollContainer>
+            ) : (
+              <Container backgroundColor={backgroundColor}>
+                {children}
+              </Container>
+            )}
+          </View>
         </View>
       </KeyboardAvoidingView>
     </View>
@@ -61,5 +66,9 @@ export const Screen = ({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  content: {
+    flex: 1,
+    padding: theme.space[16],
   },
 });

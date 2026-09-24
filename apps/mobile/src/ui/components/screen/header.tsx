@@ -1,7 +1,8 @@
 import { TScreenProps } from "./screen-types";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { theme } from "@/ui/theme";
 import { useNavigation } from "expo-router";
+import { Text } from "../text/text";
 
 export type THeaderProps = Pick<
   TScreenProps,
@@ -19,7 +20,7 @@ export const Header = ({ title, canGoBack, headerComponent }: THeaderProps) => {
 
   return (
     <View style={styles.container}>
-      {canGoBack && (
+      {canGoBack ? (
         <Pressable
           onPress={goBack}
           hitSlop={10}
@@ -34,6 +35,8 @@ export const Header = ({ title, canGoBack, headerComponent }: THeaderProps) => {
         >
           {isVisibleLabelGoBack ? <Text>Voltar</Text> : null}
         </Pressable>
+      ) : (
+        <View style={styles.spacer} />
       )}
 
       {headerComponent}

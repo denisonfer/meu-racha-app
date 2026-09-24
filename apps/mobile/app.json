@@ -18,7 +18,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.meurachaapp"
     },
     "plugins": [
       "expo-router",
@@ -30,7 +31,17 @@
           "imageWidth": 76
         }
       ],
-      "expo-font"
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Manrope-Medium.ttf",
+            "./assets/fonts/Manrope-Bold.ttf",
+            "./assets/fonts/Manrope-ExtraBold.ttf",
+            "./assets/fonts/BarlowCondensed-Bold.ttf"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

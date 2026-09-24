@@ -33,6 +33,8 @@ export const ScrollContainer = ({
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets
+      showsVerticalScrollIndicator={false}
       {...props}
       style={[
         styles.container,
