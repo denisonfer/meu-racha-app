@@ -1,7 +1,13 @@
 {
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "**/expo-router/**",
+    "**/react-native-screens/**"
+  ],
   "editor.codeActionsOnSave": {
+    "source.addMissingImports": "explicit",
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
+    "source.removeUnusedImports": "explicit",
     "source.sortMembers": "explicit"
   }
 }

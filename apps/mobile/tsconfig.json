@@ -1,6 +1,7 @@
 {
   "extends": ["expo/tsconfig.base", "../../tsconfig.base.json"],
   "compilerOptions": {
+    "lib": ["ESNext"],
     "paths": {
       "@/*": ["./src/*"],
       "@/assets/*": ["./assets/*"],
@@ -8,10 +9,5 @@
       "@meu-racha/domain/*": ["../../packages/domain/src/*/index.ts"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }
