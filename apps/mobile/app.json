@@ -41,7 +41,8 @@
             "./assets/fonts/BarlowCondensed-Bold.ttf"
           ]
         }
-      ]
+      ],
+      "@react-native-vector-icons/ionicons"
     ],
     "experiments": {
       "typedRoutes": true,
