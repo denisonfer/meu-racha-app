@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { Ionicons } from "@react-native-vector-icons/ionicons/static";
-import { Text } from "../text/text";
+import { FieldWrapper } from "../field-wrapper";
 import { theme } from "@/ui/theme";
 import { TInputPreset, TInputProps, TPresetConfig } from "./input-types";
 
@@ -53,11 +53,7 @@ export const Input = ({
       : theme.colors.border;
 
   return (
-    <View style={styles.wrapper}>
-      <Text preset="small" color="muted">
-        {label}
-      </Text>
-
+    <FieldWrapper label={label} error={error}>
       <View
         style={[styles.field, { borderColor, opacity: isDisabled ? 0.5 : 1 }]}
       >
@@ -94,20 +90,11 @@ export const Input = ({
           </Pressable>
         )}
       </View>
-
-      {error ? (
-        <Text preset="small" color="danger" accessibilityLiveRegion="polite">
-          {error}
-        </Text>
-      ) : null}
-    </View>
+    </FieldWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  wrapper: {
-    gap: theme.space[4],
-  },
   field: {
     flexDirection: "row",
     alignItems: "center",

@@ -1,4 +1,11 @@
-import { Button, Input, Screen, Text } from "@/ui/components";
+import {
+  Button,
+  Checkbox,
+  ChipGroup,
+  Input,
+  Screen,
+  Text,
+} from "@/ui/components";
 import { StyleSheet } from "react-native";
 
 export const SignUpScreen = () => {
@@ -27,6 +34,23 @@ export const SignUpScreen = () => {
         preset="password"
         //value={password}
         //onChangeText={setPassword}
+      />
+
+      <Checkbox
+        label="Aceito os termos e condições"
+        accessibilityLabel="Aceito os termos e condições"
+        isChecked={true}
+        onChange={() => {}}
+      />
+
+      <ChipGroup
+        label="Gênero"
+        options={[
+          { value: "masculino", label: "Masculino" },
+          { value: "feminino", label: "Feminino" },
+        ]}
+        value="feminino"
+        onChange={() => {}}
       />
 
       <Button

@@ -10,7 +10,6 @@ export type TInputProps = TextInputProps & {
    * @default "text"
    */
   preset?: TInputPreset;
-  /** Mensagem de erro. Presente = campo em estado de erro. */
   error?: string;
   isDisabled?: boolean;
   /** React 19: ref é prop normal, sem forwardRef. */

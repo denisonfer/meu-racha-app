@@ -23,6 +23,7 @@ export const theme = {
     48: 48,
   },
   radius: {
+    check: 6,
     control: 12,
     card: 16,
     pill: 9999,
