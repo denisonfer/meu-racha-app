@@ -4,6 +4,8 @@ export type TChipProps = {
   label: string;
   isSelected?: boolean;
   isDisabled?: boolean;
+  /** Divide a largura com os irmãos — usado no segmentado (Linha | Gol). */
+  isFullWidth?: boolean;
   onPress: () => void;
 };
 
@@ -19,6 +21,10 @@ export type TChipGroupProps<V extends string> = {
   onChange: (value: V) => void;
   error?: string;
   isDisabled?: boolean;
+  labelSuffix?: string;
+  hint?: string;
+  /** Segmentado: as opções dividem a largura em vez de fluir em linha. */
+  isFullWidth?: boolean;
 };
 
 export type TFormChipGroupProps<T extends FieldValues, V extends string> = Omit<

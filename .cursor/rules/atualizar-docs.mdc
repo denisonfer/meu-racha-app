@@ -1,0 +1,12 @@
+---
+description: Atualizar-se na documentação de cada lib/stack antes de agir
+alwaysApply: true
+---
+
+# Documentação antes de agir
+
+Atualize-se na documentação de cada lib/stack antes de atuar. Não responda nem altere código a partir da memória de treino.
+
+1. Leia a versão instalada da lib no `package.json`.
+2. Consulte a documentação dessa versão (docs oficiais ou os tipos em `node_modules`).
+3. Só então implemente, corrija ou explique a API.

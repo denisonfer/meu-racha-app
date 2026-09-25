@@ -1,3 +1,4 @@
+import { dateMaskToISO } from "@meu-racha/domain";
 import { supabase } from "@/lib/supabase";
 import { TSignInInput, TSignUpInput } from "./auth-types";
 
@@ -10,6 +11,20 @@ function signUpErrorMessage(raw: string): string {
   return "Não foi possível criar a conta. Tente de novo.";
 }
 
+/**
+ * Só para a experiência: avisa cedo em vez de deixar a pessoa descobrir no fim.
+ * A garantia continua sendo a constraint unique do banco — entre esta consulta
+ * e o cadastro existe uma janela em que outra pessoa pode pegar o mesmo nome.
+ */
+async function isUsernameAvailable(username: string) {
+  const { data, error } = await supabase.rpc("username_available", {
+    p_username: username,
+  });
+
+  if (error) throw new Error("Não foi possível verificar o username.");
+  return data === true;
+}
+
 async function signUp(input: TSignUpInput) {
   const { data, error } = await supabase.auth.signUp({
     email: input.email,
@@ -18,7 +33,7 @@ async function signUp(input: TSignUpInput) {
       data: {
         username: input.username,
         display_name: input.displayName,
-        birth_date: input.birthDate,
+        birth_date: dateMaskToISO(input.birthDate) ?? input.birthDate,
         plays_as: input.playsAs,
         primary_position: input.primaryPosition,
         secondary_position: input.secondaryPosition,
@@ -30,20 +45,12 @@ async function signUp(input: TSignUpInput) {
   return data.user;
 }
 
-/**
- * Login por username.
- *
- * O Supabase Auth só aceita e-mail; quem traduz username -> e-mail é a Edge
- * Function, no servidor. Aqui só entregamos os tokens ao client, que passa a
- * cuidar da sessão (refresh, persistência) como em qualquer login normal.
- */
 async function signIn(input: TSignInInput) {
   const { data, error } = await supabase.functions.invoke<{
     access_token: string;
     refresh_token: string;
   }>("sign-in", { body: input });
 
-  // Erro de rede ou 401 da função: mensagem única, igual à do servidor.
   if (error || !data) throw new Error("Usuário ou senha inválidos.");
 
   const { error: sessionError } = await supabase.auth.setSession({
@@ -57,4 +64,5 @@ async function signIn(input: TSignInInput) {
 export const authApi = {
   signUp,
   signIn,
+  isUsernameAvailable,
 };

@@ -11,6 +11,7 @@ export const Screen = ({
   isScrollable,
   title,
   canGoBack,
+  onGoBack,
   backgroundColor = "background",
   style,
   ...props
@@ -43,6 +44,7 @@ export const Screen = ({
           <Header
             title={title}
             canGoBack={canGoBack}
+            onGoBack={onGoBack}
             headerComponent={headerComponent}
           />
 

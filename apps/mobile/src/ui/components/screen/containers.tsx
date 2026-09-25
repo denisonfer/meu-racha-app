@@ -35,6 +35,7 @@ export const ScrollContainer = ({
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustKeyboardInsets
       showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.contentContainer}
       {...props}
       style={[
         styles.container,
@@ -49,5 +50,8 @@ export const ScrollContainer = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
   },
 });

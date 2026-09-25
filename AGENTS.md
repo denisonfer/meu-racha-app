@@ -1,5 +1,13 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
+## Antes de agir
+
+Atualize-se na documentação de cada lib/stack antes de atuar. Não responda nem altere código a partir da memória de treino.
+
+1. Leia a versão instalada da lib no `package.json`.
+2. Consulte a documentação dessa versão (docs oficiais ou os tipos em `node_modules`).
+3. Só então implemente, corrija ou explique a API.
+
 ## Expo has changed — do not trust your training data
 
 Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:

@@ -13,6 +13,7 @@ export type TFormInputProps<T extends FieldValues> = Omit<
 export function FormInput<T extends FieldValues>({
   control,
   name,
+  ref,
   ...inputProps
 }: TFormInputProps<T>) {
   const { field, fieldState } = useController({ control, name });
@@ -20,6 +21,7 @@ export function FormInput<T extends FieldValues>({
   return (
     <Input
       {...inputProps}
+      ref={ref}
       value={field.value}
       onChangeText={field.onChange}
       onBlur={field.onBlur}

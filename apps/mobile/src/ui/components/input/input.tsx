@@ -1,9 +1,21 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
-import { Ionicons } from "@react-native-vector-icons/ionicons/static";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
+import { Icon } from "../icon";
 import { FieldWrapper } from "../field-wrapper";
 import { theme } from "@/ui/theme";
-import { TInputPreset, TInputProps, TPresetConfig } from "./input-types";
+import {
+  TInputPreset,
+  TInputProps,
+  TInputStatus,
+  TPresetConfig,
+} from "./input-types";
+import { applyDateMask } from "@meu-racha/domain";
 
 const presetConfig: Record<TInputPreset, TPresetConfig> = {
   text: {},
@@ -28,15 +40,52 @@ const presetConfig: Record<TInputPreset, TPresetConfig> = {
   numeric: {
     keyboardType: "number-pad",
   },
+  date: {
+    keyboardType: "number-pad",
+    maxLength: 10, // DD/MM/AAAA
+  },
+};
+
+const StatusIcon = ({ status }: { status?: TInputStatus }) => {
+  if (!status) return null;
+
+  if (status === "checking") {
+    return (
+      <ActivityIndicator
+        size="small"
+        color={theme.colors.muted}
+        accessibilityLabel="Verificando"
+      />
+    );
+  }
+
+  const isValid = status === "valid";
+
+  return (
+    <Icon
+      name={isValid ? "success" : "error"}
+      color={isValid ? "success" : "danger"}
+      accessibilityLabel={isValid ? "Disponível" : "Indisponível"}
+    />
+  );
 };
 
 export const Input = ({
   label,
+  labelSuffix,
+  hint,
   preset = "text",
   error,
   isDisabled = false,
+  status,
   onFocus,
   onBlur,
+  onChangeText,
+  onSubmitEditing,
+  returnKeyType,
+  submitBehavior,
+  next,
+  ref,
   style,
   ...props
 }: TInputProps) => {
@@ -45,6 +94,7 @@ export const Input = ({
 
   const config = presetConfig[preset];
   const hasEyeToggle = preset === "password";
+  const hasDateMask = preset === "date";
 
   const borderColor = error
     ? theme.colors.danger
@@ -53,15 +103,34 @@ export const Input = ({
       : theme.colors.border;
 
   return (
-    <FieldWrapper label={label} error={error}>
+    <FieldWrapper
+      label={label}
+      labelSuffix={labelSuffix}
+      hint={hint}
+      error={error}
+    >
       <View
         style={[styles.field, { borderColor, opacity: isDisabled ? 0.5 : 1 }]}
       >
         <TextInput
           {...config}
           {...props}
+          ref={ref}
+          returnKeyType={returnKeyType ?? (next ? "next" : undefined)}
+          submitBehavior={submitBehavior ?? (next ? "submit" : undefined)}
+          onSubmitEditing={
+            onSubmitEditing || next
+              ? (event) => {
+                  onSubmitEditing?.(event);
+                  next?.current?.focus();
+                }
+              : undefined
+          }
           secureTextEntry={hasEyeToggle ? isSecret : config.secureTextEntry}
           editable={!isDisabled}
+          onChangeText={(text) =>
+            onChangeText?.(hasDateMask ? applyDateMask(text) : text)
+          }
           accessibilityLabel={label}
           placeholderTextColor={theme.colors.muted}
           style={[styles.textInput, style]}
@@ -75,6 +144,8 @@ export const Input = ({
           }}
         />
 
+        <StatusIcon status={status} />
+
         {hasEyeToggle && (
           <Pressable
             onPress={() => setIsSecret((v) => !v)}
@@ -82,11 +153,7 @@ export const Input = ({
             accessibilityRole="button"
             accessibilityLabel={isSecret ? "Mostrar senha" : "Ocultar senha"}
           >
-            <Ionicons
-              name={isSecret ? "eye-off" : "eye"}
-              size={20}
-              color={theme.colors.muted}
-            />
+            <Icon name={isSecret ? "eye-off" : "eye"} color="muted" />
           </Pressable>
         )}
       </View>

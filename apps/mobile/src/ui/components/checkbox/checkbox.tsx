@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View } from "react-native";
-import { Ionicons } from "@react-native-vector-icons/ionicons/static";
+import { Icon } from "../icon";
 import { Text } from "../text/text";
 import { theme } from "@/ui/theme";
 import { TCheckboxProps } from "./checkbox-types";
@@ -41,11 +41,7 @@ export const Checkbox = ({
           ]}
         >
           {isChecked ? (
-            <Ionicons
-              name="checkmark"
-              size={16}
-              color={theme.colors.onAction}
-            />
+            <Icon name="check" size={16} color="onAction" strokeWidth={3} />
           ) : null}
         </View>
 

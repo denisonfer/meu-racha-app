@@ -8,5 +8,7 @@ export type TScreenProps = ViewProps &
     isScrollable?: boolean;
     title?: string;
     canGoBack?: boolean;
+    /** Sobrescreve o voltar padrão — ex.: andar entre etapas de um formulário. */
+    onGoBack?: () => void;
     backgroundColor?: TThemeColor;
   };

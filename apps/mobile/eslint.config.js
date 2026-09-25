@@ -36,6 +36,11 @@ module.exports = defineConfig([
               importNames: ["Text"],
               message: "Use o Text de @/ui/components.",
             },
+            {
+              name: "lucide-react-native",
+              message:
+                "Use o Icon de @/ui/components. Ícone novo entra no icon-map.ts.",
+            },
           ],
         },
       ],
@@ -52,6 +57,8 @@ module.exports = defineConfig([
     // O design system é burro de propósito: não sabe o que é Racha.
     // Aqui o Text do react-native é permitido — é onde ele é embrulhado.
     files: ["src/ui/**/*.{ts,tsx}"],
+    // o icon-map é o único lugar que pode falar com a lib de ícones
+    ignores: ["src/ui/components/icon/**"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -61,6 +68,31 @@ module.exports = defineConfig([
               group: ["@/features/*"],
               message:
                 "ui/ não conhece feature. Suba o que for comum para ui/ ou lib/.",
+            },
+          ],
+          paths: [
+            {
+              name: "lucide-react-native",
+              message:
+                "Só o icon-map.ts conhece a biblioteca de ícones. Adicione o ícone lá.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  {
+    // A fronteira dos ícones: aqui a lib entra. Continua sem conhecer feature.
+    files: ["src/ui/components/icon/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/features/*"],
+              message: "ui/ não conhece feature.",
             },
           ],
         },

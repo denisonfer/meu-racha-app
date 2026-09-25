@@ -11,6 +11,7 @@ export const theme = {
     muted: "#8C948D",
     divider: "rgb(54, 56, 54)",
     border: "rgba(198, 242, 78, 0.12)",
+    success: "#4ADE80", // cor.sucesso dos tokens
     danger: "#EF4444",
     dangerPressed: "#B93333",
   },

@@ -11,9 +11,17 @@ export function ChipGroup<V extends string>({
   onChange,
   error,
   isDisabled = false,
+  isFullWidth = false,
+  labelSuffix,
+  hint,
 }: TChipGroupProps<V>) {
   return (
-    <FieldWrapper label={label} error={error}>
+    <FieldWrapper
+      label={label}
+      labelSuffix={labelSuffix}
+      hint={hint}
+      error={error}
+    >
       <View style={styles.group} accessibilityRole="radiogroup">
         {options.map((option) => (
           <Chip
@@ -21,6 +29,7 @@ export function ChipGroup<V extends string>({
             label={option.label}
             isSelected={option.value === value}
             isDisabled={isDisabled}
+            isFullWidth={isFullWidth}
             onPress={() => onChange(option.value)}
           />
         ))}

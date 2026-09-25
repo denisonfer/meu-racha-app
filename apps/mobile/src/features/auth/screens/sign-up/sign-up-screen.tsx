@@ -1,86 +1,121 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
+import { router, Stack } from "expo-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { StyleSheet, View } from "react-native";
 import {
   Button,
-  Checkbox,
-  ChipGroup,
-  Input,
   Screen,
+  ScreenFooter,
+  StepIndicator,
   Text,
 } from "@/ui/components";
-import { StyleSheet } from "react-native";
+import { theme } from "@/ui/theme";
+import { useSignUp } from "../../hooks/use-sign-up";
+import { usernameAvailableQuery } from "../../hooks/use-username-available";
+import {
+  signUpSchema,
+  stepFields,
+  TSignUpForm,
+  TSignUpFormInput,
+} from "./sign-up-schema";
+import { StepAccount, StepProfile, StepTerms } from "./steps";
+
+const TOTAL_STEPS = stepFields.length;
 
 export const SignUpScreen = () => {
+  const [step, setStep] = useState(0);
+  const { signUp, isPending, error } = useSignUp();
+  const queryClient = useQueryClient();
+
+  const { control, handleSubmit, trigger, getValues, setError } = useForm<
+    TSignUpFormInput,
+    unknown,
+    TSignUpForm
+  >({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      username: "",
+      displayName: "",
+      email: "",
+      password: "",
+      playsAs: "OUTFIELD",
+      primaryPosition: null,
+      secondaryPosition: null,
+      birthDate: "",
+      acceptedTerms: false,
+    },
+    mode: "onBlur",
+  });
+
+  const isLastStep = step === TOTAL_STEPS - 1;
+
+  async function handleContinue() {
+    const fields = stepFields[step];
+    if (!fields) return;
+
+    const isStepValid = await trigger([...fields]);
+    if (!isStepValid) return;
+
+    if (step === 0) {
+      const username = getValues("username");
+      const isAvailable = await queryClient
+        .query(usernameAvailableQuery(username))
+        .catch(() => true);
+
+      if (!isAvailable) {
+        setError("username", { message: "Esse username já está em uso" });
+        return;
+      }
+    }
+
+    if (isLastStep) {
+      handleSubmit((values) => signUp(values))();
+      return;
+    }
+    setStep((current) => current + 1);
+  }
+
+  function handleGoBack() {
+    if (step === 0) {
+      router.back();
+      return;
+    }
+    setStep((current) => current - 1);
+  }
+
   return (
-    <Screen title="Cadastro" isScrollable>
-      <Text preset="h1">Hello World</Text>
+    <Screen title="Cadastro" canGoBack onGoBack={handleGoBack} isScrollable>
+      <Stack.Screen options={{ gestureEnabled: step === 0 }} />
+      <View style={styles.content}>
+        <StepIndicator total={TOTAL_STEPS} current={step + 1} />
 
-      <Input
-        label="Nome"
-        placeholder="Digite seu nome"
-        //value={name}
-        //onChangeText={setName}
-      />
+        {step === 0 ? <StepAccount control={control} /> : null}
+        {step === 1 ? <StepProfile control={control} /> : null}
+        {step === 2 ? <StepTerms control={control} /> : null}
+      </View>
 
-      <Input
-        label="Email"
-        placeholder="Digite seu email"
-        preset="email"
-        //value={email}
-        //onChangeText={setEmail}
-      />
+      <ScreenFooter>
+        {error ? (
+          <Text preset="small" color="danger" accessibilityLiveRegion="polite">
+            {error}
+          </Text>
+        ) : null}
 
-      <Input
-        label="Senha"
-        placeholder="Digite sua senha"
-        preset="password"
-        //value={password}
-        //onChangeText={setPassword}
-      />
-
-      <Checkbox
-        label="Aceito os termos e condições"
-        accessibilityLabel="Aceito os termos e condições"
-        isChecked={true}
-        onChange={() => {}}
-      />
-
-      <ChipGroup
-        label="Gênero"
-        options={[
-          { value: "masculino", label: "Masculino" },
-          { value: "feminino", label: "Feminino" },
-        ]}
-        value="feminino"
-        onChange={() => {}}
-      />
-
-      <Button
-        title="Cadastrar"
-        onPress={() => {
-          console.log("Cadastrar");
-        }}
-      />
-      <Button
-        title="Cadastrar"
-        preset="secondary"
-        onPress={() => {
-          console.log("Cadastrar");
-        }}
-      />
-      <Button
-        title="Cadastrar"
-        preset="destructive"
-        onPress={() => {
-          console.log("Cadastrar");
-        }}
-      />
+        <Button
+          title={isLastStep ? "Criar conta" : "Continuar"}
+          isLoading={isPending}
+          onPress={handleContinue}
+        />
+      </ScreenFooter>
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  content: {
+    gap: theme.space[24],
+    paddingTop: theme.space[16],
   },
 });

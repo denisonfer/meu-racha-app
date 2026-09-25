@@ -5,6 +5,8 @@ import { TFieldWrapperProps } from "./field-wrapper-types";
 
 export const FieldWrapper = ({
   label,
+  labelSuffix,
+  hint,
   error,
   children,
 }: TFieldWrapperProps) => {
@@ -12,6 +14,12 @@ export const FieldWrapper = ({
     <View style={styles.wrapper}>
       <Text preset="small" color="foreground">
         {label}
+        {labelSuffix ? (
+          <Text preset="small" color="muted">
+            {" "}
+            {labelSuffix}
+          </Text>
+        ) : null}
       </Text>
 
       {children}
@@ -19,6 +27,10 @@ export const FieldWrapper = ({
       {error ? (
         <Text preset="small" color="danger" accessibilityLiveRegion="polite">
           {error}
+        </Text>
+      ) : hint ? (
+        <Text preset="small" color="muted">
+          {hint}
         </Text>
       ) : null}
     </View>

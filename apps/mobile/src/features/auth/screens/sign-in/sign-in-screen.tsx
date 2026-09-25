@@ -1,7 +1,8 @@
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 import { Button, FormInput, LogoLockup, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { useSignIn } from "../../hooks/use-sign-in";
@@ -10,6 +11,7 @@ import { signInSchema, TSignInForm } from "./sign-in-schema";
 export const SignInScreen = () => {
   const { signIn, isPending, error } = useSignIn();
 
+  const passwordRef = useRef<TextInput>(null);
   const { control, handleSubmit } = useForm<TSignInForm>({
     resolver: zodResolver(signInSchema),
     defaultValues: { username: "", password: "" },
@@ -32,10 +34,11 @@ export const SignInScreen = () => {
           label="Username"
           preset="username"
           placeholder="seu_username"
-          returnKeyType="next"
+          next={passwordRef}
         />
 
         <FormInput
+          ref={passwordRef}
           control={control}
           name="password"
           label="Senha"

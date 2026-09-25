@@ -7,36 +7,36 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1014C290591B8EFB91BCD931 /* libPods-meurachaapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 50E7C810FE118960B53E34D2 /* libPods-meurachaapp.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		3576FEE06FB74295BD688AA9 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3EA2FA2343416CDD64367D9 /* ExpoModulesProvider.swift */; };
+		1D6FA7A050B94F3CB9FC45A6 /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B0993F41BB3A4885882E44EC /* Manrope-Bold.ttf */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		4C0F5944B0874D77BD952D19 /* BarlowCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 880401E268B14356891C691D /* BarlowCondensed-Bold.ttf */; };
-		4CB512EFE7B64BB29B74BF06 /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C7424A1B65324C57A869F523 /* Manrope-ExtraBold.ttf */; };
-		6181B07BE56941D2B0DA1EEE /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A9B64D4B14754D238D62AD95 /* Manrope-Bold.ttf */; };
-		914D736E312E4FA2886E8AA3 /* expo.icon in Resources */ = {isa = PBXBuildFile; fileRef = 187F113D6D0D4B4FACE0476E /* expo.icon */; };
-		957E82F22C64A68B96772CF0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B84AF6A876B85617E6FA2CE3 /* PrivacyInfo.xcprivacy */; };
+		3F7920FEFEA74A93A9CBDB1E /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6136CC03B1B74536BCDEEFC3 /* Manrope-ExtraBold.ttf */; };
+		553270ED4ADC4E28BDD7951E /* Manrope-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 06DF3668F830482283A81A64 /* Manrope-Medium.ttf */; };
+		58A75248140CE031CDE5E72F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 98160CDAE287DBE2DE791FC0 /* PrivacyInfo.xcprivacy */; };
+		718942FDF95FC74B6361CD67 /* libPods-meurachaapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B2B3F16BF0A8181CA8126CE5 /* libPods-meurachaapp.a */; };
+		7735664A711B4472AE8AC401 /* expo.icon in Resources */ = {isa = PBXBuildFile; fileRef = A5F254CD7BFC46CFAA2688A7 /* expo.icon */; };
+		B95B7E39F3659B6EC3D64E8C /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93EB2D7D09C37C2952666E /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		DE0847AA15634973900D68A4 /* Manrope-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3E40954230E248C1AB260487 /* Manrope-Medium.ttf */; };
+		DD6B654550BB42B0A7024B61 /* BarlowCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 07E624E34EFB4BAFBD6C7BE2 /* BarlowCondensed-Bold.ttf */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		06DF3668F830482283A81A64 /* Manrope-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Medium.ttf"; path = "../assets/fonts/Manrope-Medium.ttf"; sourceTree = "<group>"; };
+		07E624E34EFB4BAFBD6C7BE2 /* BarlowCondensed-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "BarlowCondensed-Bold.ttf"; path = "../assets/fonts/BarlowCondensed-Bold.ttf"; sourceTree = "<group>"; };
+		0D93EB2D7D09C37C2952666E /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-meurachaapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* meurachaapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = meurachaapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = meurachaapp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = meurachaapp/Info.plist; sourceTree = "<group>"; };
-		187F113D6D0D4B4FACE0476E /* expo.icon */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = expo.icon; path = meurachaapp/expo.icon; sourceTree = "<group>"; };
-		3E40954230E248C1AB260487 /* Manrope-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Medium.ttf"; path = "../assets/fonts/Manrope-Medium.ttf"; sourceTree = "<group>"; };
-		50E7C810FE118960B53E34D2 /* libPods-meurachaapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-meurachaapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6A6A6379972B6730FD1EC64A /* Pods-meurachaapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-meurachaapp.debug.xcconfig"; path = "Target Support Files/Pods-meurachaapp/Pods-meurachaapp.debug.xcconfig"; sourceTree = "<group>"; };
-		880401E268B14356891C691D /* BarlowCondensed-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "BarlowCondensed-Bold.ttf"; path = "../assets/fonts/BarlowCondensed-Bold.ttf"; sourceTree = "<group>"; };
-		8EBB1C565B03363E0DF0D1B4 /* Pods-meurachaapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-meurachaapp.release.xcconfig"; path = "Target Support Files/Pods-meurachaapp/Pods-meurachaapp.release.xcconfig"; sourceTree = "<group>"; };
-		A9B64D4B14754D238D62AD95 /* Manrope-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Bold.ttf"; path = "../assets/fonts/Manrope-Bold.ttf"; sourceTree = "<group>"; };
+		5609668F3C3DD03B7AF2BAE2 /* Pods-meurachaapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-meurachaapp.release.xcconfig"; path = "Target Support Files/Pods-meurachaapp/Pods-meurachaapp.release.xcconfig"; sourceTree = "<group>"; };
+		6136CC03B1B74536BCDEEFC3 /* Manrope-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-ExtraBold.ttf"; path = "../assets/fonts/Manrope-ExtraBold.ttf"; sourceTree = "<group>"; };
+		8E7E900E4AEC2EBF9E8F7626 /* Pods-meurachaapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-meurachaapp.debug.xcconfig"; path = "Target Support Files/Pods-meurachaapp/Pods-meurachaapp.debug.xcconfig"; sourceTree = "<group>"; };
+		98160CDAE287DBE2DE791FC0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = meurachaapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A5F254CD7BFC46CFAA2688A7 /* expo.icon */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = expo.icon; path = meurachaapp/expo.icon; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = meurachaapp/SplashScreen.storyboard; sourceTree = "<group>"; };
-		B84AF6A876B85617E6FA2CE3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = meurachaapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		B0993F41BB3A4885882E44EC /* Manrope-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Bold.ttf"; path = "../assets/fonts/Manrope-Bold.ttf"; sourceTree = "<group>"; };
+		B2B3F16BF0A8181CA8126CE5 /* libPods-meurachaapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-meurachaapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		C7424A1B65324C57A869F523 /* Manrope-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-ExtraBold.ttf"; path = "../assets/fonts/Manrope-ExtraBold.ttf"; sourceTree = "<group>"; };
-		E3EA2FA2343416CDD64367D9 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-meurachaapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = meurachaapp/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* meurachaapp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "meurachaapp-Bridging-Header.h"; path = "meurachaapp/meurachaapp-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -47,7 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1014C290591B8EFB91BCD931 /* libPods-meurachaapp.a in Frameworks */,
+				718942FDF95FC74B6361CD67 /* libPods-meurachaapp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,37 +63,37 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				187F113D6D0D4B4FACE0476E /* expo.icon */,
-				B84AF6A876B85617E6FA2CE3 /* PrivacyInfo.xcprivacy */,
+				A5F254CD7BFC46CFAA2688A7 /* expo.icon */,
+				98160CDAE287DBE2DE791FC0 /* PrivacyInfo.xcprivacy */,
 			);
 			name = meurachaapp;
+			sourceTree = "<group>";
+		};
+		1CEBB861D0F49CF84F5DEF4C /* meurachaapp */ = {
+			isa = PBXGroup;
+			children = (
+				0D93EB2D7D09C37C2952666E /* ExpoModulesProvider.swift */,
+			);
+			name = meurachaapp;
+			sourceTree = "<group>";
+		};
+		2AE0A650D876669288F61958 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8E7E900E4AEC2EBF9E8F7626 /* Pods-meurachaapp.debug.xcconfig */,
+				5609668F3C3DD03B7AF2BAE2 /* Pods-meurachaapp.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				50E7C810FE118960B53E34D2 /* libPods-meurachaapp.a */,
+				B2B3F16BF0A8181CA8126CE5 /* libPods-meurachaapp.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		2E4A148EFA55B84788F417D4 /* meurachaapp */ = {
-			isa = PBXGroup;
-			children = (
-				E3EA2FA2343416CDD64367D9 /* ExpoModulesProvider.swift */,
-			);
-			name = meurachaapp;
-			sourceTree = "<group>";
-		};
-		36F6D3BA830E790E58E39C25 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				6A6A6379972B6730FD1EC64A /* Pods-meurachaapp.debug.xcconfig */,
-				8EBB1C565B03363E0DF0D1B4 /* Pods-meurachaapp.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -110,9 +110,9 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				CB6DF72AEC75496C8FDEAF69 /* Resources */,
-				36F6D3BA830E790E58E39C25 /* Pods */,
-				8CA52840497FA959D5490190 /* ExpoModulesProviders */,
+				A143D40FB1424CD7A527A9BA /* Resources */,
+				2AE0A650D876669288F61958 /* Pods */,
+				C3649A21CED4AA2D56489ADA /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -127,12 +127,16 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8CA52840497FA959D5490190 /* ExpoModulesProviders */ = {
+		A143D40FB1424CD7A527A9BA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				2E4A148EFA55B84788F417D4 /* meurachaapp */,
+				06DF3668F830482283A81A64 /* Manrope-Medium.ttf */,
+				B0993F41BB3A4885882E44EC /* Manrope-Bold.ttf */,
+				6136CC03B1B74536BCDEEFC3 /* Manrope-ExtraBold.ttf */,
+				07E624E34EFB4BAFBD6C7BE2 /* BarlowCondensed-Bold.ttf */,
 			);
-			name = ExpoModulesProviders;
+			name = Resources;
+			path = "";
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -144,16 +148,12 @@
 			path = meurachaapp/Supporting;
 			sourceTree = "<group>";
 		};
-		CB6DF72AEC75496C8FDEAF69 /* Resources */ = {
+		C3649A21CED4AA2D56489ADA /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				3E40954230E248C1AB260487 /* Manrope-Medium.ttf */,
-				A9B64D4B14754D238D62AD95 /* Manrope-Bold.ttf */,
-				C7424A1B65324C57A869F523 /* Manrope-ExtraBold.ttf */,
-				880401E268B14356891C691D /* BarlowCondensed-Bold.ttf */,
+				1CEBB861D0F49CF84F5DEF4C /* meurachaapp */,
 			);
-			name = Resources;
-			path = "";
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -164,13 +164,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "meurachaapp" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				9E253DDF3E6A8F0C78CD4F7D /* [Expo] Configure project */,
+				BED88F52CA6CB038700E791F /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				999D7F7DE9A453209A36A5BA /* [CP] Embed Pods Frameworks */,
+				9014FD1E102B99C66EF5A313 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -220,12 +220,12 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				914D736E312E4FA2886E8AA3 /* expo.icon in Resources */,
-				DE0847AA15634973900D68A4 /* Manrope-Medium.ttf in Resources */,
-				6181B07BE56941D2B0DA1EEE /* Manrope-Bold.ttf in Resources */,
-				4CB512EFE7B64BB29B74BF06 /* Manrope-ExtraBold.ttf in Resources */,
-				4C0F5944B0874D77BD952D19 /* BarlowCondensed-Bold.ttf in Resources */,
-				957E82F22C64A68B96772CF0 /* PrivacyInfo.xcprivacy in Resources */,
+				7735664A711B4472AE8AC401 /* expo.icon in Resources */,
+				553270ED4ADC4E28BDD7951E /* Manrope-Medium.ttf in Resources */,
+				1D6FA7A050B94F3CB9FC45A6 /* Manrope-Bold.ttf in Resources */,
+				3F7920FEFEA74A93A9CBDB1E /* Manrope-ExtraBold.ttf in Resources */,
+				DD6B654550BB42B0A7024B61 /* BarlowCondensed-Bold.ttf in Resources */,
+				58A75248140CE031CDE5E72F /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,7 +288,6 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/React-Core_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-timing/React-timing_privacy.bundle",
-				"${PODS_ROOT}/../../../../node_modules/.bun/@react-native-vector-icons+ionicons@13.1.4+9017134865dbcdb0/node_modules/@react-native-vector-icons/ionicons/fonts/Ionicons.ttf",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -302,14 +301,13 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-Core_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-timing_privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Ionicons.ttf",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-meurachaapp/Pods-meurachaapp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		999D7F7DE9A453209A36A5BA /* [CP] Embed Pods Frameworks */ = {
+		9014FD1E102B99C66EF5A313 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -353,7 +351,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-meurachaapp/Pods-meurachaapp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9E253DDF3E6A8F0C78CD4F7D /* [Expo] Configure project */ = {
+		BED88F52CA6CB038700E791F /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -385,7 +383,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				3576FEE06FB74295BD688AA9 /* ExpoModulesProvider.swift in Sources */,
+				B95B7E39F3659B6EC3D64E8C /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,7 +392,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6A6A6379972B6730FD1EC64A /* Pods-meurachaapp.debug.xcconfig */;
+			baseConfigurationReference = 8E7E900E4AEC2EBF9E8F7626 /* Pods-meurachaapp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = expo;
 				CLANG_ENABLE_MODULES = YES;
@@ -431,7 +429,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8EBB1C565B03363E0DF0D1B4 /* Pods-meurachaapp.release.xcconfig */;
+			baseConfigurationReference = 5609668F3C3DD03B7AF2BAE2 /* Pods-meurachaapp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = expo;
 				CLANG_ENABLE_MODULES = YES;

@@ -7,6 +7,7 @@ export const Chip = ({
   label,
   isSelected = false,
   isDisabled = false,
+  isFullWidth = false,
   onPress,
 }: TChipProps) => {
   return (
@@ -17,6 +18,7 @@ export const Chip = ({
       accessibilityState={{ selected: isSelected, disabled: isDisabled }}
       style={({ pressed }) => [
         styles.chip,
+        isFullWidth && styles.fullWidth,
         {
           backgroundColor: isSelected
             ? theme.colors.action
@@ -40,5 +42,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.space[16],
     borderRadius: theme.radius.pill,
     borderWidth: 1,
+  },
+  fullWidth: {
+    flex: 1,
+    alignItems: "center",
   },
 });

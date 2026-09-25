@@ -3,13 +3,19 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { theme } from "@/ui/theme";
 import { useNavigation } from "expo-router";
 import { Text } from "../text/text";
+import { Icon } from "../icon";
 
 export type THeaderProps = Pick<
   TScreenProps,
-  "title" | "canGoBack" | "headerComponent"
+  "title" | "canGoBack" | "headerComponent" | "onGoBack"
 >;
 
-export const Header = ({ title, canGoBack, headerComponent }: THeaderProps) => {
+export const Header = ({
+  title,
+  canGoBack,
+  headerComponent,
+  onGoBack,
+}: THeaderProps) => {
   const { goBack } = useNavigation();
 
   if (!title && !canGoBack && !headerComponent) {
@@ -22,7 +28,7 @@ export const Header = ({ title, canGoBack, headerComponent }: THeaderProps) => {
     <View style={styles.container}>
       {canGoBack ? (
         <Pressable
-          onPress={goBack}
+          onPress={onGoBack ?? goBack}
           hitSlop={10}
           accessibilityRole="button"
           accessibilityLabel="Voltar"
@@ -33,6 +39,9 @@ export const Header = ({ title, canGoBack, headerComponent }: THeaderProps) => {
             styles.goBackButton,
           ]}
         >
+          {/* o chevron aparece sempre: sem ele o Pressable fica sem conteúdo
+              (e sem área de toque) quando a tela tem título */}
+          <Icon name="back" size={24} />
           {isVisibleLabelGoBack ? <Text>Voltar</Text> : null}
         </Pressable>
       ) : (
@@ -41,7 +50,7 @@ export const Header = ({ title, canGoBack, headerComponent }: THeaderProps) => {
 
       {headerComponent}
 
-      {title && <Text>{title}</Text>}
+      {title ? <Text preset="h3">{title}</Text> : null}
 
       {title && <View style={styles.spacer} />}
     </View>
