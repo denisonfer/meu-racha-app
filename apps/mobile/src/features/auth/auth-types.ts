@@ -10,3 +10,8 @@ export type TSignUpInput = {
   primaryPosition: TPosition | null;
   secondaryPosition: TPosition | null;
 };
+
+export type TSignInInput = {
+  username: string;
+  password: string;
+};
