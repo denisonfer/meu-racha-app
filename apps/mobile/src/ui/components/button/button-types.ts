@@ -1,7 +1,7 @@
 import { TThemeColor } from "@/ui/theme";
 import { PressableProps } from "react-native";
 
-export type TButtonPreset = "primary" | "secondary" | "destructive";
+export type TButtonPreset = "primary" | "secondary" | "destructive" | "text";
 
 export type TButtonProps = PressableProps & {
   title: string;

@@ -10,7 +10,7 @@ export const FieldWrapper = ({
 }: TFieldWrapperProps) => {
   return (
     <View style={styles.wrapper}>
-      <Text preset="small" color="muted">
+      <Text preset="small" color="foreground">
         {label}
       </Text>
 

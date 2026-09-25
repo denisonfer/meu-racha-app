@@ -19,10 +19,13 @@ const presetConfig: Record<TButtonPreset, TPresetConfig> = {
     pressedBackgroundColor: "dangerPressed",
     titleColor: "surface",
   },
+  text: {
+    backgroundColor: "background",
+    pressedBackgroundColor: "background",
+    titleColor: "foreground",
+  },
 };
 
-// Desabilitado é o mesmo para os três presets: um botão inerte não tem
-// intenção, então não carrega a cor da ação.
 const disabledConfig: TPresetConfig = {
   backgroundColor: "surface",
   pressedBackgroundColor: "surface",
@@ -56,7 +59,6 @@ export const Button = ({
                 : config.backgroundColor
             ],
         },
-        // o style de fora também pode ser função: resolve antes de compor
         typeof style === "function" ? style(state) : style,
       ]}
     >
@@ -66,7 +68,7 @@ export const Button = ({
           color={theme.colors[config.titleColor]}
         />
       ) : (
-        <Text preset="button" color={config.titleColor}>
+        <Text preset="button" color={config.titleColor} style={styles.title}>
           {title}
         </Text>
       )}
@@ -81,6 +83,10 @@ const styles = StyleSheet.create({
     minHeight: theme.minTouch,
     paddingVertical: theme.space[8],
     paddingHorizontal: theme.space[24],
-    borderRadius: theme.radius.pill,
+    borderRadius: theme.radius.control,
+  },
+  title: {
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.action,
   },
 });

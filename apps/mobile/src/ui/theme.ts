@@ -9,6 +9,7 @@ export const theme = {
     onAction: "#07180F", // texto sobre o lima
     onActionPressed: "#05130B",
     muted: "#8C948D",
+    divider: "rgb(54, 56, 54)",
     border: "rgba(198, 242, 78, 0.12)",
     danger: "#EF4444",
     dangerPressed: "#B93333",

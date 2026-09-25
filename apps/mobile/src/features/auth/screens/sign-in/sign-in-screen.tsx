@@ -17,7 +17,7 @@ export const SignInScreen = () => {
   });
 
   return (
-    <Screen isScrollable>
+    <Screen>
       <View style={styles.header}>
         <LogoLockup height={44} />
         <Text preset="body" color="muted">
@@ -45,28 +45,36 @@ export const SignInScreen = () => {
           onSubmitEditing={handleSubmit((values) => signIn(values))}
         />
 
+        <Button
+          title="Esqueci minha senha"
+          preset="text"
+          onPress={() => {}}
+          style={{ alignSelf: "flex-end" }}
+        />
+
         {error ? (
           <Text preset="small" color="danger" accessibilityLiveRegion="polite">
             {error}
           </Text>
         ) : null}
+      </View>
 
+      <View style={styles.footer}>
         <Button
           title="Entrar"
           isLoading={isPending}
           onPress={handleSubmit((values) => signIn(values))}
         />
-      </View>
-
-      <View style={styles.footer}>
-        <Text preset="small" color="muted">
-          Primeira vez por aqui?
-        </Text>
-        <Button
-          title="Criar conta"
-          preset="secondary"
-          onPress={() => router.push("/sign-up")}
-        />
+        <View style={styles.footerLink}>
+          <Text preset="small" color="muted">
+            Não tem uma conta?
+          </Text>
+          <Button
+            title="Criar conta"
+            preset="text"
+            onPress={() => router.push("/sign-up")}
+          />
+        </View>
       </View>
     </Screen>
   );
@@ -82,8 +90,16 @@ const styles = StyleSheet.create({
     gap: theme.space[16],
   },
   footer: {
-    alignItems: "center",
+    marginTop: "auto",
     gap: theme.space[8],
-    marginTop: theme.space[40],
+    borderTopWidth: 1,
+    borderColor: theme.colors.divider,
+    paddingTop: theme.space[16],
+  },
+  footerLink: {
+    flexDirection: "row",
+    gap: theme.space[4],
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
