@@ -4,16 +4,6 @@ import { TBrandMarkProps } from "./brand-types";
 
 const RATIO = 808.2777777777778 / 116;
 
-/**
- * Ajuste óptico do símbolo.
- *
- * Geometricamente ele já está alinhado: centro em 58, igual ao do wordmark
- * inteiro (59). Mas só o "h" de racha tem ascendente — o olho lê a banda das
- * minúsculas (33 a 108, centro 70,5) e enxerga o símbolo alto. Descer 6
- * unidades divide a diferença sem encostar na borda do canvas.
- */
-const OPTICAL_NUDGE = 6;
-
 /** Símbolo + "meu racha". Fonte: assets/brand/lockup-horizontal.svg */
 export const LogoLockup = ({
   height = 40,
@@ -28,7 +18,8 @@ export const LogoLockup = ({
       accessibilityRole="image"
       accessibilityLabel="Meu Racha"
     >
-      <G transform={`translate(8 ${8 + OPTICAL_NUDGE}) scale(1.56250)`}>
+      {/* o y=14 (em vez de 8) é ajuste óptico, já aplicado no .svg de origem */}
+      <G transform="translate(8 14) scale(1.56250)">
         <Path
           fill={theme.colors[color]}
           d="M30.5 0H14A14 14 0 0 0 0 14V50A14 14 0 0 0 14 64H30.5V59H14.5A9.5 9.5 0 0 1 5 49.5V14.5A9.5 9.5 0 0 1 14.5 5H30.5Z"
