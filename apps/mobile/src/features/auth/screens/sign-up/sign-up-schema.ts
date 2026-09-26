@@ -1,5 +1,10 @@
 import {
+  DISPLAY_NAME_MAX,
+  DISPLAY_NAME_MIN,
+  DISPLAY_NAME_PATTERN,
   dateMaskToISO,
+  hasLetter,
+  isNotTooOld,
   isOldEnough,
   isRealDate,
   isValidPositionSet,
@@ -17,8 +22,14 @@ export const signUpSchema = z
       .string()
       .trim()
       .toLowerCase()
-      .regex(USERNAME_PATTERN, "Use de 3 a 20 letras minúsculas, números e _"),
-    displayName: z.string().trim().min(2, "Como querem te chamar?"),
+      .regex(USERNAME_PATTERN, "Use de 3 a 20 letras minúsculas, números e _")
+      .refine(hasLetter, "Use ao menos uma letra"),
+    displayName: z
+      .string()
+      .trim()
+      .min(DISPLAY_NAME_MIN, "Como querem te chamar?")
+      .max(DISPLAY_NAME_MAX, `No máximo ${DISPLAY_NAME_MAX} caracteres`)
+      .regex(DISPLAY_NAME_PATTERN, "Use seu nome, sem números nem símbolos"),
     email: z.email("E-mail inválido"),
     password: z.string().min(8, "Mínimo de 8 caracteres"),
 
@@ -43,6 +54,14 @@ export const signUpSchema = z
   .refine((v) => isOldEnough(dateMaskToISO(v.birthDate) ?? "", new Date()), {
     path: ["birthDate"],
     message: `É preciso ter ${MIN_AGE} anos ou mais`,
+  })
+  .refine((v) => isNotTooOld(dateMaskToISO(v.birthDate) ?? "", new Date()), {
+    path: ["birthDate"],
+    message: "Confira o ano de nascimento",
+  })
+  .refine((v) => v.playsAs !== "OUTFIELD" || v.primaryPosition !== null, {
+    path: ["primaryPosition"],
+    message: "Escolha sua posição principal",
   })
   .refine(isValidPositionSet, {
     path: ["secondaryPosition"],

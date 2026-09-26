@@ -2,9 +2,8 @@ import { useRef } from "react";
 import { Control, useWatch } from "react-hook-form";
 import { StyleSheet, TextInput, View } from "react-native";
 import { FormInput, Text, TInputStatus } from "@/ui/components";
-import { useDebouncedValue } from "@/ui/hooks/use-debounced-value";
 import { theme } from "@/ui/theme";
-import { useUsernameAvailable } from "../../../hooks/use-username-available";
+import { useAvailability } from "../../../hooks/use-availability";
 import { TSignUpFormInput } from "../sign-up-schema";
 
 export const StepAccount = ({
@@ -12,13 +11,15 @@ export const StepAccount = ({
 }: {
   control: Control<TSignUpFormInput>;
 }) => {
-  const username = useWatch({ control, name: "username" });
-  // espera parar de digitar: sem isso é uma requisição por tecla
-  const debouncedUsername = useDebouncedValue(username ?? "", 400);
-  const { isChecking, isAvailable } = useUsernameAvailable(debouncedUsername);
   const displayNameRef = useRef<TextInput>(null);
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
+
+  const username = useWatch({ control, name: "username" });
+  const email = useWatch({ control, name: "email" });
+
+  const usernameCheck = useAvailability("username", username ?? "");
+  const emailCheck = useAvailability("email", email ?? "");
 
   return (
     <View style={styles.step}>
@@ -32,7 +33,7 @@ export const StepAccount = ({
         label="Nome de usuário"
         preset="username"
         placeholder="zepequeno"
-        status={usernameStatus(isChecking, isAvailable)}
+        status={availabilityStatus(usernameCheck)}
         next={displayNameRef}
       />
       <FormInput
@@ -50,6 +51,7 @@ export const StepAccount = ({
         label="E-mail"
         preset="email"
         placeholder="ze.pequeno@email.com"
+        status={availabilityStatus(emailCheck)}
         next={passwordRef}
       />
       <FormInput
@@ -65,11 +67,13 @@ export const StepAccount = ({
   );
 };
 
-/** Erro de formato é do schema; aqui só o resultado da consulta. */
-function usernameStatus(
-  isChecking: boolean,
-  isAvailable: boolean | null
-): TInputStatus | undefined {
+function availabilityStatus({
+  isChecking,
+  isAvailable,
+}: {
+  isChecking: boolean;
+  isAvailable: boolean | null;
+}): TInputStatus | undefined {
   if (isChecking) return "checking";
   if (isAvailable === true) return "valid";
   if (isAvailable === false) return "invalid";

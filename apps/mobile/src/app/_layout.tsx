@@ -3,6 +3,7 @@ import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { queryClient } from "@/lib/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ToastProvider } from "@/ui/components";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,7 +23,9 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }} />
+      <ToastProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </ToastProvider>
     </QueryClientProvider>
   );
 }

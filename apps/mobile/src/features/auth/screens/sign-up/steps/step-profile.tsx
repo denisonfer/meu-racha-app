@@ -26,7 +26,7 @@ export const StepProfile = ({
   const primaryPosition = useWatch({ control, name: "primaryPosition" });
 
   const isOutfield = playsAs === "OUTFIELD";
-  // COR (ANY) joga em qualquer camada, então não tem secundária (regra do domínio)
+
   const needsSecondary =
     isOutfield && primaryPosition && primaryPosition !== "ANY";
 

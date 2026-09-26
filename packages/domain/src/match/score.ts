@@ -45,7 +45,11 @@ export function score(match: LiveMatch): Score {
  * É o que permite usar a mesma função no palpite otimista de quem registrou
  * e na chegada do broadcast, sem contar o Gol duas vezes.
  */
-export function applyGoal(match: LiveMatch, goal: Goal, seq: number): LiveMatch {
+export function applyGoal(
+  match: LiveMatch,
+  goal: Goal,
+  seq: number
+): LiveMatch {
   if (match.goals.some((g) => g.id === goal.id)) return match;
   return { ...match, seq, goals: [...match.goals, goal] };
 }

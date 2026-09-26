@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { isOldEnough, isRealDate, isValidPositionSet } from "./rules";
+import {
+  DISPLAY_NAME_PATTERN,
+  hasLetter,
+  isNotTooOld,
+  isOldEnough,
+  isRealDate,
+  isValidPositionSet,
+} from "./rules";
 
 const hoje = new Date("2026-03-15T12:00:00Z");
 
@@ -91,5 +98,57 @@ describe("isValidPositionSet", () => {
         secondaryPosition: "ANY",
       })
     ).toBe(false);
+  });
+});
+
+describe("hasLetter", () => {
+  test("recusa username só com número ou símbolo", () => {
+    expect(hasLetter("1234")).toBe(false);
+    expect(hasLetter("___")).toBe(false);
+    expect(hasLetter("")).toBe(false);
+  });
+
+  test("aceita username com letra", () => {
+    expect(hasLetter("ze10")).toBe(true);
+    expect(hasLetter("zepequeno")).toBe(true);
+  });
+});
+
+describe("DISPLAY_NAME_PATTERN", () => {
+  test("aceita nome de gente", () => {
+    for (const name of [
+      "Zé",
+      "José Pequeno",
+      "D'Angelo",
+      "Jean-Pierre",
+      "J. Silva",
+      "Müller",
+    ]) {
+      expect(DISPLAY_NAME_PATTERN.test(name)).toBe(true);
+    }
+  });
+
+  test("recusa número e símbolo", () => {
+    for (const name of [
+      "1234",
+      "1234a",
+      "!@#$%a",
+      "a!@#",
+      "Zé10",
+      "123 Silva",
+    ]) {
+      expect(DISPLAY_NAME_PATTERN.test(name)).toBe(false);
+    }
+  });
+});
+
+describe("isNotTooOld", () => {
+  test("01/03/1000 não é data de nascimento", () => {
+    expect(isNotTooOld("1000-03-01", hoje)).toBe(false);
+  });
+
+  test("90 anos passa, 91 não", () => {
+    expect(isNotTooOld("1936-03-15", hoje)).toBe(true);
+    expect(isNotTooOld("1935-03-15", hoje)).toBe(false);
   });
 });

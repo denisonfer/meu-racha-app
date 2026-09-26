@@ -32,6 +32,12 @@ module.exports = defineConfig([
           ],
           paths: [
             {
+              // o cliente montado é tão fronteira quanto o SDK: uma porta por
+              // feature, que é o <feature>-api.ts
+              name: "@/lib/supabase",
+              message: "Só o <feature>-api.ts fala com o Supabase.",
+            },
+            {
               name: "react-native",
               importNames: ["Text"],
               message: "Use o Text de @/ui/components.",

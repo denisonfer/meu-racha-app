@@ -1,22 +1,13 @@
 import { useRef } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { router } from "expo-router";
 import { StyleSheet, TextInput, View } from "react-native";
 import { Button, FormInput, LogoLockup, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
-import { useSignIn } from "../../hooks/use-sign-in";
-import { signInSchema, TSignInForm } from "./sign-in-schema";
+import { useSignInScreen } from "./use-sign-in-screen";
 
 export const SignInScreen = () => {
-  const { signIn, isPending, error } = useSignIn();
+  const { control, isPending, submit, navigateToSignUp } = useSignInScreen();
 
   const passwordRef = useRef<TextInput>(null);
-  const { control, handleSubmit } = useForm<TSignInForm>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: { username: "", password: "" },
-    mode: "onBlur",
-  });
 
   return (
     <Screen>
@@ -45,7 +36,7 @@ export const SignInScreen = () => {
           preset="password"
           placeholder="sua senha"
           returnKeyType="go"
-          onSubmitEditing={handleSubmit((values) => signIn(values))}
+          onSubmitEditing={submit}
         />
 
         <Button
@@ -54,20 +45,10 @@ export const SignInScreen = () => {
           onPress={() => {}}
           style={{ alignSelf: "flex-end" }}
         />
-
-        {error ? (
-          <Text preset="small" color="danger" accessibilityLiveRegion="polite">
-            {error}
-          </Text>
-        ) : null}
       </View>
 
       <View style={styles.footer}>
-        <Button
-          title="Entrar"
-          isLoading={isPending}
-          onPress={handleSubmit((values) => signIn(values))}
-        />
+        <Button title="Entrar" isLoading={isPending} onPress={submit} />
         <View style={styles.footerLink}>
           <Text preset="small" color="muted">
             Não tem uma conta?
@@ -75,7 +56,7 @@ export const SignInScreen = () => {
           <Button
             title="Criar conta"
             preset="text"
-            onPress={() => router.push("/sign-up")}
+            onPress={navigateToSignUp}
           />
         </View>
       </View>

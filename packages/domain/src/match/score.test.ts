@@ -22,7 +22,11 @@ describe("score", () => {
   });
 
   test("conta Gol de cada lado", () => {
-    const m = applyGoal(applyGoal(match, goal("g1", "verde"), 2), goal("g2", "preto"), 3);
+    const m = applyGoal(
+      applyGoal(match, goal("g1", "verde"), 2),
+      goal("g2", "preto"),
+      3
+    );
     expect(score(m)).toEqual({ home: 1, away: 1 });
   });
 });

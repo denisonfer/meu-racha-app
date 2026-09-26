@@ -10,3 +10,4 @@ export * from "./step-indicator";
 export * from "./text-link";
 export * from "./screen-footer";
 export * from "./icon";
+export * from "./toast/toast";
