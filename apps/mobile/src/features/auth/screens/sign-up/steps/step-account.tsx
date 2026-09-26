@@ -11,14 +11,11 @@ export const StepAccount = ({
 }: {
   control: Control<TSignUpFormInput>;
 }) => {
-  const displayNameRef = useRef<TextInput>(null);
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
 
-  const username = useWatch({ control, name: "username" });
   const email = useWatch({ control, name: "email" });
 
-  const usernameCheck = useAvailability("username", username ?? "");
   const emailCheck = useAvailability("email", email ?? "");
 
   return (
@@ -29,18 +26,8 @@ export const StepAccount = ({
 
       <FormInput
         control={control}
-        name="username"
-        label="Nome de usuário"
-        preset="username"
-        placeholder="zepequeno"
-        status={availabilityStatus(usernameCheck)}
-        next={displayNameRef}
-      />
-      <FormInput
-        ref={displayNameRef}
-        control={control}
         name="displayName"
-        label="Nome"
+        label="Como te chamam no racha"
         placeholder="José Pequeno"
         next={emailRef}
       />

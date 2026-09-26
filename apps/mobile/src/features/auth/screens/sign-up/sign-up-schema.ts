@@ -3,13 +3,11 @@ import {
   DISPLAY_NAME_MIN,
   DISPLAY_NAME_PATTERN,
   dateMaskToISO,
-  hasLetter,
   isNotTooOld,
   isOldEnough,
   isRealDate,
   isValidPositionSet,
   MIN_AGE,
-  USERNAME_PATTERN,
 } from "@meu-racha/domain";
 import { z } from "zod";
 
@@ -18,12 +16,6 @@ const POSITIONS = ["ANY", "DEFENDER", "MIDFIELDER", "FORWARD"] as const;
 export const signUpSchema = z
   .object({
     // etapa 1
-    username: z
-      .string()
-      .trim()
-      .toLowerCase()
-      .regex(USERNAME_PATTERN, "Use de 3 a 20 letras minúsculas, números e _")
-      .refine(hasLetter, "Use ao menos uma letra"),
     displayName: z
       .string()
       .trim()
@@ -72,7 +64,7 @@ export type TSignUpFormInput = z.input<typeof signUpSchema>;
 export type TSignUpForm = z.output<typeof signUpSchema>;
 
 export const stepFields = [
-  ["username", "displayName", "email", "password"],
+  ["displayName", "email", "password"],
   ["playsAs", "primaryPosition", "secondaryPosition"],
   ["birthDate", "acceptedTerms"],
 ] as const satisfies readonly (readonly (keyof TSignUpForm)[])[];

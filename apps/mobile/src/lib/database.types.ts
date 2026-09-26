@@ -46,7 +46,6 @@ export type Database = {
           primary_position: Database["public"]["Enums"]["position"] | null;
           secondary_position: Database["public"]["Enums"]["position"] | null;
           terms_accepted_at: string;
-          username: string;
         };
         Insert: {
           anonymized_at?: string | null;
@@ -59,7 +58,6 @@ export type Database = {
           primary_position?: Database["public"]["Enums"]["position"] | null;
           secondary_position?: Database["public"]["Enums"]["position"] | null;
           terms_accepted_at: string;
-          username: string;
         };
         Update: {
           anonymized_at?: string | null;
@@ -72,7 +70,6 @@ export type Database = {
           primary_position?: Database["public"]["Enums"]["position"] | null;
           secondary_position?: Database["public"]["Enums"]["position"] | null;
           terms_accepted_at?: string;
-          username?: string;
         };
         Relationships: [];
       };
@@ -82,7 +79,6 @@ export type Database = {
     };
     Functions: {
       email_available: { Args: { p_email: string }; Returns: boolean };
-      username_available: { Args: { p_username: string }; Returns: boolean };
     };
     Enums: {
       plays_as: "OUTFIELD" | "GOALKEEPER";

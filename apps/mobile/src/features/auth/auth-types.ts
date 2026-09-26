@@ -3,7 +3,6 @@ import type { TPlaysAs, TPosition } from "@meu-racha/domain";
 export type TSignUpInput = {
   email: string;
   password: string;
-  username: string;
   displayName: string;
   birthDate: string; // "1991-01-01"
   playsAs: TPlaysAs;
@@ -12,6 +11,11 @@ export type TSignUpInput = {
 };
 
 export type TSignInInput = {
-  username: string;
+  email: string;
   password: string;
+};
+
+export type TSession = {
+  userId: string;
+  email: string;
 };

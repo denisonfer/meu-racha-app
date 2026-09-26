@@ -9,7 +9,7 @@ export function useSignInScreen() {
 
   const { control, handleSubmit } = useForm<TSignInForm>({
     resolver: zodResolver(signInSchema),
-    defaultValues: { username: "", password: "" },
+    defaultValues: { email: "", password: "" },
     mode: "onBlur",
   });
 

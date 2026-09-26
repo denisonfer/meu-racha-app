@@ -18,22 +18,17 @@ import {
 import { applyDateMask } from "@meu-racha/domain";
 
 const presetConfig: Record<TInputPreset, TPresetConfig> = {
-  text: {},
+  text: {
+    autoCapitalize: "sentences",
+  },
   email: {
     keyboardType: "email-address",
     autoCapitalize: "none",
     autoComplete: "email",
     autoCorrect: false,
   },
-  username: {
-    autoCapitalize: "none",
-    autoComplete: "username",
-    autoCorrect: false,
-    maxLength: 20,
-  },
   password: {
     autoCapitalize: "none",
-    autoComplete: "new-password",
     autoCorrect: false,
     secureTextEntry: true,
   },
@@ -174,7 +169,6 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    paddingVertical: theme.space[8],
     color: theme.colors.foreground,
     ...theme.text.body,
   },

@@ -1,6 +1,8 @@
+import type { Session } from "@supabase/supabase-js";
 import { dateMaskToISO } from "@meu-racha/domain";
+import { isAuthRetryableFetchError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
-import { TSignInInput, TSignUpInput } from "./auth-types";
+import { TSession, TSignInInput, TSignUpInput } from "./auth-types";
 
 async function signUp(input: TSignUpInput) {
   const { data, error } = await supabase.auth.signUp({
@@ -8,7 +10,6 @@ async function signUp(input: TSignUpInput) {
     password: input.password,
     options: {
       data: {
-        username: input.username,
         display_name: input.displayName,
         birth_date: dateMaskToISO(input.birthDate) ?? input.birthDate,
         plays_as: input.playsAs,
@@ -23,28 +24,10 @@ async function signUp(input: TSignUpInput) {
 }
 
 async function signIn(input: TSignInInput) {
-  const { data, error } = await supabase.functions.invoke<{
-    access_token: string;
-    refresh_token: string;
-  }>("sign-in", { body: input });
+  const { error } = await supabase.auth.signInWithPassword(input);
 
-  if (error || !data) throw new Error("invalid_credentials");
-
-  const { error: sessionError } = await supabase.auth.setSession({
-    access_token: data.access_token,
-    refresh_token: data.refresh_token,
-  });
-
-  if (sessionError) throw new Error("session_failed");
-}
-
-async function checkUsernameAvailable(username: string) {
-  const { data, error } = await supabase.rpc("username_available", {
-    p_username: username,
-  });
-
+  if (isAuthRetryableFetchError(error)) throw new Error("network_error");
   if (error) throw error;
-  return data === true;
 }
 
 async function checkEmailAvailable(email: string) {
@@ -56,9 +39,26 @@ async function checkEmailAvailable(email: string) {
   return data === true;
 }
 
+const toSession = (session: Session | null): TSession | null =>
+  session ? { userId: session.user.id, email: session.user.email ?? "" } : null;
+
+function onSessionChange(listener: (session: TSession | null) => void) {
+  const { data } = supabase.auth.onAuthStateChange((_event, session) =>
+    listener(toSession(session))
+  );
+
+  return () => data.subscription.unsubscribe();
+}
+
+async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
 export const authApi = {
   signUp,
   signIn,
-  checkUsernameAvailable,
   checkEmailAvailable,
+  onSessionChange,
+  signOut,
 };

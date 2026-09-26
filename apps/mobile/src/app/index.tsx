@@ -1,5 +1,10 @@
 import { Redirect } from "expo-router";
+import { useSession } from "@/features/auth";
 
 export default function Index() {
-  return <Redirect href="/sign-in" />;
+  const { session, isLoading } = useSession();
+
+  if (isLoading) return null;
+
+  return <Redirect href={session ? "/home" : "/sign-in"} />;
 }

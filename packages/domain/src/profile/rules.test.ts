@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
   DISPLAY_NAME_PATTERN,
-  hasLetter,
   isNotTooOld,
   isOldEnough,
   isRealDate,
@@ -98,19 +97,6 @@ describe("isValidPositionSet", () => {
         secondaryPosition: "ANY",
       })
     ).toBe(false);
-  });
-});
-
-describe("hasLetter", () => {
-  test("recusa username só com número ou símbolo", () => {
-    expect(hasLetter("1234")).toBe(false);
-    expect(hasLetter("___")).toBe(false);
-    expect(hasLetter("")).toBe(false);
-  });
-
-  test("aceita username com letra", () => {
-    expect(hasLetter("ze10")).toBe(true);
-    expect(hasLetter("zepequeno")).toBe(true);
   });
 });
 

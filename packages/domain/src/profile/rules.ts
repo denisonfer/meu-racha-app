@@ -4,7 +4,6 @@ export const MIN_AGE = 16;
 export const MAX_AGE = 90;
 export const DISPLAY_NAME_MIN = 2;
 export const DISPLAY_NAME_MAX = 40;
-export const USERNAME_PATTERN = /^[a-z0-9_]{3,20}$/;
 
 export function isOldEnough(birthDateISO: string, today: Date): boolean {
   const birth = new Date(birthDateISO);
@@ -46,10 +45,6 @@ export function isValidPositionSet(p: {
     p.secondaryPosition !== "ANY" &&
     p.secondaryPosition !== p.primaryPosition
   );
-}
-
-export function hasLetter(value: string): boolean {
-  return /[a-zA-ZÀ-ÖØ-öø-ÿ]/.test(value);
 }
 
 export const DISPLAY_NAME_PATTERN = /^[a-zA-ZÀ-ÖØ-öø-ÿ][a-zA-ZÀ-ÖØ-öø-ÿ '.-]*$/;

@@ -1,8 +1,7 @@
 import { TextInput, TextInputProps } from "react-native";
 import { Ref, RefObject } from "react";
 
-export type TInputPreset =
-  "text" | "email" | "username" | "password" | "numeric" | "date";
+export type TInputPreset = "text" | "email" | "password" | "numeric" | "date";
 
 export type TInputStatus = "checking" | "valid" | "invalid";
 

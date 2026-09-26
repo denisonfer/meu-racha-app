@@ -21,10 +21,10 @@ export const SignInScreen = () => {
       <View style={styles.form}>
         <FormInput
           control={control}
-          name="username"
-          label="Username"
-          preset="username"
-          placeholder="seu_username"
+          name="email"
+          label="E-mail"
+          preset="email"
+          placeholder="ze.pequeno@email.com"
           next={passwordRef}
         />
 

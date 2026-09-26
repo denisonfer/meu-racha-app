@@ -39,8 +39,6 @@ export const Header = ({
             styles.goBackButton,
           ]}
         >
-          {/* o chevron aparece sempre: sem ele o Pressable fica sem conteúdo
-              (e sem área de toque) quando a tela tem título */}
           <Icon name="back" size={24} />
           {isVisibleLabelGoBack ? <Text>Voltar</Text> : null}
         </Pressable>
@@ -63,6 +61,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: theme.space[16],
+    paddingHorizontal: theme.space[16],
   },
   goBackButton: {
     flexDirection: "row",

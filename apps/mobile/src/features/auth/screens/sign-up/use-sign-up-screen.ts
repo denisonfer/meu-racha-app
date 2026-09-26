@@ -23,7 +23,6 @@ export function useSignUpScreen() {
     useForm<TSignUpFormInput, unknown, TSignUpForm>({
       resolver: zodResolver(signUpSchema),
       defaultValues: {
-        username: "",
         displayName: "",
         email: "",
         password: "",

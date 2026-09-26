@@ -1,4 +1,3 @@
-import { USERNAME_PATTERN } from "@meu-racha/domain";
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { authApi } from "../auth-api";
@@ -6,11 +5,6 @@ import { authApi } from "../auth-api";
 const normalize = (value: string) => value.trim().toLowerCase();
 
 const checks = {
-  username: {
-    isAskable: (value: string) => USERNAME_PATTERN.test(value),
-    ask: authApi.checkUsernameAvailable,
-    takenMessage: "Esse username já está em uso",
-  },
   email: {
     isAskable: (value: string) => z.email().safeParse(value).success,
     ask: authApi.checkEmailAvailable,

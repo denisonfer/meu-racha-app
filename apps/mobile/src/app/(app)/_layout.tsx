@@ -1,13 +1,11 @@
 import { Redirect, Stack } from "expo-router";
 import { useSession } from "@/features/auth";
 
-export default function AuthLayout() {
+export default function AppLayout() {
   const { session, isLoading } = useSession();
 
   if (isLoading) return null;
-  // é isto que tira a pessoa do cadastro quando a conta é criada: o signUp já
-  // devolve sessão, então não há mais o que fazer aqui
-  if (session) return <Redirect href="/home" />;
+  if (!session) return <Redirect href="/sign-in" />;
 
   return <Stack screenOptions={{ headerShown: false }} />;
 }

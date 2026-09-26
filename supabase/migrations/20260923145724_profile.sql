@@ -8,7 +8,6 @@ create type public.position as enum ('ANY', 'DEFENDER', 'MIDFIELDER', 'FORWARD')
 
 create table public.profile (
   id uuid primary key references auth.users (id) on delete cascade,
-  username text not null unique,
   display_name text not null,
   avatar_url text,
   birth_date date not null,
