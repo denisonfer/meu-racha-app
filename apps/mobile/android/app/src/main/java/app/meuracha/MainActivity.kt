@@ -1,4 +1,4 @@
-package com.meurachaapp
+package app.meuracha
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

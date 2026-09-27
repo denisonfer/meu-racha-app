@@ -27,8 +27,8 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>meurachaapp</string>
-				<string>com.meu-racha-app</string>
+				<string>meuracha</string>
+				<string>app.meuracha</string>
 			</array>
 		</dict>
 	</array>
