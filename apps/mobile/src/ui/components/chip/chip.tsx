@@ -28,7 +28,11 @@ export const Chip = ({
         },
       ]}
     >
-      <Text preset="small" color={isSelected ? "onAction" : "foreground"}>
+      <Text
+        preset="small"
+        color={isSelected ? "onAction" : "foreground"}
+        style={styles.text}
+      >
         {label}
       </Text>
     </Pressable>
@@ -46,5 +50,8 @@ const styles = StyleSheet.create({
   fullWidth: {
     flex: 1,
     alignItems: "center",
+  },
+  text: {
+    fontWeight: "bold",
   },
 });
