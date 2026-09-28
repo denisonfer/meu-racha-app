@@ -4,6 +4,7 @@ export const MIN_AGE = 16;
 export const MAX_AGE = 90;
 export const DISPLAY_NAME_MIN = 2;
 export const DISPLAY_NAME_MAX = 40;
+export const PASSWORD_MIN = 8;
 
 export function isOldEnough(birthDateISO: string, today: Date): boolean {
   const birth = new Date(birthDateISO);

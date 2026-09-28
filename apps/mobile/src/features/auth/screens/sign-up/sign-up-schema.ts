@@ -8,6 +8,7 @@ import {
   isRealDate,
   isValidPositionSet,
   MIN_AGE,
+  PASSWORD_MIN,
 } from "@meu-racha/domain";
 import { z } from "zod";
 
@@ -23,7 +24,9 @@ export const signUpSchema = z
       .max(DISPLAY_NAME_MAX, `No máximo ${DISPLAY_NAME_MAX} caracteres`)
       .regex(DISPLAY_NAME_PATTERN, "Use seu nome, sem números nem símbolos"),
     email: z.email("E-mail inválido"),
-    password: z.string().min(8, "Mínimo de 8 caracteres"),
+    password: z
+      .string()
+      .min(PASSWORD_MIN, `Mínimo de ${PASSWORD_MIN} caracteres`),
 
     // etapa 2
     playsAs: z.enum(["OUTFIELD", "GOALKEEPER"]),

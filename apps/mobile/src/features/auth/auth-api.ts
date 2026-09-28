@@ -1,4 +1,4 @@
-import type { Session } from "@supabase/supabase-js";
+import type { AuthError, Session } from "@supabase/supabase-js";
 import { dateMaskToISO } from "@meu-racha/domain";
 import { isAuthRetryableFetchError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -55,10 +55,45 @@ async function signOut() {
   if (error) throw error;
 }
 
+function toCodedError(error: AuthError): Error {
+  if (isAuthRetryableFetchError(error)) return new Error("network_error");
+  return new Error(error.code ?? error.message);
+}
+
+async function requestPasswordReset(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+  if (error?.code === "over_email_send_rate_limit") return;
+  if (error) throw toCodedError(error);
+}
+
+async function verifyRecoveryLink(tokenHash: string) {
+  const { error } = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: "recovery",
+  });
+
+  if (error) throw toCodedError(error);
+}
+
+async function changePassword(password: string) {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw toCodedError(error);
+}
+
+async function signOutOtherSessions() {
+  const { error } = await supabase.auth.signOut({ scope: "others" });
+  if (error) throw toCodedError(error);
+}
+
 export const authApi = {
   signUp,
   signIn,
   checkEmailAvailable,
   onSessionChange,
   signOut,
+  requestPasswordReset,
+  verifyRecoveryLink,
+  changePassword,
+  signOutOtherSessions,
 };

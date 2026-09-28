@@ -1,3 +1,5 @@
+import { PASSWORD_MIN } from "@meu-racha/domain";
+
 /**
  * Erro cru do backend → recado para a pessoa. Todo pt-BR de erro de auth mora
  * aqui; a api fala em código, a tela fala em português.
@@ -18,4 +20,22 @@ export function signInErrorMessage(raw: string): string {
     return "Sem conexão. Verifique a internet e tente de novo.";
 
   return "E-mail ou senha inválidos.";
+}
+
+export function requestResetErrorMessage(raw: string): string {
+  if (raw.includes("network_error"))
+    return "Sem conexão. Verifique a internet e tente de novo.";
+
+  return "Não foi possível enviar o link. Tente de novo.";
+}
+
+export function changePasswordErrorMessage(raw: string): string {
+  if (raw.includes("network_error"))
+    return "Sem conexão. Verifique a internet e tente de novo.";
+  if (raw.includes("same_password"))
+    return "A nova senha precisa ser diferente da anterior.";
+  if (raw.includes("weak_password"))
+    return `Mínimo de ${PASSWORD_MIN} caracteres.`;
+
+  return "Não foi possível trocar a senha. Tente de novo.";
 }

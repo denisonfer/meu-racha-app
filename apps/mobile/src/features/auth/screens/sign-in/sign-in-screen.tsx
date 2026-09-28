@@ -5,7 +5,13 @@ import { theme } from "@/ui/theme";
 import { useSignInScreen } from "./use-sign-in-screen";
 
 export const SignInScreen = () => {
-  const { control, isPending, submit, navigateToSignUp } = useSignInScreen();
+  const {
+    control,
+    isPending,
+    submit,
+    navigateToSignUp,
+    navigateToForgotPassword,
+  } = useSignInScreen();
 
   const passwordRef = useRef<TextInput>(null);
 
@@ -42,7 +48,7 @@ export const SignInScreen = () => {
         <Button
           title="Esqueci minha senha"
           preset="text"
-          onPress={() => {}}
+          onPress={navigateToForgotPassword}
           style={{ alignSelf: "flex-end" }}
         />
       </View>
