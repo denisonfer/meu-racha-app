@@ -41,6 +41,14 @@
             "./assets/fonts/BarlowCondensed-Bold.ttf"
           ]
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Meu Racha usa suas fotos para você escolher a foto da sua carta.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

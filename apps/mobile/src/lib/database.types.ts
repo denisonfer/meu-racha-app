@@ -37,7 +37,7 @@ export type Database = {
       profile: {
         Row: {
           anonymized_at: string | null;
-          avatar_url: string | null;
+          avatar_path: string | null;
           birth_date: string;
           created_at: string;
           display_name: string;
@@ -49,7 +49,7 @@ export type Database = {
         };
         Insert: {
           anonymized_at?: string | null;
-          avatar_url?: string | null;
+          avatar_path?: string | null;
           birth_date: string;
           created_at?: string;
           display_name: string;
@@ -61,7 +61,7 @@ export type Database = {
         };
         Update: {
           anonymized_at?: string | null;
-          avatar_url?: string | null;
+          avatar_path?: string | null;
           birth_date?: string;
           created_at?: string;
           display_name?: string;

@@ -1,10 +1,11 @@
 import { TPosition } from "@meu-racha/domain";
 import { Control, useWatch } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
-import { FormChipGroup, PlayerCard, Text } from "@/ui/components";
+import { Button, FormChipGroup, PlayerCard, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { TSignUpFormInput } from "../sign-up-schema";
 import { useCardPreview } from "./use-card-preview";
+import { usePhotoPicker } from "./use-photo-picker";
 
 const PLAYS_AS_OPTIONS = [
   { value: "OUTFIELD" as const, label: "Linha" },
@@ -26,6 +27,7 @@ export const StepProfile = ({
   const playsAs = useWatch({ control, name: "playsAs" });
   const primaryPosition = useWatch({ control, name: "primaryPosition" });
   const cardPreview = useCardPreview(control);
+  const photo = usePhotoPicker(control);
 
   const isOutfield = playsAs === "OUTFIELD";
 
@@ -40,10 +42,17 @@ export const StepProfile = ({
 
       <View style={styles.preview}>
         <PlayerCard width={196} {...cardPreview} />
-        <Text preset="small" color="muted" style={styles.previewNote}>
-          Todo mundo começa em 40, na Cria da Base.{"\n"}Os números são de
-          exemplo.
-        </Text>
+        <Button
+          title={photo.hasPhoto ? "Trocar foto" : "Adicionar foto (opcional)"}
+          preset="text"
+          isLoading={photo.isPicking}
+          onPress={photo.pick}
+        />
+        {photo.error ? (
+          <Text preset="small" color="danger" style={styles.previewNote}>
+            {photo.error}
+          </Text>
+        ) : null}
       </View>
 
       <FormChipGroup

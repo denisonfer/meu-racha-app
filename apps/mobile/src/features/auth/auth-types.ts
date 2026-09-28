@@ -1,4 +1,5 @@
 import type { TPlaysAs, TPosition } from "@meu-racha/domain";
+import type { TPickedImage } from "@/lib/image-picker";
 
 export type TSignUpInput = {
   email: string;
@@ -8,6 +9,7 @@ export type TSignUpInput = {
   playsAs: TPlaysAs;
   primaryPosition: TPosition | null;
   secondaryPosition: TPosition | null;
+  photo: TPickedImage | null;
 };
 
 export type TSignInInput = {

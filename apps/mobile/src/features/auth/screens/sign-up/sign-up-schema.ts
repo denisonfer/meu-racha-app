@@ -11,6 +11,7 @@ import {
   PASSWORD_MIN,
 } from "@meu-racha/domain";
 import { z } from "zod";
+import type { TPickedImage } from "@/lib/image-picker";
 
 const POSITIONS = ["ANY", "DEFENDER", "MIDFIELDER", "FORWARD"] as const;
 
@@ -32,6 +33,7 @@ export const signUpSchema = z
     playsAs: z.enum(["OUTFIELD", "GOALKEEPER"]),
     primaryPosition: z.enum(POSITIONS).nullable(),
     secondaryPosition: z.enum(POSITIONS).nullable(),
+    photo: z.custom<TPickedImage>().nullable(),
 
     // etapa 3 — guardamos o texto mascarado que a pessoa vê
     birthDate: z

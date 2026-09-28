@@ -1,10 +1,13 @@
 import type { AuthError, Session } from "@supabase/supabase-js";
 import { dateMaskToISO } from "@meu-racha/domain";
 import { isAuthRetryableFetchError } from "@supabase/supabase-js";
+import type { TPickedImage } from "@/lib/image-picker";
 import { supabase } from "@/lib/supabase";
 import { TSession, TSignInInput, TSignUpInput } from "./auth-types";
 
-async function signUp(input: TSignUpInput) {
+const AVATAR_BUCKET = "avatars";
+
+async function signUp(input: Omit<TSignUpInput, "photo">) {
   const { data, error } = await supabase.auth.signUp({
     email: input.email,
     password: input.password,
@@ -21,6 +24,24 @@ async function signUp(input: TSignUpInput) {
 
   if (error) throw error;
   return data.user;
+}
+
+async function uploadAvatar(userId: string, image: TPickedImage) {
+  const path = `${userId}/${Date.now()}.jpg`;
+  const body = await (await fetch(image.uri)).arrayBuffer();
+
+  const { error: uploadError } = await supabase.storage
+    .from(AVATAR_BUCKET)
+    .upload(path, body, { contentType: image.mimeType });
+  if (uploadError) throw uploadError;
+
+  const { error } = await supabase
+    .from("profile")
+    .update({ avatar_path: path })
+    .eq("id", userId)
+    .select("id")
+    .single();
+  if (error) throw error;
 }
 
 async function signIn(input: TSignInInput) {
@@ -88,6 +109,7 @@ async function signOutOtherSessions() {
 
 export const authApi = {
   signUp,
+  uploadAvatar,
   signIn,
   checkEmailAvailable,
   onSessionChange,

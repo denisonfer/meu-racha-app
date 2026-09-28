@@ -29,6 +29,7 @@ export function useSignUpScreen() {
         playsAs: "OUTFIELD",
         primaryPosition: null,
         secondaryPosition: null,
+        photo: null,
         birthDate: "",
         acceptedTerms: false,
       },

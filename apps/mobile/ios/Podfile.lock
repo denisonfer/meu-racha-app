@@ -41,6 +41,10 @@ PODS:
     - ExpoModulesCore
   - ExpoImage (57.0.5):
     - ExpoModulesCore
+  - ExpoImageManipulator (57.0.20):
+    - ExpoModulesCore
+  - ExpoImagePicker (57.0.20):
+    - ExpoModulesCore
   - ExpoKeepAwake (57.0.2):
     - ExpoModulesCore
   - ExpoLinking (57.0.10):
@@ -2330,6 +2334,8 @@ DEPENDENCIES:
   - "ExpoFont (from `../../../node_modules/.bun/expo-font@57.0.4+180bd3df5e4f42a6/node_modules/expo-font/ios/ExpoFont.podspec`)"
   - "ExpoGlassEffect (from `../../../node_modules/.bun/expo-glass-effect@57.0.3+180bd3df5e4f42a6/node_modules/expo-glass-effect/ios`)"
   - "ExpoImage (from `../../../node_modules/.bun/expo-image@57.0.5+180bd3df5e4f42a6/node_modules/expo-image/ios/ExpoImage.podspec`)"
+  - "ExpoImageManipulator (from `../../../node_modules/.bun/expo-image-manipulator@57.0.20+180bd3df5e4f42a6/node_modules/expo-image-manipulator/ios/ExpoImageManipulator.podspec`)"
+  - "ExpoImagePicker (from `../../../node_modules/.bun/expo-image-picker@57.0.20+180bd3df5e4f42a6/node_modules/expo-image-picker/ios`)"
   - "ExpoKeepAwake (from `../../../node_modules/.bun/expo-keep-awake@57.0.2+eb4ac7e61371bf55/node_modules/expo-keep-awake/ios`)"
   - "ExpoLinking (from `../../../node_modules/.bun/expo-linking@57.0.10+180bd3df5e4f42a6/node_modules/expo-linking/ios`)"
   - "ExpoLogBox (from `../../../node_modules/.bun/@expo+log-box@57.0.4+1cc9a5d956d52c68/node_modules/@expo/log-box`)"
@@ -2447,6 +2453,10 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/.bun/expo-glass-effect@57.0.3+180bd3df5e4f42a6/node_modules/expo-glass-effect/ios"
   ExpoImage:
     :podspec: "../../../node_modules/.bun/expo-image@57.0.5+180bd3df5e4f42a6/node_modules/expo-image/ios/ExpoImage.podspec"
+  ExpoImageManipulator:
+    :podspec: "../../../node_modules/.bun/expo-image-manipulator@57.0.20+180bd3df5e4f42a6/node_modules/expo-image-manipulator/ios/ExpoImageManipulator.podspec"
+  ExpoImagePicker:
+    :path: "../../../node_modules/.bun/expo-image-picker@57.0.20+180bd3df5e4f42a6/node_modules/expo-image-picker/ios"
   ExpoKeepAwake:
     :path: "../../../node_modules/.bun/expo-keep-awake@57.0.2+eb4ac7e61371bf55/node_modules/expo-keep-awake/ios"
   ExpoLinking:
@@ -2651,6 +2661,8 @@ SPEC CHECKSUMS:
   ExpoFont: f8198a952ba2ff53c9b393b5269ea435f232cfc3
   ExpoGlassEffect: ac454a05346de8610d61dc1324d624893ca22d14
   ExpoImage: abe60c6c68d08d837b2c51fb9e8b6c6e320b9125
+  ExpoImageManipulator: e795a8d623905815a335edda5c967a88e25b5539
+  ExpoImagePicker: 661e13a7616fbcea630cfb9409b7483094978e02
   ExpoKeepAwake: 72af0b3be3615e59bc819d26061ff4e06b155ee0
   ExpoLinking: 15c8ddb0eb4a778950712ea4a6feedf021778852
   ExpoLogBox: 80957303325cd4439137765c90a87d7f22aaf2ff

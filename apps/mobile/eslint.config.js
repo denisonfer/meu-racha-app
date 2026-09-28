@@ -47,6 +47,16 @@ module.exports = defineConfig([
               message:
                 "Use o Icon de @/ui/components. Ícone novo entra no icon-map.ts.",
             },
+            {
+              name: "expo-image-picker",
+              message:
+                "Só src/lib/image-picker.ts conhece a lib. Use pickAvatar.",
+            },
+            {
+              name: "expo-image-manipulator",
+              message:
+                "Só src/lib/image-picker.ts conhece a lib. Use pickAvatar.",
+            },
           ],
         },
       ],
@@ -82,6 +92,16 @@ module.exports = defineConfig([
               message:
                 "Só o icon-map.ts conhece a biblioteca de ícones. Adicione o ícone lá.",
             },
+            {
+              name: "expo-image-picker",
+              message:
+                "Só src/lib/image-picker.ts conhece a lib. Use pickAvatar.",
+            },
+            {
+              name: "expo-image-manipulator",
+              message:
+                "Só src/lib/image-picker.ts conhece a lib. Use pickAvatar.",
+            },
           ],
         },
       ],
@@ -99,6 +119,18 @@ module.exports = defineConfig([
             {
               group: ["@/features/*"],
               message: "ui/ não conhece feature.",
+            },
+          ],
+          paths: [
+            {
+              name: "expo-image-picker",
+              message:
+                "Só src/lib/image-picker.ts conhece a lib. Use pickAvatar.",
+            },
+            {
+              name: "expo-image-manipulator",
+              message:
+                "Só src/lib/image-picker.ts conhece a lib. Use pickAvatar.",
             },
           ],
         },

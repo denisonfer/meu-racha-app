@@ -15,6 +15,11 @@ export function signUpErrorMessage(raw: string): string {
   return "Não foi possível criar a conta. Tente de novo.";
 }
 
+export const PHOTO_PICK_ERROR =
+  "Essa foto é grande demais ou não é um formato aceito. Mantivemos a anterior.";
+export const PHOTO_UPLOAD_WARNING =
+  "Conta criada, mas não deu pra salvar sua foto. Você pode adicionar depois no Perfil.";
+
 export function signInErrorMessage(raw: string): string {
   if (raw.includes("network_error"))
     return "Sem conexão. Verifique a internet e tente de novo.";
