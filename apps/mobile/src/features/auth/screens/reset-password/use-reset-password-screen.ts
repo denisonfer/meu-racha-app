@@ -26,7 +26,7 @@ export function useResetPasswordScreen() {
     isPending,
     submit: handleSubmit((values) =>
       changePassword(values.password, {
-        onSuccess: () => router.replace("/home"),
+        onSuccess: () => router.replace("/rachas"),
       })
     ),
     requestNewLink: () => router.replace("/forgot-password"),

@@ -13,6 +13,7 @@ export const Screen = ({
   canGoBack,
   onGoBack,
   backgroundColor = "background",
+  hasTabBar = false,
   style,
   ...props
 }: TScreenProps) => {
@@ -36,7 +37,7 @@ export const Screen = ({
             styles.screen,
             {
               paddingTop: top,
-              paddingBottom: bottom,
+              paddingBottom: hasTabBar ? 0 : bottom,
             },
             style,
           ]}

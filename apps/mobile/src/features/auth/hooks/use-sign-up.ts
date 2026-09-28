@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/ui/components";
 import { authApi } from "../auth-api";
 import { TSignUpInput } from "../auth-types";
@@ -9,6 +9,7 @@ import {
 
 export function useSignUp() {
   const showToast = useToast();
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async ({ photo, ...input }: TSignUpInput) => {
@@ -22,10 +23,17 @@ export function useSignUp() {
         return { user, isPhotoSaved: false };
       }
     },
-    onSuccess: ({ isPhotoSaved }) =>
-      isPhotoSaved
-        ? showToast("Conta criada. Bem-vindo ao Racha!", "success")
-        : showToast(PHOTO_UPLOAD_WARNING),
+    onSuccess: ({ isPhotoSaved }, { photo }) => {
+      if (isPhotoSaved && photo) {
+        void queryClient.invalidateQueries({ queryKey: ["profile"] });
+      }
+
+      if (isPhotoSaved) {
+        showToast("Conta criada. Bem-vindo ao Racha!", "success");
+      } else {
+        showToast(PHOTO_UPLOAD_WARNING);
+      }
+    },
     onError: (error) => showToast(signUpErrorMessage(error.message)),
   });
 

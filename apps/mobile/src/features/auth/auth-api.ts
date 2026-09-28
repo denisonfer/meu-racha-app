@@ -2,10 +2,9 @@ import type { AuthError, Session } from "@supabase/supabase-js";
 import { dateMaskToISO } from "@meu-racha/domain";
 import { isAuthRetryableFetchError } from "@supabase/supabase-js";
 import type { TPickedImage } from "@/lib/image-picker";
+import { AVATAR_BUCKET } from "@/lib/storage-buckets";
 import { supabase } from "@/lib/supabase";
 import { TSession, TSignInInput, TSignUpInput } from "./auth-types";
-
-const AVATAR_BUCKET = "avatars";
 
 async function signUp(input: Omit<TSignUpInput, "photo">) {
   const { data, error } = await supabase.auth.signUp({

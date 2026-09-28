@@ -11,4 +11,6 @@ export type TScreenProps = ViewProps &
     /** Sobrescreve o voltar padrão — ex.: andar entre etapas de um formulário. */
     onGoBack?: () => void;
     backgroundColor?: TThemeColor;
+    /** Tela dentro das abas: a barra já cobre a área segura de baixo. */
+    hasTabBar?: boolean;
   };
