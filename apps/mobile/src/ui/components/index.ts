@@ -11,3 +11,4 @@ export * from "./text-link";
 export * from "./screen-footer";
 export * from "./icon";
 export * from "./toast/toast";
+export * from "./player-card";

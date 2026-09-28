@@ -1,9 +1,10 @@
 import { TPosition } from "@meu-racha/domain";
 import { Control, useWatch } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
-import { FormChipGroup, Text } from "@/ui/components";
+import { FormChipGroup, PlayerCard, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { TSignUpFormInput } from "../sign-up-schema";
+import { useCardPreview } from "./use-card-preview";
 
 const PLAYS_AS_OPTIONS = [
   { value: "OUTFIELD" as const, label: "Linha" },
@@ -24,6 +25,7 @@ export const StepProfile = ({
 }) => {
   const playsAs = useWatch({ control, name: "playsAs" });
   const primaryPosition = useWatch({ control, name: "primaryPosition" });
+  const cardPreview = useCardPreview(control);
 
   const isOutfield = playsAs === "OUTFIELD";
 
@@ -36,10 +38,11 @@ export const StepProfile = ({
         Sobre você
       </Text>
 
-      {/* TODO: prévia do Card (PlayerCard) entra aqui */}
-      <View style={styles.cardPlaceholder}>
-        <Text preset="small" color="muted">
-          prévia do Card
+      <View style={styles.preview}>
+        <PlayerCard width={196} {...cardPreview} />
+        <Text preset="small" color="muted" style={styles.previewNote}>
+          Todo mundo começa em 40, na Cria da Base.{"\n"}Os números são de
+          exemplo.
         </Text>
       </View>
 
@@ -77,15 +80,6 @@ export const StepProfile = ({
 const styles = StyleSheet.create({
   step: { gap: theme.space[16] },
   title: { textAlign: "center" },
-  cardPlaceholder: {
-    alignSelf: "center",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 160,
-    aspectRatio: 0.72,
-    borderRadius: theme.radius.card,
-    borderWidth: 1,
-    borderStyle: "dashed",
-    borderColor: theme.colors.divider,
-  },
+  preview: { alignItems: "center", gap: theme.space[8] },
+  previewNote: { textAlign: "center" },
 });
