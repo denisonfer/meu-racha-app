@@ -14,6 +14,14 @@ export const theme = {
     success: "#4ADE80", // cor.sucesso dos tokens
     danger: "#EF4444",
     dangerPressed: "#B93333",
+    surfaceRaised: "#1C3527", // cartão em destaque dentro de outra superfície
+    surfaceDisabled: "#0B2014", // fundo de campo desabilitado
+    actionDisabled: "#3C5521", // CTA desabilitado
+    textDisabled: "#616C65",
+    mutedDisabled: "#3F4C44", // borda de controle desabilitado
+    errorText: "#F06F6E", // texto de erro pequeno: o danger puro some no fundo escuro
+    warning: "#F59E0B",
+    warningSurface: "#343D18",
   },
   space: {
     4: 4,
