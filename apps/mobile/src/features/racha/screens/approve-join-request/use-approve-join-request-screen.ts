@@ -102,7 +102,6 @@ export function useApproveJoinRequestScreen() {
       setFailureMessage(null);
       setStars(value);
     },
-    starsWord: stars === 1 ? "Estrela" : "Estrelas",
     isSuperStar,
     setIsSuperStar: (value: boolean) => {
       setFailureMessage(null);
