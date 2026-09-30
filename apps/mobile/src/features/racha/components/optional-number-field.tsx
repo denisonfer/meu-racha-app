@@ -16,8 +16,6 @@ type TOptionalNumberFieldProps = {
   isOptional?: boolean;
 };
 
-// Campo numérico com opção "nenhum valor" (chip) — nasceu da Duração da
-// partida e passou a servir também a Idade mínima do Criar racha.
 export const OptionalNumberField = ({
   label,
   value,

@@ -14,7 +14,6 @@ type TInviteCodeFieldProps = {
   onSubmit?: () => void;
 };
 
-// Um campo só, não 6 caixas: colar o código inteiro tem que funcionar.
 export const InviteCodeField = ({
   value,
   onChange,
@@ -54,16 +53,13 @@ export const InviteCodeField = ({
           autoFocus
           autoCapitalize="characters"
           autoCorrect={false}
-          // sem maxLength: no iOS ele corta o texto colado antes da
-          // normalização ("k7q-2mz" perderia o Z); normalizeInviteCode já
-          // limita em 6
+          // sem maxLength: no iOS ele corta o colado antes da normalização
           returnKeyType="go"
           editable={!isDisabled}
           cursorColor={theme.colors.action}
           selectionColor={theme.colors.action}
           accessibilityLabel="Código do convite"
           accessibilityHint={HINT}
-          // lido letra por letra ("K 7 Q 2 M Z"), não como palavra
           accessibilityValue={{ text: value.split("").join(" ") }}
           style={[styles.input, isDisabled && styles.inputDisabled]}
         />
@@ -107,7 +103,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.muted,
     backgroundColor: theme.colors.surface,
   },
-  // borda de 2: o padding perde 1 pro texto não pular
+  // compensa a borda de 2
   fieldFocused: {
     paddingHorizontal: 18,
     borderWidth: 2,

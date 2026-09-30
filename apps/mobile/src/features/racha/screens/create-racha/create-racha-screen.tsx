@@ -21,7 +21,6 @@ import { OptionalNumberField } from "../../components/optional-number-field";
 import { RulesSection } from "./rules-section";
 import { useCreateRachaScreen } from "./use-create-racha-screen";
 
-// Folga abaixo do input para o hint não ficar atrás do rodapé.
 const FOCUSED_INPUT_GAP = 48;
 
 const useScrollFocusedInput = () => {

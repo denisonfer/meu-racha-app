@@ -5,7 +5,6 @@ import { theme } from "@/ui/theme";
 type TJoinRequestCardProps = {
   rachaName: string;
   isCancelling: boolean;
-  // true enquanto outro pedido está cancelando: nunca há dois em voo
   isCancelDisabled: boolean;
   onCancel: () => void;
 };

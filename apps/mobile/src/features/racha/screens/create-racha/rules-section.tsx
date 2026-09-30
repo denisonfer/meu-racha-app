@@ -195,8 +195,6 @@ export const RulesSection = ({
               onChange={(value) => onChange("matchDurationMin", value)}
               unit="min"
               noneLabel="Sem relógio"
-              // matchDurationMin é number | null no tipo (pode ser "sem
-              // relógio"), mas o valor padrão em si nunca é nulo.
               restoreValue={DEFAULT_RACHA_RULES.matchDurationMin!}
               hint="O app só mostra o relógio. Quem encerra a partida é o organizador."
               error={matchDurationError}

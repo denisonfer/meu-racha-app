@@ -1,9 +1,15 @@
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useRef } from "react";
 import { useToast } from "@/ui/components";
 import { useCancelJoinRequest } from "../../hooks/use-cancel-join-request";
 import { useMyJoinRequests } from "../../hooks/use-my-join-requests";
 import { useMyRachas } from "../../hooks/use-my-rachas";
-import { memberCountLabel } from "../../utils/racha-labels";
+import {
+  ROLE_ACCESSIBILITY_LABEL,
+  memberCountLabel,
+  pendingBadgeLabel,
+  pendingCountLabel,
+} from "../../utils/racha-labels";
 import {
   CANCEL_JOIN_REQUEST_FAILED,
   JOIN_REQUEST_CANCELLED,
@@ -15,10 +21,26 @@ export function useRachasScreen() {
   const { cancelJoinRequest, isCancelling } = useCancelJoinRequest();
   const showToast = useToast();
 
+  // refetch é estável; o objeto do useQuery muda a cada estado e faria loop no foco
+  const { refetch: refetchRachas } = rachasQuery;
+  const { refetch: refetchJoinRequests } = joinRequestsQuery;
+
+  // a aba fica montada: sem isso selo e aprovação não chegam do outro aparelho
+  // o 1º foco é a montagem, que já buscou
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      void refetchRachas();
+      void refetchJoinRequests();
+    }, [refetchRachas, refetchJoinRequests])
+  );
+
   const joinRequests = joinRequestsQuery.data ?? [];
-  // isCancelling só enxerga a última mutation disparada: enquanto um pedido
-  // cancela, os outros cartões ficam com o botão desabilitado — nunca há
-  // dois cancelamentos em voo.
+  // isCancelling só vê a última mutation: um cancelamento por vez
   const isAnyCancelling = joinRequests.some((request) =>
     isCancelling(request.rachaId)
   );
@@ -28,8 +50,6 @@ export function useRachasScreen() {
       await cancelJoinRequest(rachaId);
       showToast(JOIN_REQUEST_CANCELLED, "success");
     } catch (error) {
-      // join_request_not_pending: outro aparelho já resolveu o pedido; o
-      // refetch (onSettled da mutation) tira ou atualiza o cartão sem toast.
       if ((error as Error).message !== "join_request_not_pending") {
         showToast(CANCEL_JOIN_REQUEST_FAILED, "danger");
       }
@@ -37,14 +57,28 @@ export function useRachasScreen() {
   };
 
   return {
-    rachas: (rachasQuery.data ?? []).map((racha) => ({
-      id: racha.id,
-      name: racha.name,
-      role: racha.role,
-      membersLabel: memberCountLabel(racha.memberCount),
-      // Evento só o Dono cria por enquanto; o resto vê o aviso sem botão
-      canCreateEvent: racha.role === "OWNER",
-    })),
+    rachas: (rachasQuery.data ?? []).map((racha) => {
+      const isOwnerOrAdmin = racha.role === "OWNER" || racha.role === "ADMIN";
+      const hasPending = isOwnerOrAdmin && racha.pendingCount > 0;
+      const membersLabel = memberCountLabel(racha.memberCount);
+      const labelParts = [
+        racha.name,
+        ROLE_ACCESSIBILITY_LABEL[racha.role],
+        membersLabel,
+      ];
+      if (hasPending) labelParts.push(pendingCountLabel(racha.pendingCount));
+
+      return {
+        id: racha.id,
+        name: racha.name,
+        role: racha.role,
+        membersLabel,
+        pendingLabel: hasPending ? pendingBadgeLabel(racha.pendingCount) : null,
+        accessibilityLabel: labelParts.join(", "),
+        // Evento só o Dono cria por enquanto; o resto vê o aviso sem botão
+        canCreateEvent: racha.role === "OWNER",
+      };
+    }),
     joinRequests: joinRequests.map((request) => ({
       rachaId: request.rachaId,
       rachaName: request.rachaName,

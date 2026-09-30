@@ -5,7 +5,7 @@ import { TMemberRole } from "../racha-types";
 import { ROLE_LABEL } from "../utils/racha-labels";
 
 export const RoleChip = ({ role }: { role: TMemberRole }) => (
-  <View style={styles.chip}>
+  <View style={[styles.chip, role !== "OWNER" && styles.chipMuted]}>
     <Text preset="caption" style={styles.label}>
       {ROLE_LABEL[role]}
     </Text>
@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.action,
   },
+  chipMuted: { borderColor: theme.colors.muted },
   label: {
     fontFamily: "Manrope-ExtraBold",
     fontSize: 13,

@@ -1,7 +1,8 @@
 import { TThemeColor } from "@/ui/theme";
 import { PressableProps } from "react-native";
 
-export type TButtonPreset = "primary" | "secondary" | "destructive" | "text";
+export type TButtonPreset =
+  "primary" | "secondary" | "destructive" | "text" | "outline";
 
 export type TButtonProps = PressableProps & {
   title: string;
@@ -14,4 +15,5 @@ export type TPresetConfig = {
   backgroundColor: TThemeColor;
   pressedBackgroundColor: TThemeColor;
   titleColor: TThemeColor;
+  borderColor?: TThemeColor;
 };

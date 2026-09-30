@@ -35,3 +35,10 @@ export const REQUEST_JOIN_FAILED =
 export const CANCEL_JOIN_REQUEST_FAILED =
   "Não cancelou o pedido. Toque em Cancelar pedido para tentar de novo.";
 export const JOIN_REQUEST_CANCELLED = "Pedido cancelado.";
+
+export const JOIN_REQUEST_APPROVED = (name: string) =>
+  `${name} entrou no racha.`;
+export const JOIN_REQUEST_REFUSED = "Pedido recusado.";
+export const JOIN_REQUEST_ALREADY_RESOLVED = "Este pedido já foi resolvido.";
+export const JOIN_REQUEST_ACTION_FAILED =
+  "Não deu pra concluir. Confira a internet e tente de novo.";

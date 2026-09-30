@@ -24,6 +24,12 @@ const presetConfig: Record<TButtonPreset, TPresetConfig> = {
     pressedBackgroundColor: "background",
     titleColor: "foreground",
   },
+  outline: {
+    backgroundColor: "background",
+    pressedBackgroundColor: "surface",
+    titleColor: "foreground",
+    borderColor: "muted",
+  },
 };
 
 const disabledConfig: TPresetConfig = {
@@ -41,7 +47,13 @@ export const Button = ({
   ...props
 }: TButtonProps) => {
   const isInactive = isDisabled || isLoading;
-  const config = isDisabled ? disabledConfig : presetConfig[preset];
+
+  const config: TPresetConfig = isDisabled
+    ? {
+        ...disabledConfig,
+        borderColor: preset === "outline" ? "mutedDisabled" : undefined,
+      }
+    : presetConfig[preset];
 
   return (
     <Pressable
@@ -58,6 +70,10 @@ export const Button = ({
                 ? config.pressedBackgroundColor
                 : config.backgroundColor
             ],
+          borderWidth: config.borderColor ? 1 : 0,
+          borderColor: config.borderColor
+            ? theme.colors[config.borderColor]
+            : undefined,
         },
         typeof style === "function" ? style(state) : style,
       ]}
@@ -68,7 +84,11 @@ export const Button = ({
           color={theme.colors[config.titleColor]}
         />
       ) : (
-        <Text preset="button" color={config.titleColor} style={styles.title}>
+        <Text
+          preset="button"
+          color={config.titleColor}
+          style={[preset === "text" ? styles.title : undefined]}
+        >
           {title}
         </Text>
       )}

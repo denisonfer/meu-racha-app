@@ -12,6 +12,7 @@ export type TIconProps = {
    */
   color?: TThemeColor;
   strokeWidth?: number;
+  fill?: TThemeColor;
   /** Ícone com significado próprio precisa de rótulo; decorativo, não. */
   accessibilityLabel?: string;
 };
@@ -21,6 +22,7 @@ export const Icon = ({
   size = 20,
   color = "foreground",
   strokeWidth,
+  fill,
   accessibilityLabel,
 }: TIconProps) => {
   const LucideIcon = iconMap[name];
@@ -30,6 +32,7 @@ export const Icon = ({
       size={size}
       color={theme.colors[color]}
       strokeWidth={strokeWidth}
+      fill={fill && theme.colors[fill]}
       accessibilityLabel={accessibilityLabel}
     />
   );

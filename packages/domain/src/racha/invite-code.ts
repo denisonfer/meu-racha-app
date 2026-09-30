@@ -1,5 +1,4 @@
-// Alfabeto do create_racha: sem 0/O e 1/I, porque o código é digitado por
-// quem recebeu um print. Espelha o check invite_code_format do banco.
+// espelha o check invite_code_format; sem 0/O e 1/I porque o código é digitado
 export const INVITE_CODE_LENGTH = 6;
 const NOT_IN_ALPHABET = /[^A-HJ-NP-Z2-9]/g;
 

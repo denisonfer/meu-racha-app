@@ -1,13 +1,20 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { Button, EmptyState, Screen, Text } from "@/ui/components";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import { Button, EmptyState, Icon, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
-import { RoleChip } from "../../components/role-chip";
 import { RulesSummary } from "../../components/rules-summary";
 import { useRachaHomeScreen } from "./use-racha-home-screen";
 
 export const RachaHomeScreen = () => {
-  const { racha, isLoading, retry, isRetrying, shareInvite, backToRachas } =
-    useRachaHomeScreen();
+  const {
+    racha,
+    isLoading,
+    retry,
+    isRetrying,
+    shareInvite,
+    backToRachas,
+    openRequests,
+    openMembers,
+  } = useRachaHomeScreen();
 
   return (
     <Screen canGoBack onGoBack={backToRachas} isScrollable>
@@ -27,62 +34,108 @@ export const RachaHomeScreen = () => {
             <Text preset="h1" style={styles.extraBold}>
               {racha.name}
             </Text>
-            <View style={styles.roleRow}>
-              {racha.isOwner ? <RoleChip role="OWNER" /> : null}
+          </View>
+
+          {racha.pendingRow ? (
+            <Pressable
+              onPress={openRequests}
+              accessibilityRole="button"
+              accessibilityLabel={racha.pendingRow.label}
+              style={({ pressed }) => [
+                styles.pendingRow,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Text style={styles.pendingCount}>{racha.pendingRow.count}</Text>
+              <View style={styles.grow}>
+                <Text style={styles.bold}>{racha.pendingRow.word}</Text>
+                <Text preset="small">Aprove ou recuse quem pediu.</Text>
+              </View>
+              <Icon name="chevron-right" />
+            </Pressable>
+          ) : null}
+
+          <View style={styles.groupCard}>
+            <Pressable
+              onPress={openMembers}
+              accessibilityRole="button"
+              accessibilityLabel={`Membros, ${racha.memberCount}`}
+              style={({ pressed }) => [
+                styles.membersRow,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Icon name="users" color="muted" size={22} />
+              <Text style={[styles.grow, styles.membersLabel]}>
+                Membros <Text color="muted">· </Text>
+                <Text style={styles.membersCount}>{racha.memberCount}</Text>
+              </Text>
+              <Icon name="chevron-right" color="muted" />
+            </Pressable>
+
+            <View style={styles.divider} />
+
+            <View
+              style={styles.rules}
+              accessible
+              accessibilityLabel={`Regras do jogo: ${racha.summary.join(", ")}`}
+            >
+              <Text preset="small" color="muted" style={styles.bold}>
+                Regras do jogo
+              </Text>
+              <RulesSummary parts={racha.summary} />
+            </View>
+          </View>
+
+          {racha.isOwner ? (
+            <View style={styles.steps}>
+              <Text preset="h2">Próximos passos</Text>
+
+              <View style={[styles.step, styles.stepHighlighted]}>
+                <StepHeading
+                  number={1}
+                  isHighlighted
+                  title="Compartilhar convite"
+                  text="Mande o link ou o código. Quem entrar vira membro do racha."
+                />
+                <View
+                  style={styles.codeBox}
+                  accessible
+                  accessibilityLabel={`Código do racha: ${racha.inviteCode.split("").join(" ")}`}
+                >
+                  <Text preset="caption" color="muted" style={styles.bold}>
+                    Código do racha
+                  </Text>
+                  <Text style={styles.code}>{racha.inviteCode}</Text>
+                </View>
+                <Button title="Compartilhar convite" onPress={shareInvite} />
+              </View>
+
+              <View style={styles.step}>
+                <StepHeading
+                  number={2}
+                  title="Criar o primeiro evento"
+                  text="Marque dia, hora e local. A galera confirma presença por lá."
+                />
+
+                <Button
+                  title="Criar evento"
+                  preset="secondary"
+                  onPress={() => {}}
+                />
+              </View>
+            </View>
+          ) : (
+            <View style={styles.nextEventCard}>
+              <Text preset="small" color="muted" style={styles.bold}>
+                Próximo evento
+              </Text>
+              <Text style={styles.bold}>Nenhum evento marcado</Text>
               <Text preset="small" color="muted">
-                {racha.membersLabel}
+                Quando o dono marcar o próximo jogo, ele aparece aqui.
               </Text>
             </View>
-          </View>
-
-          <View
-            style={styles.rules}
-            accessible
-            accessibilityLabel={`Regras do jogo: ${racha.summary.join(", ")}`}
-          >
-            <Text preset="small" color="muted" style={styles.bold}>
-              Regras do jogo
-            </Text>
-            <RulesSummary parts={racha.summary} />
-          </View>
-
-          <View style={styles.steps}>
-            <Text preset="h2">Próximos passos</Text>
-
-            <View style={[styles.step, styles.stepHighlighted]}>
-              <StepHeading
-                number={1}
-                isHighlighted
-                title="Compartilhar convite"
-                text="Mande o link ou o código. Quem entrar vira membro do racha."
-              />
-              <View
-                style={styles.codeBox}
-                accessible
-                accessibilityLabel={`Código do racha: ${racha.inviteCode.split("").join(" ")}`}
-              >
-                <Text preset="caption" color="muted" style={styles.bold}>
-                  Código do racha
-                </Text>
-                <Text style={styles.code}>{racha.inviteCode}</Text>
-              </View>
-              <Button title="Compartilhar convite" onPress={shareInvite} />
-            </View>
-
-            <View style={styles.step}>
-              <StepHeading
-                number={2}
-                title="Criar o primeiro evento"
-                text="Marque dia, hora e local. A galera confirma presença por lá."
-              />
-
-              <Button
-                title="Criar evento"
-                preset="secondary"
-                onPress={() => {}}
-              />
-            </View>
-          </View>
+          )}
         </View>
       )}
     </Screen>
@@ -124,11 +177,62 @@ const styles = StyleSheet.create({
   titleBlock: { gap: theme.space[8] },
   extraBold: { fontFamily: "Manrope-ExtraBold" },
   bold: { fontFamily: "Manrope-Bold" },
-  roleRow: { flexDirection: "row", alignItems: "center", gap: theme.space[8] },
+
+  grow: { flex: 1 },
+  pressed: { opacity: 0.8 },
+  pendingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    minHeight: 64,
+    paddingVertical: 12,
+    paddingLeft: theme.space[16],
+    paddingRight: 12,
+    borderRadius: theme.radius.card,
+    backgroundColor: theme.colors.surfaceRaised,
+  },
+  pendingCount: {
+    ...theme.text.stat,
+    minWidth: 24,
+    fontSize: 34,
+    lineHeight: 34,
+    color: theme.colors.action,
+    fontVariant: ["tabular-nums"],
+  },
+  groupCard: {
+    borderRadius: theme.radius.card,
+    backgroundColor: theme.colors.surface,
+  },
+  membersRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    minHeight: 52,
+    paddingVertical: 12,
+    paddingLeft: theme.space[16],
+    paddingRight: 12,
+  },
+  membersLabel: { fontFamily: "Manrope-Bold" },
+  membersCount: {
+    ...theme.text.stat,
+    fontSize: 22,
+    lineHeight: 24,
+    fontVariant: ["tabular-nums"],
+  },
+  divider: {
+    marginHorizontal: theme.space[16],
+    borderTopWidth: 1,
+    borderColor: theme.colors.divider,
+  },
   rules: {
     gap: theme.space[4],
-    paddingVertical: 14,
+    paddingTop: 14,
+    paddingBottom: theme.space[16],
     paddingHorizontal: theme.space[16],
+  },
+  nextEventCard: {
+    gap: 2,
+    padding: theme.space[16],
     borderRadius: theme.radius.card,
     backgroundColor: theme.colors.surface,
   },

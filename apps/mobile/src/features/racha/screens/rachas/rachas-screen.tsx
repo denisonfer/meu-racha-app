@@ -113,6 +113,8 @@ type TRachaCardProps = {
   name: string;
   role: TMemberRole;
   membersLabel: string;
+  pendingLabel: string | null;
+  accessibilityLabel: string;
   canCreateEvent: boolean;
   onPress: () => void;
 };
@@ -122,6 +124,8 @@ const RachaCard = ({
   name,
   role,
   membersLabel,
+  pendingLabel,
+  accessibilityLabel,
   canCreateEvent,
   onPress,
 }: TRachaCardProps) => (
@@ -129,10 +133,16 @@ const RachaCard = ({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${name}, ${membersLabel}`}
+      accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [styles.cardTop, pressed && styles.pressed]}
     >
       <View style={[styles.grow, styles.cardTexts]}>
+        {pendingLabel ? (
+          <View style={styles.badge}>
+            <Icon name="user-plus" size={16} color="onAction" />
+            <Text style={styles.badgeLabel}>{pendingLabel}</Text>
+          </View>
+        ) : null}
         <Text preset="h3">{name}</Text>
         <View style={styles.roleRow}>
           <RoleChip role={role} />
@@ -148,7 +158,9 @@ const RachaCard = ({
       <View style={styles.cardNoEvent}>
         <Text style={styles.bold}>Nenhum evento marcado</Text>
         <Text preset="small" color="muted">
-          Marque o próximo jogo para a galera confirmar presença.
+          {canCreateEvent
+            ? "Marque o próximo jogo para a galera confirmar presença."
+            : "Quando o dono marcar o próximo jogo, ele aparece aqui."}
         </Text>
       </View>
       {/* sem destino: criar evento é a fatia 5 */}
@@ -185,7 +197,24 @@ const styles = StyleSheet.create({
     paddingLeft: theme.space[16],
     paddingRight: 12,
   },
-  cardTexts: { gap: 6 },
+  cardTexts: { gap: 8, alignItems: "flex-start" },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    height: 26,
+    paddingLeft: theme.space[8],
+    paddingRight: 10,
+    borderRadius: theme.radius.check,
+    backgroundColor: theme.colors.action,
+  },
+  badgeLabel: {
+    fontFamily: "Manrope-ExtraBold",
+    fontSize: 13,
+    lineHeight: 16,
+    letterSpacing: 0.5,
+    color: theme.colors.onAction,
+  },
   roleRow: { flexDirection: "row", alignItems: "center", gap: theme.space[8] },
   cardBottom: {
     gap: 12,

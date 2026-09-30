@@ -9,7 +9,6 @@ export default function AuthLayout() {
   if (isLoading) return null;
 
   if (session) {
-    // link de convite aberto sem sessão: volta pro Convite depois do login
     const code = normalizeInviteCode(getPendingInvite() ?? "");
     return <Redirect href={code ? `/r/${code}` : "/rachas"} />;
   }

@@ -1,6 +1,7 @@
 export * from "./screen";
 export * from "./text/text";
 export * from "./button/button";
+export * from "./avatar";
 export * from "./field-wrapper";
 export * from "./input";
 export * from "./chip";

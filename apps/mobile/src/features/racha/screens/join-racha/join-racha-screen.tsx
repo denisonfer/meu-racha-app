@@ -96,14 +96,6 @@ export const JoinRachaScreen = () => {
               </Text>
             </View>
           </View>
-        ) : invite.status === "REJECTED" ? (
-          <View style={[styles.statusCard, styles.rejectedCard]}>
-            <Icon name="ban" size={24} color="muted" />
-            <Text style={[styles.statusTexts, styles.bold]}>
-              Seu pedido foi recusado. Só o Dono ou um Admin pode liberar um
-              pedido novo.
-            </Text>
-          </View>
         ) : null}
       </View>
 
@@ -151,7 +143,6 @@ const InfoRow = ({ icon, hasDivider = false, children }: TInfoRowProps) => (
 const styles = StyleSheet.create({
   content: { gap: 20 },
   titleBlock: { gap: 6 },
-  // o 600 do handoff vira Bold: o app não carrega Manrope 600
   bold: { fontFamily: "Manrope-Bold" },
   extraBold: { fontFamily: "Manrope-ExtraBold" },
   infoCard: {
@@ -186,10 +177,5 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.card,
   },
   pendingCard: { backgroundColor: theme.colors.surfaceRaised },
-  rejectedCard: {
-    padding: 15, // compensa a borda de 1
-    borderWidth: 1,
-    borderColor: theme.colors.divider,
-  },
   statusTexts: { flex: 1, gap: theme.space[4] },
 });

@@ -18,7 +18,6 @@ export function useEnterCodeScreen() {
 
   const isComplete = code.length === INVITE_CODE_LENGTH;
 
-  // o campo já entrega o código normalizado
   const changeCode = (next: string) => {
     setCode(next);
     setFailure(null);
@@ -30,11 +29,10 @@ export function useEnterCodeScreen() {
     setFailure(null);
     setIsChecking(true);
     try {
-      // pela mesma chave do Convite: a tela 5 abre com o dado já no cache
       const invite = await queryClient.fetchQuery({
         queryKey: inviteKey(code),
         queryFn: () => rachaApi.getInvite(code),
-        // rede caída: erro na hora; a pessoa toca Continuar de novo
+        // sem os retries globais: com a rede caída o erro vem na hora
         retry: false,
       });
       if (invite) router.push(`/r/${code}`);

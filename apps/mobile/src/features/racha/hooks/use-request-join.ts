@@ -7,11 +7,7 @@ export function useRequestJoin() {
 
   const mutation = useMutation({
     mutationFn: (rachaId: string) => rachaApi.requestJoin(rachaId),
-    // already_requested também invalida: o estado real (PENDING) aparece
-    // no refetch do convite.
-    // devolve só a promise dos pedidos: a mutation segue pendente até a
-    // lista nova chegar. O convite não é esperado: o Convite sai logo depois
-    // do pedido e não deve mostrar "Aguardando aprovação" por um instante.
+    // o convite não é aguardado: senão a tela 5 piscaria "Aguardando aprovação" antes de sair
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["invite"] });
       return queryClient.invalidateQueries({ queryKey: myJoinRequestsKey });

@@ -14,11 +14,14 @@ import {
   Minus,
   Plus,
   Share,
+  Star,
   Ticket,
   TriangleAlert,
   User,
+  UserRoundPlus,
   Users,
   WifiOff,
+  X,
 } from "lucide-react-native";
 import { NotificationIcon, RachaIcon } from "./brand-icons";
 
@@ -40,11 +43,14 @@ export const iconMap = {
   share: Share,
   ticket: Ticket,
   user: User,
+  "user-plus": UserRoundPlus,
   users: Users,
   calendar: Calendar,
   clock: Clock,
   ban: Ban,
   "wifi-off": WifiOff,
+  star: Star,
+  close: X,
 } as const;
 
 export type TIconName = keyof typeof iconMap;

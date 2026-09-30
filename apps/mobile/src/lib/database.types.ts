@@ -40,6 +40,8 @@ export type Database = {
           id: string;
           profile_id: string;
           racha_id: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
           status: Database["public"]["Enums"]["join_request_status"];
         };
         Insert: {
@@ -47,6 +49,8 @@ export type Database = {
           id?: string;
           profile_id?: string;
           racha_id: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
           status?: Database["public"]["Enums"]["join_request_status"];
         };
         Update: {
@@ -54,6 +58,8 @@ export type Database = {
           id?: string;
           profile_id?: string;
           racha_id?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
           status?: Database["public"]["Enums"]["join_request_status"];
         };
         Relationships: [
@@ -71,12 +77,20 @@ export type Database = {
             referencedRelation: "racha";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "join_request_reviewed_by_fkey";
+            columns: ["reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
         ];
       };
       member: {
         Row: {
           id: string;
           is_active: boolean;
+          is_super_star: boolean;
           joined_at: string;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position: Database["public"]["Enums"]["position"] | null;
@@ -84,10 +98,12 @@ export type Database = {
           racha_id: string;
           role: Database["public"]["Enums"]["member_role"];
           secondary_position: Database["public"]["Enums"]["position"] | null;
+          stars: number | null;
         };
         Insert: {
           id?: string;
           is_active?: boolean;
+          is_super_star?: boolean;
           joined_at?: string;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
@@ -95,10 +111,12 @@ export type Database = {
           racha_id: string;
           role: Database["public"]["Enums"]["member_role"];
           secondary_position?: Database["public"]["Enums"]["position"] | null;
+          stars?: number | null;
         };
         Update: {
           id?: string;
           is_active?: boolean;
+          is_super_star?: boolean;
           joined_at?: string;
           plays_as?: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
@@ -106,6 +124,7 @@ export type Database = {
           racha_id?: string;
           role?: Database["public"]["Enums"]["member_role"];
           secondary_position?: Database["public"]["Enums"]["position"] | null;
+          stars?: number | null;
         };
         Relationships: [
           {
@@ -248,6 +267,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      approve_join_request: {
+        Args: { p_request_id: string; p_stars: number; p_super_star: boolean };
+        Returns: undefined;
+      };
       create_racha: {
         Args: {
           p_consider_position: boolean;
@@ -278,12 +301,46 @@ export type Database = {
         }[];
       };
       is_racha_member: { Args: { p_racha_id: string }; Returns: boolean };
+      list_join_requests: {
+        Args: { p_racha_id: string };
+        Returns: {
+          age: number;
+          avatar_path: string;
+          display_name: string;
+          id: string;
+          plays_as: Database["public"]["Enums"]["plays_as"];
+          primary_position: Database["public"]["Enums"]["position"];
+          secondary_position: Database["public"]["Enums"]["position"];
+        }[];
+      };
       list_my_join_requests: {
         Args: never;
         Returns: {
           racha_id: string;
           racha_name: string;
         }[];
+      };
+      list_racha_members: {
+        Args: { p_racha_id: string };
+        Returns: {
+          avatar_path: string;
+          display_name: string;
+          is_super_star: boolean;
+          plays_as: Database["public"]["Enums"]["plays_as"];
+          primary_position: Database["public"]["Enums"]["position"];
+          profile_id: string;
+          role: Database["public"]["Enums"]["member_role"];
+          secondary_position: Database["public"]["Enums"]["position"];
+          stars: number;
+        }[];
+      };
+      my_racha_role: {
+        Args: { p_racha_id: string };
+        Returns: Database["public"]["Enums"]["member_role"];
+      };
+      refuse_join_request: {
+        Args: { p_request_id: string };
+        Returns: undefined;
       };
     };
     Enums: {
