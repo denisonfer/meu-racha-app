@@ -1,5 +1,6 @@
 export * from "./screen";
 export * from "./bottom-sheet";
+export * from "./confirm-bottom-sheet";
 export * from "./text/text";
 export * from "./button/button";
 export * from "./avatar";

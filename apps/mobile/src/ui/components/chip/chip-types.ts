@@ -12,6 +12,7 @@ export type TChipProps = {
 export type TChipOption<V extends string> = {
   value: V;
   label: string;
+  isDisabled?: boolean;
 };
 
 export type TChipGroupProps<V extends string> = {

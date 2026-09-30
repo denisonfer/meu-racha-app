@@ -28,7 +28,7 @@ export function ChipGroup<V extends string>({
             key={option.value}
             label={option.label}
             isSelected={option.value === value}
-            isDisabled={isDisabled}
+            isDisabled={isDisabled || option.isDisabled === true}
             isFullWidth={isFullWidth}
             onPress={() => onChange(option.value)}
           />

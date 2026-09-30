@@ -1,6 +1,4 @@
-import { StyleSheet, View } from "react-native";
-import { BottomSheet, Button, Text } from "@/ui/components";
-import { theme } from "@/ui/theme";
+import { ConfirmBottomSheet } from "@/ui/components";
 import { useDeleteRachaScreen } from "./use-delete-racha-screen";
 
 export const DeleteRachaScreen = () => {
@@ -10,40 +8,15 @@ export const DeleteRachaScreen = () => {
   if (!name) return null;
 
   return (
-    <BottomSheet
+    <ConfirmBottomSheet
       title={`Excluir ${name}?`}
-      supporting={<Text>Não dá para desfazer.</Text>}
-      hasCloseButton={false}
+      message="Não dá para desfazer."
+      confirmLabel="Excluir racha"
+      busyLabel="Excluindo"
       isBusy={isDeleting}
-    >
-      {failureMessage ? (
-        <Text preset="small" color="errorText" accessibilityRole="alert">
-          {failureMessage}
-        </Text>
-      ) : null}
-      <View style={styles.actions}>
-        <Button
-          title="Excluir racha"
-          preset="destructive"
-          onPress={confirm}
-          isLoading={isDeleting}
-          accessibilityLabel={isDeleting ? "Excluindo" : "Excluir racha"}
-          style={styles.deleteButton}
-        />
-        <Button
-          title="Cancelar"
-          preset="outline"
-          onPress={cancel}
-          isDisabled={isDeleting}
-          style={styles.cancelButton}
-        />
-      </View>
-    </BottomSheet>
+      failureMessage={failureMessage}
+      onConfirm={confirm}
+      onCancel={cancel}
+    />
   );
 };
-
-const styles = StyleSheet.create({
-  actions: { gap: theme.space[8] },
-  deleteButton: { minHeight: 56 },
-  cancelButton: { minHeight: 48 },
-});
