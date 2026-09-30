@@ -12,8 +12,8 @@ import {
 import { Pressable, StyleSheet, Switch, View } from "react-native";
 import { ChipGroup, Icon, OptionList, Stepper, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
-import { OptionalNumberField } from "../../components/optional-number-field";
-import { RulesSummary } from "../../components/rules-summary";
+import { OptionalNumberField } from "./optional-number-field";
+import { RulesSummary } from "./rules-summary";
 
 const TIE_RULE_OPTIONS: { value: TTieRule; label: string }[] = [
   { value: "BOTH_OUT", label: "Sai ambos" },
@@ -63,6 +63,7 @@ type TRulesSectionProps = {
   onToggle: () => void;
   isDisabled: boolean;
   matchDurationError?: string;
+  isHintVisible?: boolean;
 };
 
 export const RulesSection = ({
@@ -73,6 +74,7 @@ export const RulesSection = ({
   onToggle,
   isDisabled,
   matchDurationError,
+  isHintVisible = true,
 }: TRulesSectionProps) => {
   return (
     <View style={[styles.card, isDisabled && styles.cardDisabled]}>
@@ -88,7 +90,7 @@ export const RulesSection = ({
         <View style={styles.headerTexts}>
           <Text preset="h3">Regras do jogo</Text>
           <RulesSummary parts={summary} />
-          {isExpanded ? null : (
+          {isExpanded || !isHintVisible ? null : (
             <Text preset="small" color="muted">
               Já vem no jeito da maioria dos rachas.
             </Text>

@@ -2,7 +2,9 @@ import { describe, expect, test } from "bun:test";
 import {
   DEFAULT_RACHA_RULES,
   formatRulesSummary,
+  isSameRules,
   RACHA_NAME_PATTERN,
+  type TRachaRules,
   type TTieRule,
 } from "./rules";
 
@@ -62,6 +64,37 @@ describe("formatRulesSummary", () => {
       expect(formatRulesSummary({ ...DEFAULT_RACHA_RULES, tieRule })[2]).toBe(
         label
       );
+    });
+  }
+});
+
+describe("isSameRules", () => {
+  test("cópia com os mesmos valores é igual", () => {
+    expect(isSameRules(DEFAULT_RACHA_RULES, { ...DEFAULT_RACHA_RULES })).toBe(
+      true
+    );
+  });
+
+  const changes: Partial<TRachaRules> = {
+    outfieldPerTeam: 6,
+    gameMode: "ROTATION",
+    maxConsecutiveWins: 3,
+    tieRule: "PENALTIES",
+    tieReturnOrder: "TEAM_ORDER",
+    considerPosition: true,
+    matchDurationMin: null,
+  };
+  for (const [key, value] of Object.entries(changes) as [
+    keyof TRachaRules,
+    TRachaRules[keyof TRachaRules],
+  ][]) {
+    test(`diferente em "${key}" não é igual`, () => {
+      expect(
+        isSameRules(DEFAULT_RACHA_RULES, {
+          ...DEFAULT_RACHA_RULES,
+          [key]: value,
+        })
+      ).toBe(false);
     });
   }
 });

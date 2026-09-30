@@ -46,6 +46,9 @@ const TIE_RULE_LABEL: Record<TTieRule, string> = {
   CHALLENGER_WINS: "Desafiante leva",
 };
 
+export const isSameRules = (a: TRachaRules, b: TRachaRules) =>
+  (Object.keys(a) as (keyof TRachaRules)[]).every((key) => a[key] === b[key]);
+
 export function formatRulesSummary(rules: TRachaRules): string[] {
   const parts = [`${rules.outfieldPerTeam} na linha`];
 
