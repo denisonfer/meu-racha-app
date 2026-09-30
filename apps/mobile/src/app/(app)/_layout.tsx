@@ -1,9 +1,6 @@
 import { Redirect, Stack, usePathname } from "expo-router";
-import { useSession } from "@/features/auth";
-import { savePendingInvite } from "@/features/racha";
+import { savePendingDestination, useSession } from "@/features/auth";
 import { BOTTOM_SHEET_SCREEN_OPTIONS } from "@/ui/components";
-
-const INVITE_PATH = "/r/";
 
 // sem âncora, a folha (1ª declarada) viraria a raiz da pilha
 export const unstable_settings = {
@@ -12,13 +9,12 @@ export const unstable_settings = {
 
 export default function AppLayout() {
   const { session, isLoading } = useSession();
+  // só o caminho: nenhuma rota de (app) usa parâmetros de busca
   const pathname = usePathname();
 
   if (isLoading) return null;
   if (!session) {
-    if (pathname.startsWith(INVITE_PATH)) {
-      savePendingInvite(pathname.slice(INVITE_PATH.length));
-    }
+    void savePendingDestination(pathname);
     return <Redirect href="/sign-in" />;
   }
 

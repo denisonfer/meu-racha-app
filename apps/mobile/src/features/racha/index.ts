@@ -12,8 +12,3 @@ export * from "./screens/delete-racha/delete-racha-screen";
 export * from "./screens/expel-member/expel-member-screen";
 export * from "./screens/transfer-ownership/transfer-ownership-screen";
 export * from "./screens/leave-racha/leave-racha-screen";
-export {
-  clearPendingInvite,
-  getPendingInvite,
-  savePendingInvite,
-} from "./utils/pending-invite";

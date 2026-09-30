@@ -1,8 +1,11 @@
 import { useEffect } from "react";
-import { clearPendingInvite, JoinRachaScreen } from "@/features/racha";
+import { clearPendingDestination } from "@/features/auth";
+import { JoinRachaScreen } from "@/features/racha";
 
 export default function Invite() {
-  useEffect(() => clearPendingInvite(), []);
+  useEffect(() => {
+    void clearPendingDestination();
+  }, []);
 
   return <JoinRachaScreen />;
 }
