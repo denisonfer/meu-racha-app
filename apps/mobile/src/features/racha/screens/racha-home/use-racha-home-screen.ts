@@ -1,4 +1,4 @@
-import { formatRulesSummary } from "@meu-racha/domain";
+import { canLeaveRacha, formatRulesSummary } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useRacha } from "../../hooks/use-racha";
 import { pendingCountLabel, pendingWord } from "../../utils/racha-labels";
@@ -37,6 +37,7 @@ export function useRachaHomeScreen() {
               `A partir de ${racha.minAge} anos`,
             ],
     },
+    canLeave: racha ? canLeaveRacha(racha.role) : false,
     isLoading: isPending,
     retry: () => void refetch(),
     isRetrying: isRefetching,
@@ -45,5 +46,6 @@ export function useRachaHomeScreen() {
     openRequests: () => router.push(`/racha/${id}/requests`),
     openMembers: () => router.push(`/racha/${id}/members`),
     openSettings: () => router.push(`/racha/${id}/settings`),
+    openLeave: () => router.push(`/racha/${id}/leave`),
   };
 }

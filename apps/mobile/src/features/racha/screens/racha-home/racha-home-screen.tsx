@@ -15,6 +15,8 @@ export const RachaHomeScreen = () => {
     openRequests,
     openMembers,
     openSettings,
+    canLeave,
+    openLeave,
   } = useRachaHomeScreen();
 
   return (
@@ -177,6 +179,18 @@ export const RachaHomeScreen = () => {
               </Text>
             </View>
           )}
+
+          {canLeave ? (
+            <View style={styles.leaveZone}>
+              <Button
+                preset="destructiveOutline"
+                title="Deixar o racha"
+                accessibilityHint="Abre a confirmação"
+                onPress={openLeave}
+                style={styles.leaveButton}
+              />
+            </View>
+          ) : null}
         </View>
       )}
     </Screen>
@@ -296,6 +310,12 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.card,
     backgroundColor: theme.colors.surface,
   },
+  leaveZone: {
+    paddingTop: theme.space[32],
+    borderTopWidth: 1,
+    borderColor: theme.colors.divider,
+  },
+  leaveButton: { minHeight: 48 },
   steps: { gap: 12 },
   step: {
     gap: theme.space[16],

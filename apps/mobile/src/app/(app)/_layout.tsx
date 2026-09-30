@@ -36,6 +36,10 @@ export default function AppLayout() {
         name="racha/[id]/member/[profileId]/expel"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
+      <Stack.Screen
+        name="racha/[id]/leave"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
     </Stack>
   );
 }
