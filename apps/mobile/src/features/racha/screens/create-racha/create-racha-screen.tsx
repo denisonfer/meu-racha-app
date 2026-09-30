@@ -116,8 +116,6 @@ export const CreateRachaScreen = () => {
           autoFocus
           maxLength={40}
           isDisabled={isCreating}
-          returnKeyType="go"
-          onSubmitEditing={submit}
         />
 
         <OptionalNumberField

@@ -1,9 +1,38 @@
 import { TScreenProps } from "./screen-types";
 import { Container, ScrollContainer } from "./containers";
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  View,
+} from "react-native";
+import { useEffect, useState } from "react";
 import { useAppSafeArea } from "@/ui/hooks/use-app-safe-area";
 import { Header } from "./header";
 import { theme } from "@/ui/theme";
+
+const useAndroidKeyboardInset = () => {
+  const [inset, setInset] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+
+    const show = Keyboard.addListener("keyboardDidShow", (event) => {
+      setInset(event.endCoordinates.height);
+    });
+    const hide = Keyboard.addListener("keyboardDidHide", () => {
+      setInset(0);
+    });
+
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
+  return inset;
+};
 
 export const Screen = ({
   children,
@@ -18,6 +47,7 @@ export const Screen = ({
   ...props
 }: TScreenProps) => {
   const { top, bottom } = useAppSafeArea();
+  const keyboardInset = useAndroidKeyboardInset();
 
   return (
     <View
@@ -37,7 +67,7 @@ export const Screen = ({
             styles.screen,
             {
               paddingTop: top,
-              paddingBottom: hasTabBar ? 0 : bottom,
+              paddingBottom: (hasTabBar ? 0 : bottom) + keyboardInset,
             },
             style,
           ]}
