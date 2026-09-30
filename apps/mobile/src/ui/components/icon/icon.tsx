@@ -32,7 +32,8 @@ export const Icon = ({
       size={size}
       color={theme.colors[color]}
       strokeWidth={strokeWidth}
-      fill={fill && theme.colors[fill]}
+      // fill={undefined} apagaria o fill="none" padrão do Lucide e o traço sairia preto
+      {...(fill && { fill: theme.colors[fill] })}
       accessibilityLabel={accessibilityLabel}
     />
   );
