@@ -1,4 +1,4 @@
-import type { TCardLevel } from "@meu-racha/domain";
+import { LEVEL_NAME, type TCardLevel } from "@meu-racha/domain";
 
 type TCardLevelStyle = {
   label: string;
@@ -17,7 +17,7 @@ type TCardLevelStyle = {
 // A carta é a única superfície fora da paleta da marca (ADR); por isso as cores moram aqui
 export const CARD_LEVELS: Record<TCardLevel, TCardLevelStyle> = {
   base: {
-    label: "Cria da Base",
+    label: LEVEL_NAME.base,
     pips: 1,
     ink: "#FFF3E4",
     inkSoft: "#F3E2CD",
@@ -28,7 +28,7 @@ export const CARD_LEVELS: Record<TCardLevel, TCardLevelStyle> = {
     photoFg: "#D8AE90",
   },
   promessa: {
-    label: "Promessa",
+    label: LEVEL_NAME.promessa,
     pips: 2,
     ink: "#16202A",
     inkSoft: "#1F2A35",
@@ -39,7 +39,7 @@ export const CARD_LEVELS: Record<TCardLevel, TCardLevelStyle> = {
     photoFg: "#E3E9EF",
   },
   craque: {
-    label: "Craque do Racha",
+    label: LEVEL_NAME.craque,
     pips: 3,
     ink: "#241703",
     inkSoft: "#2A1A06",
@@ -50,7 +50,7 @@ export const CARD_LEVELS: Record<TCardLevel, TCardLevelStyle> = {
     photoFg: "#F3E0AC",
   },
   monstro: {
-    label: "Monstro",
+    label: LEVEL_NAME.monstro,
     pips: 4,
     ink: "#FFFFFF",
     inkSoft: "#C9E9FF",
@@ -62,7 +62,7 @@ export const CARD_LEVELS: Record<TCardLevel, TCardLevelStyle> = {
     overallShadow: "#FF3DDC",
   },
   lenda: {
-    label: "Lenda",
+    label: LEVEL_NAME.lenda,
     pips: 5,
     ink: "#F7F9FC",
     inkSoft: "#D6DBE6",

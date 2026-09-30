@@ -9,6 +9,14 @@ export const OVERALL_MIN = 40;
 const NAME_MAX = 14;
 const NAME_SHRINK_AFTER = 11;
 
+export const LEVEL_NAME: Record<TCardLevel, string> = {
+  base: "Cria da Base",
+  promessa: "Promessa",
+  craque: "Craque do Racha",
+  monstro: "Monstro",
+  lenda: "Lenda",
+};
+
 export function levelFromOverall(overall: number): TCardLevel {
   if (overall >= 99) return "lenda";
   if (overall >= 90) return "monstro";

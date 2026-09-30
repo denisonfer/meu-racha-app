@@ -1,4 +1,11 @@
-import { formatPlaysAs, groupMembersByPosition } from "@meu-racha/domain";
+import {
+  formatPlaysAs,
+  groupMembersByPosition,
+  initialsOf,
+  LEVEL_NAME,
+  levelFromOverall,
+  OVERALL_MIN,
+} from "@meu-racha/domain";
 import { useLocalSearchParams } from "expo-router";
 import { useSession } from "@/features/auth";
 import { useRacha } from "../../hooks/use-racha";
@@ -14,10 +21,15 @@ const formatPosition = (member: TRachaMember) =>
     member.secondaryPosition
   ).replace(/^Linha · /, "");
 
+// o Overall nasce das partidas (fatia 5); até lá todo mundo é Cria da Base
+const MEMBER_OVERALL = OVERALL_MIN;
+
 function accessibilityLabelFor(member: TRachaMember, isMe: boolean): string {
+  const overall = MEMBER_OVERALL;
   const parts = [isMe ? `${member.displayName} (você)` : member.displayName];
   if (member.role !== "PLAYER")
     parts.push(ROLE_ACCESSIBILITY_LABEL[member.role]);
+  parts.push(`${LEVEL_NAME[levelFromOverall(overall)]} ${overall}`);
   if (member.playsAs === "GOALKEEPER") {
     parts.push("Gol");
   } else {
@@ -43,7 +55,9 @@ export function useMembersScreen() {
       return {
         profileId: member.profileId,
         name: member.displayName,
+        initials: initialsOf(member.displayName),
         photoUrl: member.photoUrl,
+        overall: MEMBER_OVERALL,
         isMe,
         role: member.role,
         isGoalkeeper: member.playsAs === "GOALKEEPER",

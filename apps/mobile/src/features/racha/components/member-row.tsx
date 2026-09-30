@@ -1,12 +1,14 @@
 import { StyleSheet, View } from "react-native";
-import { Avatar, Icon, Text } from "@/ui/components";
+import { Icon, PlayerCardMini, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { TMemberRole } from "../racha-types";
 import { RoleChip } from "./role-chip";
 
 type TMemberRowProps = {
   name: string;
+  initials: string;
   photoUrl: string | null;
+  overall: number;
   isMe: boolean;
   role: TMemberRole;
   isGoalkeeper: boolean;
@@ -18,7 +20,9 @@ type TMemberRowProps = {
 
 export const MemberRow = ({
   name,
+  initials,
   photoUrl,
+  overall,
   isMe,
   role,
   isGoalkeeper,
@@ -28,7 +32,12 @@ export const MemberRow = ({
   accessibilityLabel,
 }: TMemberRowProps) => (
   <View accessible accessibilityLabel={accessibilityLabel} style={[styles.row]}>
-    <Avatar name={name} photoUrl={photoUrl} size={40} />
+    <PlayerCardMini
+      width={44}
+      overall={overall}
+      initials={initials}
+      photoUri={photoUrl}
+    />
 
     <View style={styles.info}>
       <View style={styles.nameRow}>
@@ -68,8 +77,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    minHeight: 64,
-    paddingVertical: 10,
+    minHeight: 72,
+    paddingVertical: 5,
   },
 
   info: { flex: 1, minWidth: 0, gap: 4 },
