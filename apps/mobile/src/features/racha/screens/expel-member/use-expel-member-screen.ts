@@ -30,8 +30,10 @@ export function useExpelMemberScreen() {
 
   const isMissing = name === undefined;
   useEffect(() => {
-    if (isMissing) router.back();
-  }, [isMissing]);
+    if (!isMissing) return;
+    router.dismissTo(`/racha/${id}/members`);
+    showToast(MEMBER_GONE);
+  }, [isMissing, id, showToast]);
 
   const confirm = async () => {
     if (name === undefined) return;

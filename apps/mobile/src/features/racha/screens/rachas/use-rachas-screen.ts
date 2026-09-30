@@ -115,6 +115,7 @@ export function useRachasScreen() {
     retry: () => {
       void rachasQuery.refetch();
       void joinRequestsQuery.refetch();
+      void refetchNotices();
     },
     isRetrying: rachasQuery.isRefetching || joinRequestsQuery.isRefetching,
     createRacha: () => router.push("/racha/create"),

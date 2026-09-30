@@ -95,6 +95,7 @@ export const MemberRow = ({
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
       {content}
+      <Icon name="chevron-right" size={20} color="muted" />
     </Pressable>
   );
 };

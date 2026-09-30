@@ -33,10 +33,10 @@ export function useLeaveRachaScreen() {
       showToast(LEFT_RACHA, "success");
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
-      // já tinha saído (ex.: resposta perdida): o resultado é o que a pessoa queria
+      // sem toast: quem foi expulso vê o cartão da aba e quem teve a resposta
+      // perdida vê o Racha fora da lista
       if (code === "not_member") {
         router.dismissTo("/rachas");
-        showToast(LEFT_RACHA, "success");
         return;
       }
       // a folha pode ter perdido o foco (fechada no arrasto): sem a tela em foco

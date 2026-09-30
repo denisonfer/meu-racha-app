@@ -20,7 +20,7 @@ import {
 } from "./use-edit-member-screen";
 
 export const EditMemberScreen = () => {
-  const { racha, member, members, isLoading, isError, retry, isRetrying } =
+  const { racha, member, adminCount, isLoading, isError, retry, isRetrying } =
     useEditMemberScreen();
 
   return (
@@ -40,7 +40,7 @@ export const EditMemberScreen = () => {
           rachaId={racha.id}
           viewerRole={racha.role}
           member={member}
-          adminCount={members.filter((m) => m.role === "ADMIN").length}
+          adminCount={adminCount}
         />
       )}
     </Screen>
@@ -58,6 +58,7 @@ const EditMemberForm = (props: TEditMemberFormProps) => {
   const { member } = props;
   const {
     permissions,
+    hasCard,
     isGoalkeeper,
     playsAsText,
     stars,
@@ -73,10 +74,6 @@ const EditMemberForm = (props: TEditMemberFormProps) => {
     save,
     openExpel,
   } = useEditMemberForm(props);
-
-  const hasCard =
-    permissions.canEditStars ||
-    (isGoalkeeper && (permissions.canChangeRole || permissions.canExpel));
 
   return (
     <>

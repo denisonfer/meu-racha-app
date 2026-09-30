@@ -50,7 +50,7 @@ export function useEditMemberScreen() {
     isNoAccessError(membersQuery.error) ? membersQuery.error : rachaQuery.error
   );
   const isLoading = membersQuery.isPending || rachaQuery.isPending;
-  const isError = membersQuery.isError || rachaQuery.isError;
+  const isError = membersQuery.isLoadingError || rachaQuery.isLoadingError;
 
   const canOpen =
     racha && member
@@ -65,6 +65,8 @@ export function useEditMemberScreen() {
   const isReady = !isLoading && !isError && Boolean(racha);
   const isGone = isReady && !member;
   const isBlocked = isReady && Boolean(member) && !canOpen && !opened;
+  // perdeu a permissão com a tela aberta: sai em vez de cair no erro
+  const isRevoked = isReady && Boolean(member) && !canOpen && Boolean(opened);
   const isOpen = isReady && Boolean(member) && canOpen && !isNoAccess;
 
   useEffect(() => {
@@ -73,16 +75,20 @@ export function useEditMemberScreen() {
       showToast(MEMBER_GONE);
     } else if (isBlocked) {
       router.back();
+    } else if (isRevoked) {
+      router.dismissTo(`/racha/${id}`);
+      showToast(MEMBER_NOT_ALLOWED);
     }
-  }, [isGone, isBlocked, showToast]);
+  }, [isGone, isBlocked, isRevoked, id, showToast]);
 
   if (isOpen && found && found !== opened) setOpened(found);
 
   return {
     racha: isOpen ? racha : undefined,
     member: isOpen ? member : undefined,
-    members: membersQuery.data ?? [],
-    isLoading: isLoading || isNoAccess || isGone || isBlocked,
+    adminCount: (membersQuery.data ?? []).filter((m) => m.role === "ADMIN")
+      .length,
+    isLoading: isLoading || isNoAccess || isGone || isBlocked || isRevoked,
     isError: isError && !isNoAccess,
     retry: () => {
       void membersQuery.refetch();
@@ -136,6 +142,10 @@ export function useEditMemberForm({
     stars !== initial.stars ||
     isSuperStar !== initial.isSuperStar ||
     role !== initial.role;
+
+  const hasCard =
+    permissions.canEditStars ||
+    (isGoalkeeper && (permissions.canChangeRole || permissions.canExpel));
 
   const isAdminCapped =
     initial.role === "PLAYER" && adminCount >= ADMIN_LIMIT_FREE;
@@ -207,6 +217,7 @@ export function useEditMemberForm({
 
   return {
     permissions,
+    hasCard,
     isGoalkeeper,
     playsAsText: formatPlaysAs(
       member.playsAs,
