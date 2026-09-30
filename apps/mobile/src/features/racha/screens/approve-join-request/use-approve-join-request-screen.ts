@@ -1,7 +1,7 @@
 import { formatAge, formatPlaysAs, isBelowMinAge } from "@meu-racha/domain";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import { useToast } from "@/ui/components";
+import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useApproveJoinRequest } from "../../hooks/use-approve-join-request";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaJoinRequests } from "../../hooks/use-racha-join-requests";
@@ -33,10 +33,7 @@ export function useApproveJoinRequestScreen() {
   const [request, setRequest] = useState(found);
   if (found && found !== request) setRequest(found);
 
-  // no Android o formSheet ignora gestureEnabled: se a folha já saiu, voltar tiraria a lista da pilha
-  const close = () => {
-    if (navigation.isFocused()) router.back();
-  };
+  const close = useBottomSheetClose();
 
   const isGone = requests !== undefined && !found && !isApproving;
   useEffect(() => {
@@ -51,10 +48,6 @@ export function useApproveJoinRequestScreen() {
     if (navigation.isFocused()) router.back();
     showToast(JOIN_REQUEST_ACTION_FAILED, "danger");
   }, [isUnreachable, navigation, showToast]);
-
-  useEffect(() => {
-    navigation.setOptions({ gestureEnabled: !isApproving });
-  }, [navigation, isApproving]);
 
   const isGoalkeeper = request?.playsAs === "GOALKEEPER";
   const canApprove = isGoalkeeper || stars !== null;
@@ -119,6 +112,5 @@ export function useApproveJoinRequestScreen() {
     failureMessage,
     isApproving,
     confirm: () => void confirm(),
-    close,
   };
 }

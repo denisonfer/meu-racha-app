@@ -37,6 +37,7 @@ const useAndroidKeyboardInset = () => {
 export const Screen = ({
   children,
   headerComponent,
+  headerRight,
   isScrollable,
   title,
   canGoBack,
@@ -77,6 +78,7 @@ export const Screen = ({
             canGoBack={canGoBack}
             onGoBack={onGoBack}
             headerComponent={headerComponent}
+            headerRight={headerRight}
           />
 
           <View style={styles.content}>

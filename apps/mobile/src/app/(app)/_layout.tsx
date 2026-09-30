@@ -1,6 +1,7 @@
 import { Redirect, Stack, usePathname } from "expo-router";
 import { useSession } from "@/features/auth";
 import { savePendingInvite } from "@/features/racha";
+import { BOTTOM_SHEET_SCREEN_OPTIONS } from "@/ui/components";
 
 const INVITE_PATH = "/r/";
 
@@ -25,12 +26,7 @@ export default function AppLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="racha/[id]/approve/[requestId]"
-        options={{
-          presentation: "formSheet",
-          sheetAllowedDetents: "fitToContents",
-          sheetGrabberVisible: true,
-          sheetCornerRadius: 24,
-        }}
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
     </Stack>
   );

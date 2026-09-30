@@ -1,6 +1,5 @@
-import { Pressable, StyleSheet, Switch, View } from "react-native";
-import { Avatar, Button, Icon, Text } from "@/ui/components";
-import { useAppSafeArea } from "@/ui/hooks/use-app-safe-area";
+import { StyleSheet, Switch, View } from "react-native";
+import { Avatar, BottomSheet, Button, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { StarRating } from "../../components/star-rating";
 import { useApproveJoinRequestScreen } from "./use-approve-join-request-screen";
@@ -20,23 +19,18 @@ export const ApproveJoinRequestScreen = () => {
     failureMessage,
     isApproving,
     confirm,
-    close,
   } = useApproveJoinRequestScreen();
-  const { bottom } = useAppSafeArea();
 
   if (!person) return null;
 
   return (
-    <View
-      accessibilityViewIsModal
-      style={[styles.sheet, { paddingBottom: bottom }]}
-    >
-      <View style={styles.header}>
+    <BottomSheet
+      leading={
         <Avatar name={person.name} photoUrl={person.photoUrl} size={48} />
-        <View style={styles.headerTexts}>
-          <Text preset="h2" accessibilityRole="header">
-            {person.title}
-          </Text>
+      }
+      title={person.title}
+      supporting={
+        <>
           <Text preset="small" style={styles.bold}>
             {person.summary}
           </Text>
@@ -45,19 +39,10 @@ export const ApproveJoinRequestScreen = () => {
               {person.belowMinAgeText}
             </Text>
           ) : null}
-        </View>
-        <Pressable
-          onPress={close}
-          disabled={isApproving}
-          accessibilityRole="button"
-          accessibilityLabel="Fechar"
-          accessibilityState={{ disabled: isApproving }}
-          style={styles.closeButton}
-        >
-          <Icon name="close" size={22} />
-        </Pressable>
-      </View>
-
+        </>
+      }
+      isBusy={isApproving}
+    >
       {isGoalkeeper ? (
         <View style={styles.goalkeeperBox}>
           <Text style={styles.goalkeeperTag}>GOL</Text>
@@ -138,30 +123,14 @@ export const ApproveJoinRequestScreen = () => {
           style={styles.approveButton}
         />
       </View>
-    </View>
+    </BottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  sheet: {
-    gap: 20,
-    paddingTop: theme.space[24],
-    paddingHorizontal: 20,
-    backgroundColor: theme.colors.surfaceRaised,
-  },
   bold: { fontFamily: "Manrope-Bold" },
   grow: { flex: 1 },
   texts: { gap: 2 },
-  header: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-  headerTexts: { flex: 1, gap: 2, paddingTop: 2 },
-  closeButton: {
-    width: theme.minTouch,
-    height: theme.minTouch,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: -4,
-    marginRight: -10,
-  },
   starsBlock: { gap: 10 },
   starsStatus: {
     flexDirection: "row",

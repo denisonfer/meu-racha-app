@@ -14,6 +14,7 @@ import {
   Minus,
   Plus,
   Share,
+  SlidersHorizontal,
   Star,
   Ticket,
   TriangleAlert,
@@ -51,6 +52,7 @@ export const iconMap = {
   "wifi-off": WifiOff,
   star: Star,
   close: X,
+  settings: SlidersHorizontal,
 } as const;
 
 export type TIconName = keyof typeof iconMap;

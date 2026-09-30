@@ -7,7 +7,7 @@ import { Icon } from "../icon";
 
 export type THeaderProps = Pick<
   TScreenProps,
-  "title" | "canGoBack" | "headerComponent" | "onGoBack"
+  "title" | "canGoBack" | "headerComponent" | "onGoBack" | "headerRight"
 >;
 
 export const Header = ({
@@ -15,10 +15,11 @@ export const Header = ({
   canGoBack,
   headerComponent,
   onGoBack,
+  headerRight,
 }: THeaderProps) => {
   const { goBack } = useNavigation();
 
-  if (!title && !canGoBack && !headerComponent) {
+  if (!title && !canGoBack && !headerComponent && !headerRight) {
     return null;
   }
 
@@ -51,6 +52,8 @@ export const Header = ({
       {title ? <Text preset="h3">{title}</Text> : null}
 
       {title && <View style={styles.spacer} />}
+
+      {headerRight}
     </View>
   );
 };

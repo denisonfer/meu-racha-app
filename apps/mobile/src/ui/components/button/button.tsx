@@ -30,6 +30,12 @@ const presetConfig: Record<TButtonPreset, TPresetConfig> = {
     titleColor: "foreground",
     borderColor: "muted",
   },
+  destructiveOutline: {
+    backgroundColor: "background",
+    pressedBackgroundColor: "surface",
+    titleColor: "errorText",
+    borderColor: "danger",
+  },
 };
 
 const disabledConfig: TPresetConfig = {
@@ -48,10 +54,11 @@ export const Button = ({
 }: TButtonProps) => {
   const isInactive = isDisabled || isLoading;
 
+  const isOutline = preset === "outline" || preset === "destructiveOutline";
   const config: TPresetConfig = isDisabled
     ? {
         ...disabledConfig,
-        borderColor: preset === "outline" ? "mutedDisabled" : undefined,
+        borderColor: isOutline ? "mutedDisabled" : undefined,
       }
     : presetConfig[preset];
 

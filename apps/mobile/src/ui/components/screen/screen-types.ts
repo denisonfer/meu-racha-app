@@ -5,6 +5,8 @@ import { ViewProps } from "react-native";
 export type TScreenProps = ViewProps &
   PropsWithChildren & {
     headerComponent?: ReactNode;
+    /** Último item da linha do cabeçalho — ex.: o ícone de configurações. */
+    headerRight?: ReactNode;
     isScrollable?: boolean;
     title?: string;
     canGoBack?: boolean;
