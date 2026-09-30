@@ -27,6 +27,12 @@ export type TCreatedRacha = {
   inviteCode: string;
 };
 
+export type TRachaSettings = {
+  name: string;
+  minAge: number | null;
+  rules: TRachaRules;
+};
+
 export type TInviteStatus = "MEMBER" | "PENDING";
 
 export type TInvite = {

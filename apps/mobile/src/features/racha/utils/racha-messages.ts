@@ -42,3 +42,13 @@ export const JOIN_REQUEST_REFUSED = "Pedido recusado.";
 export const JOIN_REQUEST_ALREADY_RESOLVED = "Este pedido já foi resolvido.";
 export const JOIN_REQUEST_ACTION_FAILED =
   "Não deu pra concluir. Confira a internet e tente de novo.";
+
+export const NAME_REQUIRED_TO_SAVE =
+  "Falta o nome do racha. Digite um nome para salvar.";
+export const RACHA_SAVED = "Alterações salvas.";
+export const SAVE_RACHA_FAILED =
+  "Não salvou. Toque em Salvar para tentar de novo.";
+export const DISCARD_CHANGES_TITLE = "Descartar alterações?";
+export const RACHA_DELETED = "Racha excluído.";
+export const DELETE_RACHA_FAILED = JOIN_REQUEST_ACTION_FAILED;
+export const NOT_OWNER = "Só o dono pode mudar o racha.";

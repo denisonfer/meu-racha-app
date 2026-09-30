@@ -11,6 +11,7 @@ import {
   TMyRacha,
   TRacha,
   TRachaMember,
+  TRachaSettings,
 } from "./racha-types";
 
 // raise exception chega na message, não no code
@@ -232,6 +233,40 @@ async function listRachaMembers(rachaId: string): Promise<TRachaMember[]> {
   }));
 }
 
+async function updateRacha(
+  id: string,
+  settings: TRachaSettings
+): Promise<void> {
+  const { data, error, status } = await supabase
+    .from("racha")
+    .update({
+      name: settings.name,
+      min_age: settings.minAge,
+      outfield_per_team: settings.rules.outfieldPerTeam,
+      game_mode: settings.rules.gameMode,
+      max_consecutive_wins: settings.rules.maxConsecutiveWins,
+      tie_rule: settings.rules.tieRule,
+      tie_return_order: settings.rules.tieReturnOrder,
+      consider_position: settings.rules.considerPosition,
+      match_duration_min: settings.rules.matchDurationMin,
+    })
+    .eq("id", id)
+    .select("id");
+  if (error) throw toCodedError(error, status);
+  // a RLS filtra quem não é Dono: 0 linhas, sem erro
+  if (data.length === 0) throw new Error("not_allowed");
+}
+
+async function deleteRacha(id: string): Promise<void> {
+  const { data, error, status } = await supabase
+    .from("racha")
+    .delete()
+    .eq("id", id)
+    .select("id");
+  if (error) throw toCodedError(error, status);
+  if (data.length === 0) throw new Error("not_allowed");
+}
+
 export const rachaApi = {
   createRacha,
   listMyRachas,
@@ -244,4 +279,6 @@ export const rachaApi = {
   approveJoinRequest,
   refuseJoinRequest,
   listRachaMembers,
+  updateRacha,
+  deleteRacha,
 };
