@@ -37,5 +37,6 @@ export function useRachaHomeScreen() {
     backToRachas: () => router.navigate("/rachas"),
     openRequests: () => router.push(`/racha/${id}/requests`),
     openMembers: () => router.push(`/racha/${id}/members`),
+    openSettings: () => router.push(`/racha/${id}/settings`),
   };
 }

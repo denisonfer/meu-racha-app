@@ -101,12 +101,14 @@ export const RachaForm = ({
   isDisabled,
   isNameAutoFocused = false,
   isRulesHintVisible = true,
+  minAgeRestoreValue = DEFAULT_MIN_AGE,
   children,
 }: TRachaFormProps &
   PropsWithChildren<{
     isDisabled: boolean;
     isNameAutoFocused?: boolean;
     isRulesHintVisible?: boolean;
+    minAgeRestoreValue?: number;
   }>) => {
   const { scrollRef, align, onScroll } = useScrollFocusedInput();
 
@@ -140,7 +142,7 @@ export const RachaForm = ({
         onChange={setMinAge}
         unit="anos"
         noneLabel="Sem idade mínima"
-        restoreValue={DEFAULT_MIN_AGE}
+        restoreValue={minAgeRestoreValue}
         hint="Não barra ninguém: aparece no convite e destaca, no pedido, quem tem menos que isso."
         error={minAgeError}
         isDisabled={isDisabled}

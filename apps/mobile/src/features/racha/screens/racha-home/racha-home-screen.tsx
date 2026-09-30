@@ -14,10 +14,30 @@ export const RachaHomeScreen = () => {
     backToRachas,
     openRequests,
     openMembers,
+    openSettings,
   } = useRachaHomeScreen();
 
   return (
-    <Screen canGoBack onGoBack={backToRachas} isScrollable>
+    <Screen
+      canGoBack
+      onGoBack={backToRachas}
+      isScrollable
+      headerRight={
+        racha?.isOwner ? (
+          <Pressable
+            onPress={openSettings}
+            accessibilityRole="button"
+            accessibilityLabel="Configurações do racha"
+            style={({ pressed }) => [
+              styles.settingsButton,
+              pressed && styles.pressed,
+            ]}
+          >
+            <Icon name="settings" size={24} />
+          </Pressable>
+        ) : undefined
+      }
+    >
       {isLoading ? (
         <ActivityIndicator color={theme.colors.foreground} />
       ) : !racha ? (
@@ -75,16 +95,37 @@ export const RachaHomeScreen = () => {
 
             <View style={styles.divider} />
 
-            <View
-              style={styles.rules}
-              accessible
-              accessibilityLabel={`Regras do jogo: ${racha.summary.join(", ")}`}
-            >
-              <Text preset="small" color="muted" style={styles.bold}>
-                Regras do jogo
-              </Text>
-              <RulesSummary parts={racha.summary} />
-            </View>
+            {racha.isOwner ? (
+              <Pressable
+                onPress={openSettings}
+                accessibilityRole="button"
+                accessibilityLabel={`Regras do jogo: ${racha.summary.join(", ")}`}
+                accessibilityHint="Abre as configurações do racha"
+                style={({ pressed }) => [
+                  styles.rulesRow,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <View style={styles.rulesTexts}>
+                  <Text preset="small" color="muted" style={styles.bold}>
+                    Regras do jogo
+                  </Text>
+                  <RulesSummary parts={racha.summary} />
+                </View>
+                <Icon name="chevron-right" color="muted" />
+              </Pressable>
+            ) : (
+              <View
+                style={styles.rules}
+                accessible
+                accessibilityLabel={`Regras do jogo: ${racha.summary.join(", ")}`}
+              >
+                <Text preset="small" color="muted" style={styles.bold}>
+                  Regras do jogo
+                </Text>
+                <RulesSummary parts={racha.summary} />
+              </View>
+            )}
           </View>
 
           {racha.isOwner ? (
@@ -179,6 +220,14 @@ const styles = StyleSheet.create({
   bold: { fontFamily: "Manrope-Bold" },
 
   grow: { flex: 1 },
+  settingsButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: theme.minTouch,
+    height: theme.minTouch,
+    marginVertical: -10,
+    marginRight: -10,
+  },
   pressed: { opacity: 0.8 },
   pendingRow: {
     flexDirection: "row",
@@ -230,6 +279,17 @@ const styles = StyleSheet.create({
     paddingBottom: theme.space[16],
     paddingHorizontal: theme.space[16],
   },
+  rulesRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    minHeight: 52,
+    paddingTop: 14,
+    paddingBottom: theme.space[16],
+    paddingLeft: theme.space[16],
+    paddingRight: 12,
+  },
+  rulesTexts: { flex: 1, gap: theme.space[4] },
   nextEventCard: {
     gap: 2,
     padding: theme.space[16],
