@@ -1,12 +1,13 @@
 import {
   formatPlaysAs,
+  memberPermissions,
   groupMembersByPosition,
   initialsOf,
   LEVEL_NAME,
   levelFromOverall,
   OVERALL_MIN,
 } from "@meu-racha/domain";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/features/auth";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaMembers } from "../../hooks/use-racha-members";
@@ -52,6 +53,14 @@ export function useMembersScreen() {
     label: group.label,
     members: group.members.map((member) => {
       const isMe = member.profileId === session?.userId;
+      const canOpen = racha
+        ? memberPermissions(
+            racha.role,
+            member.role,
+            isMe,
+            member.playsAs === "GOALKEEPER"
+          ).canOpen
+        : false;
       return {
         profileId: member.profileId,
         name: member.displayName,
@@ -65,6 +74,9 @@ export function useMembersScreen() {
         stars: member.stars,
         isSuperStar: member.isSuperStar,
         accessibilityLabel: accessibilityLabelFor(member, isMe),
+        onPress: canOpen
+          ? () => router.push(`/racha/${id}/member/${member.profileId}`)
+          : undefined,
       };
     }),
   }));

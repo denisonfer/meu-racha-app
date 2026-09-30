@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Icon, PlayerCardMini, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { TMemberRole } from "../racha-types";
@@ -16,6 +16,7 @@ type TMemberRowProps = {
   stars: number | null;
   isSuperStar: boolean;
   accessibilityLabel: string;
+  onPress?: () => void;
 };
 
 export const MemberRow = ({
@@ -30,49 +31,76 @@ export const MemberRow = ({
   stars,
   isSuperStar,
   accessibilityLabel,
-}: TMemberRowProps) => (
-  <View accessible accessibilityLabel={accessibilityLabel} style={[styles.row]}>
-    <PlayerCardMini
-      width={44}
-      overall={overall}
-      initials={initials}
-      photoUri={photoUrl}
-    />
+  onPress,
+}: TMemberRowProps) => {
+  const content = (
+    <>
+      <PlayerCardMini
+        width={44}
+        overall={overall}
+        initials={initials}
+        photoUri={photoUrl}
+      />
 
-    <View style={styles.info}>
-      <View style={styles.nameRow}>
-        <Text style={styles.name} numberOfLines={1}>
-          {name}
-        </Text>
-        {isMe ? <Text style={styles.you}> · Você</Text> : null}
+      <View style={styles.info}>
+        <View style={styles.nameRow}>
+          <Text style={styles.name} numberOfLines={1}>
+            {name}
+          </Text>
+          {isMe ? <Text style={styles.you}> · Você</Text> : null}
+        </View>
+        <View style={styles.metaRow}>
+          {role !== "PLAYER" ? <RoleChip role={role} /> : null}
+          <Text preset="small" color="muted" style={styles.position}>
+            {positionText}
+          </Text>
+        </View>
       </View>
-      <View style={styles.metaRow}>
-        {role !== "PLAYER" ? <RoleChip role={role} /> : null}
-        <Text preset="small" color="muted" style={styles.position}>
-          {positionText}
-        </Text>
-      </View>
-    </View>
 
-    <View style={styles.right}>
-      {isGoalkeeper ? (
-        <Text style={styles.gol}>GOL</Text>
-      ) : (
-        <View style={styles.starsRow}>
-          <Text style={styles.starsNumber}>{stars}</Text>
-          <Icon name="star" size={18} color="action" fill="action" />
-        </View>
-      )}
-      {isSuperStar ? (
-        <View style={styles.superChip}>
-          <Text style={styles.superChipLabel}>SUPER ESTRELA</Text>
-        </View>
-      ) : null}
-    </View>
-  </View>
-);
+      <View style={styles.right}>
+        {isGoalkeeper ? (
+          <Text style={styles.gol}>GOL</Text>
+        ) : (
+          <View style={styles.starsRow}>
+            <Text style={styles.starsNumber}>{stars}</Text>
+            <Icon name="star" size={18} color="action" fill="action" />
+          </View>
+        )}
+        {isSuperStar ? (
+          <View style={styles.superChip}>
+            <Text style={styles.superChipLabel}>SUPER ESTRELA</Text>
+          </View>
+        ) : null}
+      </View>
+    </>
+  );
+
+  if (!onPress)
+    return (
+      <View
+        accessible
+        accessibilityLabel={accessibilityLabel}
+        style={styles.row}
+      >
+        {content}
+      </View>
+    );
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint="Abre Editar membro"
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+    >
+      {content}
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
+  pressed: { opacity: 0.8 },
   row: {
     flexDirection: "row",
     alignItems: "center",
