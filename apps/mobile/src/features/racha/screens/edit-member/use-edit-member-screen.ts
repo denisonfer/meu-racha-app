@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useSession } from "@/features/auth";
 import { useToast } from "@/ui/components";
+import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import { useUpdateMember } from "../../hooks/use-update-member";
@@ -45,8 +46,9 @@ export function useEditMemberScreen() {
   const [opened, setOpened] = useState<TRachaMember | null>(null);
   const member = found ?? opened ?? undefined;
 
-  const isNoAccess =
-    isNoAccessError(membersQuery.error) || isNoAccessError(rachaQuery.error);
+  const isNoAccess = useLeaveOnNoAccess(
+    isNoAccessError(membersQuery.error) ? membersQuery.error : rachaQuery.error
+  );
   const isLoading = membersQuery.isPending || rachaQuery.isPending;
   const isError = membersQuery.isError || rachaQuery.isError;
 
@@ -64,10 +66,6 @@ export function useEditMemberScreen() {
   const isGone = isReady && !member;
   const isBlocked = isReady && Boolean(member) && !canOpen && !opened;
   const isOpen = isReady && Boolean(member) && canOpen && !isNoAccess;
-
-  useEffect(() => {
-    if (isNoAccess) router.dismissTo("/rachas");
-  }, [isNoAccess]);
 
   useEffect(() => {
     if (isGone) {

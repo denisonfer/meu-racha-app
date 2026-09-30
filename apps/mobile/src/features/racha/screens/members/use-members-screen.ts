@@ -9,6 +9,7 @@ import {
 } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/features/auth";
+import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import { TRachaMember } from "../../racha-types";
@@ -46,6 +47,7 @@ export function useMembersScreen() {
   const { session } = useSession();
   const membersQuery = useRachaMembers(id);
   const { data: racha } = useRacha(id);
+  const isNoAccess = useLeaveOnNoAccess(membersQuery.error);
 
   const members = membersQuery.data ?? [];
   const groups = groupMembersByPosition(members).map((group) => ({
@@ -87,8 +89,8 @@ export function useMembersScreen() {
     showGroupTitles: members.length > 1,
     groups,
     isOnlyOwner: members.length === 1,
-    isLoading: membersQuery.isPending,
-    isError: membersQuery.isError,
+    isLoading: membersQuery.isPending || isNoAccess,
+    isError: membersQuery.isError && !isNoAccess,
     retry: () => void membersQuery.refetch(),
     isRetrying: membersQuery.isRefetching,
     shareInvite: () => racha && shareInvite(racha.name, racha.inviteCode),

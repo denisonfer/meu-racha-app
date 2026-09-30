@@ -1,12 +1,14 @@
 import { canLeaveRacha, formatRulesSummary } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
+import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useRacha } from "../../hooks/use-racha";
 import { pendingCountLabel, pendingWord } from "../../utils/racha-labels";
 import { shareInvite } from "../../utils/share-invite";
 
 export function useRachaHomeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: racha, isPending, refetch, isRefetching } = useRacha(id);
+  const { data: racha, isPending, error, refetch, isRefetching } = useRacha(id);
+  const isNoAccess = useLeaveOnNoAccess(error);
 
   const isOwnerOrAdmin = racha
     ? racha.role === "OWNER" || racha.role === "ADMIN"
@@ -38,7 +40,7 @@ export function useRachaHomeScreen() {
             ],
     },
     canLeave: racha ? canLeaveRacha(racha.role) : false,
-    isLoading: isPending,
+    isLoading: isPending || isNoAccess,
     retry: () => void refetch(),
     isRetrying: isRefetching,
     shareInvite: () => racha && shareInvite(racha.name, racha.inviteCode),

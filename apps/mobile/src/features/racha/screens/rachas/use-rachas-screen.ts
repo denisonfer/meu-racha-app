@@ -3,7 +3,9 @@ import { useCallback, useRef } from "react";
 import { useToast } from "@/ui/components";
 import { useCancelJoinRequest } from "../../hooks/use-cancel-join-request";
 import { useMyJoinRequests } from "../../hooks/use-my-join-requests";
+import { useDismissRachaNotice } from "../../hooks/use-dismiss-racha-notice";
 import { useMyRachas } from "../../hooks/use-my-rachas";
+import { useRachaNotices } from "../../hooks/use-racha-notices";
 import {
   ROLE_ACCESSIBILITY_LABEL,
   memberCountLabel,
@@ -11,19 +13,25 @@ import {
   pendingCountLabel,
 } from "../../utils/racha-labels";
 import {
+  ACTION_FAILED,
   CANCEL_JOIN_REQUEST_FAILED,
   JOIN_REQUEST_CANCELLED,
+  NOTICE_RACHA_DELETED,
+  NOTICE_REMOVED,
 } from "../../utils/racha-messages";
 
 export function useRachasScreen() {
   const rachasQuery = useMyRachas();
   const joinRequestsQuery = useMyJoinRequests();
+  const noticesQuery = useRachaNotices();
+  const { dismiss } = useDismissRachaNotice();
   const { cancelJoinRequest, isCancelling } = useCancelJoinRequest();
   const showToast = useToast();
 
   // refetch é estável; o objeto do useQuery muda a cada estado e faria loop no foco
   const { refetch: refetchRachas } = rachasQuery;
   const { refetch: refetchJoinRequests } = joinRequestsQuery;
+  const { refetch: refetchNotices } = noticesQuery;
 
   // a aba fica montada: sem isso selo e aprovação não chegam do outro aparelho
   // o 1º foco é a montagem, que já buscou
@@ -36,7 +44,8 @@ export function useRachasScreen() {
       }
       void refetchRachas();
       void refetchJoinRequests();
-    }, [refetchRachas, refetchJoinRequests])
+      void refetchNotices();
+    }, [refetchRachas, refetchJoinRequests, refetchNotices])
   );
 
   const joinRequests = joinRequestsQuery.data ?? [];
@@ -56,7 +65,23 @@ export function useRachasScreen() {
     }
   };
 
+  const dismissNotice = async (id: string) => {
+    try {
+      await dismiss(id);
+    } catch {
+      showToast(ACTION_FAILED, "danger");
+    }
+  };
+
   return {
+    // erro ao carregar os avisos não aparece: a lista segue sem eles
+    notices: (noticesQuery.data ?? []).map((notice) => ({
+      id: notice.id,
+      title: notice.rachaName,
+      text:
+        notice.kind === "RACHA_DELETED" ? NOTICE_RACHA_DELETED : NOTICE_REMOVED,
+      dismiss: () => void dismissNotice(notice.id),
+    })),
     rachas: (rachasQuery.data ?? []).map((racha) => {
       const isOwnerOrAdmin = racha.role === "OWNER" || racha.role === "ADMIN";
       const hasPending = isOwnerOrAdmin && racha.pendingCount > 0;

@@ -1,5 +1,12 @@
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
-import { Button, EmptyState, Icon, Screen, Text } from "@/ui/components";
+import {
+  Button,
+  EmptyState,
+  Icon,
+  NoticeBanner,
+  Screen,
+  Text,
+} from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { JoinRequestCard } from "../../components/join-request-card";
 import { RoleChip } from "../../components/role-chip";
@@ -8,6 +15,7 @@ import { useRachasScreen } from "./use-rachas-screen";
 
 export const RachasScreen = () => {
   const {
+    notices,
     rachas,
     joinRequests,
     isLoading,
@@ -34,6 +42,20 @@ export const RachasScreen = () => {
       </View>
 
       <View style={styles.content}>
+        {notices.length > 0 ? (
+          <View style={styles.notices}>
+            {notices.map((notice) => (
+              <NoticeBanner
+                key={notice.id}
+                tone="warning"
+                title={notice.title}
+                text={notice.text}
+                actionLabel="Entendi"
+                onAction={notice.dismiss}
+              />
+            ))}
+          </View>
+        ) : null}
         {isLoading ? (
           <ActivityIndicator color={theme.colors.foreground} />
         ) : isError ? (
@@ -180,6 +202,7 @@ const styles = StyleSheet.create({
   },
   title: { flex: 1, fontFamily: "Manrope-ExtraBold" },
   content: { gap: 12 },
+  notices: { gap: 12, marginBottom: theme.space[4] }, // 12 do content + 4 = 16
   bold: { fontFamily: "Manrope-Bold" },
   grow: { flex: 1 },
   pressed: { opacity: 0.8 },
