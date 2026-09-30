@@ -3,14 +3,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { rachaApi } from "../racha-api";
 import { myRachasKey } from "./use-my-rachas";
 
-type TCreateRachaInput = { name: string; rules: TRachaRules };
+type TCreateRachaInput = {
+  name: string;
+  rules: TRachaRules;
+  minAge: number | null;
+};
 
 export function useCreateRacha() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({ name, rules }: TCreateRachaInput) =>
-      rachaApi.createRacha(name, rules),
+    mutationFn: ({ name, rules, minAge }: TCreateRachaInput) =>
+      rachaApi.createRacha(name, rules, minAge),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: myRachasKey });
     },

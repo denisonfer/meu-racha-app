@@ -24,6 +24,12 @@ export const RACHA_NAME_MIN = 2;
 export const RACHA_NAME_MAX = 40;
 export const RACHA_NAME_PATTERN = /^\p{L}[\p{L}\d '.-]*$/u;
 
+// Idade mínima (regra 7.0): informativa, não barra ninguém. 16 é o mínimo do
+// app; 90 é o teto de idade que o Cadastro aceita. Espelha min_age_range.
+export const MIN_AGE_MIN = 16;
+export const MIN_AGE_MAX = 90;
+export const DEFAULT_MIN_AGE = 30;
+
 export const DEFAULT_RACHA_RULES: TRachaRules = {
   outfieldPerTeam: 5,
   gameMode: "WINNER_STAYS",

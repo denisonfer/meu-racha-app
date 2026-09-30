@@ -23,3 +23,19 @@ export type TCreatedRacha = {
   id: string;
   inviteCode: string;
 };
+
+export type TInviteStatus = "MEMBER" | "PENDING" | "REJECTED";
+
+export type TInvite = {
+  rachaId: string;
+  name: string;
+  memberCount: number;
+  ownerName: string;
+  minAge: number | null;
+  myStatus: TInviteStatus | null;
+};
+
+export type TMyJoinRequest = {
+  rachaId: string;
+  rachaName: string;
+};

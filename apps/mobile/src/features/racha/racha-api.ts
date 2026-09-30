@@ -1,7 +1,14 @@
 import type { PostgrestError } from "@supabase/supabase-js";
-import type { TRachaRules } from "@meu-racha/domain";
+import { normalizeInviteCode, type TRachaRules } from "@meu-racha/domain";
 import { supabase } from "@/lib/supabase";
-import { TCreatedRacha, TMyRacha, TRacha } from "./racha-types";
+import {
+  TCreatedRacha,
+  TInvite,
+  TInviteStatus,
+  TMyJoinRequest,
+  TMyRacha,
+  TRacha,
+} from "./racha-types";
 
 // status 0 = o pedido nem chegou ao servidor; o resto vira o código do banco
 // (plan_owner_limit vem como message de um raise exception)
@@ -13,7 +20,8 @@ function toCodedError(error: PostgrestError, status: number): Error {
 
 async function createRacha(
   name: string,
-  rules: TRachaRules
+  rules: TRachaRules,
+  minAge: number | null
 ): Promise<TCreatedRacha> {
   const { data, error, status } = await supabase.rpc("create_racha", {
     p_name: name,
@@ -26,6 +34,7 @@ async function createRacha(
     ...(rules.matchDurationMin === null
       ? {}
       : { p_match_duration_min: rules.matchDurationMin }),
+    ...(minAge === null ? {} : { p_min_age: minAge }),
   });
   if (error) throw toCodedError(error, status);
 
@@ -86,4 +95,65 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
   };
 }
 
-export const rachaApi = { createRacha, listMyRachas, getRacha };
+async function getInvite(code: string): Promise<TInvite | null> {
+  const { data, error, status } = await supabase.rpc("get_invite", {
+    p_code: normalizeInviteCode(code),
+  });
+  if (error) throw toCodedError(error, status);
+
+  const row = data[0];
+  if (!row) return null;
+
+  return {
+    rachaId: row.racha_id,
+    name: row.name,
+    memberCount: row.member_count,
+    ownerName: row.owner_name,
+    // o gerador de tipos marca min_age/my_status como not-null, mas o banco
+    // devolve null de verdade (sem idade mínima; sem pedido do usuário)
+    minAge: row.min_age ?? null,
+    myStatus: (row.my_status as TInviteStatus | null) ?? null,
+  };
+}
+
+async function requestJoin(rachaId: string): Promise<void> {
+  const { error, status } = await supabase
+    .from("join_request")
+    .insert({ racha_id: rachaId });
+  if (error) {
+    if (error.code === "23505") throw new Error("already_requested");
+    throw toCodedError(error, status);
+  }
+}
+
+async function cancelJoinRequest(rachaId: string): Promise<void> {
+  const { data, error, status } = await supabase
+    .from("join_request")
+    .delete()
+    .eq("racha_id", rachaId)
+    .select("id");
+  if (error) throw toCodedError(error, status);
+  // a RLS só apaga pedido PENDING do próprio usuário: 0 linhas = já não
+  // estava pendente (cancelado em outro aparelho, aprovado ou recusado)
+  if (data.length === 0) throw new Error("join_request_not_pending");
+}
+
+async function listMyJoinRequests(): Promise<TMyJoinRequest[]> {
+  const { data, error, status } = await supabase.rpc("list_my_join_requests");
+  if (error) throw toCodedError(error, status);
+
+  return data.map((row) => ({
+    rachaId: row.racha_id,
+    rachaName: row.racha_name,
+  }));
+}
+
+export const rachaApi = {
+  createRacha,
+  listMyRachas,
+  getRacha,
+  getInvite,
+  requestJoin,
+  cancelJoinRequest,
+  listMyJoinRequests,
+};

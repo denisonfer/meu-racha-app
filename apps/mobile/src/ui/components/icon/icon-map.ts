@@ -1,4 +1,6 @@
 import {
+  Ban,
+  Calendar,
   Check,
   ChevronDown,
   ChevronLeft,
@@ -6,6 +8,7 @@ import {
   CircleCheck,
   CircleUserRound,
   CircleX,
+  Clock,
   Eye,
   EyeOff,
   Minus,
@@ -13,6 +16,9 @@ import {
   Share,
   Ticket,
   TriangleAlert,
+  User,
+  Users,
+  WifiOff,
 } from "lucide-react-native";
 import { NotificationIcon, RachaIcon } from "./brand-icons";
 
@@ -33,6 +39,12 @@ export const iconMap = {
   "chevron-right": ChevronRight,
   share: Share,
   ticket: Ticket,
+  user: User,
+  users: Users,
+  calendar: Calendar,
+  clock: Clock,
+  ban: Ban,
+  "wifi-off": WifiOff,
 } as const;
 
 export type TIconName = keyof typeof iconMap;

@@ -9,16 +9,10 @@ import {
   TTieReturnOrder,
   TTieRule,
 } from "@meu-racha/domain";
-import { Pressable, StyleSheet, Switch, TextInput, View } from "react-native";
-import {
-  Chip,
-  ChipGroup,
-  Icon,
-  OptionList,
-  Stepper,
-  Text,
-} from "@/ui/components";
+import { Pressable, StyleSheet, Switch, View } from "react-native";
+import { ChipGroup, Icon, OptionList, Stepper, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { OptionalNumberField } from "../../components/optional-number-field";
 import { RulesSummary } from "../../components/rules-summary";
 
 const TIE_RULE_OPTIONS: { value: TTieRule; label: string }[] = [
@@ -80,8 +74,6 @@ export const RulesSection = ({
   isDisabled,
   matchDurationError,
 }: TRulesSectionProps) => {
-  const isNoClock = rules.matchDurationMin === null;
-
   return (
     <View style={[styles.card, isDisabled && styles.cardDisabled]}>
       <Pressable
@@ -196,67 +188,22 @@ export const RulesSection = ({
             />
           </View>
 
-          <View style={[styles.field, styles.divided, styles.stack]}>
-            <Text style={styles.bold}>
-              Duração da partida{" "}
-              <Text preset="small" color="muted">
-                Opcional
-              </Text>
-            </Text>
-            <View style={styles.durationRow}>
-              <View
-                style={[
-                  styles.durationField,
-                  matchDurationError ? styles.durationFieldError : null,
-                ]}
-              >
-                <TextInput
-                  value={
-                    rules.matchDurationMin === null
-                      ? ""
-                      : String(rules.matchDurationMin)
-                  }
-                  onChangeText={(text) => {
-                    const digits = text.replace(/\D/g, "");
-                    onChange(
-                      "matchDurationMin",
-                      digits ? Number(digits) : null
-                    );
-                  }}
-                  keyboardType="number-pad"
-                  maxLength={3}
-                  placeholder="–"
-                  placeholderTextColor={theme.colors.muted}
-                  editable={!isDisabled}
-                  accessibilityLabel="Duração da partida, em minutos"
-                  style={styles.durationInput}
-                />
-                <Text color="muted" style={styles.bold}>
-                  min
-                </Text>
-              </View>
-              <Chip
-                label="Sem relógio"
-                isSelected={isNoClock}
-                isDisabled={isDisabled}
-                onPress={() =>
-                  onChange(
-                    "matchDurationMin",
-                    isNoClock ? DEFAULT_RACHA_RULES.matchDurationMin : null
-                  )
-                }
-              />
-            </View>
-            {matchDurationError ? (
-              <Text preset="small" color="errorText" accessibilityRole="alert">
-                {matchDurationError}
-              </Text>
-            ) : (
-              <Text preset="small" color="muted">
-                O app só mostra o relógio. Quem encerra a partida é o
-                organizador.
-              </Text>
-            )}
+          <View style={[styles.field, styles.divided]}>
+            <OptionalNumberField
+              label="Duração da partida"
+              value={rules.matchDurationMin}
+              onChange={(value) => onChange("matchDurationMin", value)}
+              unit="min"
+              noneLabel="Sem relógio"
+              // matchDurationMin é number | null no tipo (pode ser "sem
+              // relógio"), mas o valor padrão em si nunca é nulo.
+              restoreValue={DEFAULT_RACHA_RULES.matchDurationMin!}
+              hint="O app só mostra o relógio. Quem encerra a partida é o organizador."
+              error={matchDurationError}
+              isDisabled={isDisabled}
+              accessibilityLabel="Duração da partida, em minutos"
+              isOptional
+            />
           </View>
         </View>
       ) : null}
@@ -303,28 +250,4 @@ const styles = StyleSheet.create({
   },
   row: { flexDirection: "row", alignItems: "center", gap: theme.space[16] },
   rowTexts: { flex: 1, gap: theme.space[4] },
-  durationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.space[8],
-  },
-  durationField: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    width: 132,
-    height: 56,
-    paddingHorizontal: 15,
-    borderRadius: theme.radius.control,
-    borderWidth: 1,
-    borderColor: theme.colors.muted,
-    backgroundColor: theme.colors.background,
-  },
-  durationFieldError: { borderColor: theme.colors.danger },
-  durationInput: {
-    flex: 1,
-    color: theme.colors.foreground,
-    ...theme.text.stat,
-    fontVariant: ["tabular-nums"],
-  },
 });

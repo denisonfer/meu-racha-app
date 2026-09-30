@@ -1,6 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { Button, EmptyState, Icon, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { JoinRequestCard } from "../../components/join-request-card";
 import { RoleChip } from "../../components/role-chip";
 import { TMemberRole } from "../../racha-types";
 import { useRachasScreen } from "./use-rachas-screen";
@@ -8,15 +9,18 @@ import { useRachasScreen } from "./use-rachas-screen";
 export const RachasScreen = () => {
   const {
     rachas,
+    joinRequests,
     isLoading,
     isError,
     retry,
     isRetrying,
     createRacha,
     openRacha,
+    cancelJoinRequest,
+    enterCode,
   } = useRachasScreen();
 
-  const hasRachas = rachas.length > 0;
+  const hasItems = rachas.length > 0 || joinRequests.length > 0;
 
   return (
     <Screen hasTabBar isScrollable>
@@ -24,7 +28,7 @@ export const RachasScreen = () => {
         <Text preset="h1" style={styles.title}>
           Rachas
         </Text>
-        {hasRachas ? (
+        {hasItems ? (
           <Button title="Criar racha" preset="text" onPress={createRacha} />
         ) : null}
       </View>
@@ -40,7 +44,7 @@ export const RachasScreen = () => {
             onAction={retry}
             isLoading={isRetrying}
           />
-        ) : hasRachas ? (
+        ) : hasItems ? (
           <>
             {rachas.map((racha) => (
               <RachaCard
@@ -49,9 +53,24 @@ export const RachasScreen = () => {
                 onPress={() => openRacha(racha.id)}
               />
             ))}
-            {/* sem destino: entrar com código é a fatia 3 */}
+            {joinRequests.length > 0 ? (
+              <>
+                <Text preset="small" color="muted" style={styles.bold}>
+                  Pedidos enviados
+                </Text>
+                {joinRequests.map((request) => (
+                  <JoinRequestCard
+                    key={request.rachaId}
+                    rachaName={request.rachaName}
+                    isCancelling={request.isCancelling}
+                    isCancelDisabled={request.isCancelDisabled}
+                    onCancel={() => cancelJoinRequest(request.rachaId)}
+                  />
+                ))}
+              </>
+            ) : null}
             <Pressable
-              onPress={() => {}}
+              onPress={enterCode}
               accessibilityRole="button"
               accessibilityLabel="Entrar com código"
               accessibilityHint="Recebeu um código de 6 caracteres? Use aqui."
@@ -78,11 +97,10 @@ export const RachasScreen = () => {
               actionLabel="Criar racha"
               onAction={createRacha}
             />
-            {/* sem destino: entrar com código é a fatia 3 */}
             <Button
               title="Entrar com código"
               preset="text"
-              onPress={() => {}}
+              onPress={enterCode}
             />
           </>
         )}

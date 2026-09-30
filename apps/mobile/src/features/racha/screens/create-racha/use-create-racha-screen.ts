@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  DEFAULT_MIN_AGE,
   DEFAULT_RACHA_RULES,
   formatRulesSummary,
   TRachaRules,
@@ -32,12 +33,22 @@ export function useCreateRachaScreen() {
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<TCreateRachaForm>({
     resolver: zodResolver(createRachaSchema),
-    defaultValues: { name: "", rules: DEFAULT_RACHA_RULES },
+    defaultValues: {
+      name: "",
+      minAge: DEFAULT_MIN_AGE,
+      rules: DEFAULT_RACHA_RULES,
+    },
     reValidateMode: "onSubmit",
   });
 
   const name = useWatch({ control, name: "name" });
   useEffect(() => clearErrors("name"), [name, clearErrors]);
+
+  const minAge = useWatch({ control, name: "minAge" });
+  const setMinAge = (value: number | null) => {
+    setValue("minAge", value);
+    clearErrors("minAge");
+  };
 
   const rules = useWatch({ control, name: "rules" });
 
@@ -70,6 +81,9 @@ export function useCreateRachaScreen() {
   return {
     control,
     nameRef,
+    minAge,
+    setMinAge,
+    minAgeError: errors.minAge?.message,
     rules,
     summary: formatRulesSummary(rules),
     setRule,

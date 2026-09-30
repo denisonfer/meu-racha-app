@@ -34,6 +34,45 @@ export type Database = {
   };
   public: {
     Tables: {
+      join_request: {
+        Row: {
+          created_at: string;
+          id: string;
+          profile_id: string;
+          racha_id: string;
+          status: Database["public"]["Enums"]["join_request_status"];
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          profile_id?: string;
+          racha_id: string;
+          status?: Database["public"]["Enums"]["join_request_status"];
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          profile_id?: string;
+          racha_id?: string;
+          status?: Database["public"]["Enums"]["join_request_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "join_request_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "join_request_racha_id_fkey";
+            columns: ["racha_id"];
+            isOneToOne: false;
+            referencedRelation: "racha";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       member: {
         Row: {
           id: string;
@@ -133,6 +172,7 @@ export type Database = {
           invite_code: string;
           match_duration_min: number | null;
           max_consecutive_wins: number;
+          min_age: number | null;
           name: string;
           outfield_per_team: number;
           tie_return_order: Database["public"]["Enums"]["tie_return_order"];
@@ -146,6 +186,7 @@ export type Database = {
           invite_code: string;
           match_duration_min?: number | null;
           max_consecutive_wins?: number;
+          min_age?: number | null;
           name: string;
           outfield_per_team?: number;
           tie_return_order?: Database["public"]["Enums"]["tie_return_order"];
@@ -159,6 +200,7 @@ export type Database = {
           invite_code?: string;
           match_duration_min?: number | null;
           max_consecutive_wins?: number;
+          min_age?: number | null;
           name?: string;
           outfield_per_team?: number;
           tie_return_order?: Database["public"]["Enums"]["tie_return_order"];
@@ -212,6 +254,7 @@ export type Database = {
           p_game_mode: Database["public"]["Enums"]["game_mode"];
           p_match_duration_min?: number;
           p_max_consecutive_wins: number;
+          p_min_age?: number;
           p_name: string;
           p_outfield_per_team: number;
           p_tie_return_order: Database["public"]["Enums"]["tie_return_order"];
@@ -223,10 +266,29 @@ export type Database = {
         }[];
       };
       email_available: { Args: { p_email: string }; Returns: boolean };
+      get_invite: {
+        Args: { p_code: string };
+        Returns: {
+          member_count: number;
+          min_age: number;
+          my_status: string;
+          name: string;
+          owner_name: string;
+          racha_id: string;
+        }[];
+      };
       is_racha_member: { Args: { p_racha_id: string }; Returns: boolean };
+      list_my_join_requests: {
+        Args: never;
+        Returns: {
+          racha_id: string;
+          racha_name: string;
+        }[];
+      };
     };
     Enums: {
       game_mode: "WINNER_STAYS" | "ROTATION" | "MAX_WINS";
+      join_request_status: "PENDING" | "APPROVED" | "REJECTED";
       member_role: "OWNER" | "ADMIN" | "PLAYER";
       plays_as: "OUTFIELD" | "GOALKEEPER";
       position: "ANY" | "DEFENDER" | "MIDFIELDER" | "FORWARD";
@@ -363,6 +425,7 @@ export const Constants = {
   public: {
     Enums: {
       game_mode: ["WINNER_STAYS", "ROTATION", "MAX_WINS"],
+      join_request_status: ["PENDING", "APPROVED", "REJECTED"],
       member_role: ["OWNER", "ADMIN", "PLAYER"],
       plays_as: ["OUTFIELD", "GOALKEEPER"],
       position: ["ANY", "DEFENDER", "MIDFIELDER", "FORWARD"],

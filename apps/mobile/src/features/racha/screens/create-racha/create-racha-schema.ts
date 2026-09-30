@@ -3,6 +3,8 @@ import {
   MATCH_DURATION_MIN,
   MAX_WINS_MAX,
   MAX_WINS_MIN,
+  MIN_AGE_MAX,
+  MIN_AGE_MIN,
   OUTFIELD_PER_TEAM_MAX,
   OUTFIELD_PER_TEAM_MIN,
   RACHA_NAME_MAX,
@@ -12,6 +14,7 @@ import {
 import { z } from "zod";
 import {
   MATCH_DURATION_INVALID,
+  MIN_AGE_INVALID,
   NAME_INVALID,
   NAME_REQUIRED,
   NAME_TOO_SHORT,
@@ -25,6 +28,12 @@ export const createRachaSchema = z.object({
     .min(RACHA_NAME_MIN, NAME_TOO_SHORT)
     .max(RACHA_NAME_MAX)
     .regex(RACHA_NAME_PATTERN, NAME_INVALID),
+  minAge: z
+    .number()
+    .int()
+    .min(MIN_AGE_MIN, MIN_AGE_INVALID)
+    .max(MIN_AGE_MAX, MIN_AGE_INVALID)
+    .nullable(),
   rules: z.object({
     outfieldPerTeam: z
       .number()
