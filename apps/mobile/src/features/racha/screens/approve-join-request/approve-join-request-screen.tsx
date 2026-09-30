@@ -26,7 +26,12 @@ export const ApproveJoinRequestScreen = () => {
   return (
     <BottomSheet
       leading={
-        <Avatar name={person.name} photoUrl={person.photoUrl} size={48} />
+        <Avatar
+          name={person.name}
+          photoUrl={person.photoUrl}
+          size={48}
+          backgroundColor="background"
+        />
       }
       title={person.title}
       supporting={

@@ -1,15 +1,22 @@
 import { initialsOf } from "@meu-racha/domain";
 import { useId } from "react";
 import Svg, { Circle, ClipPath, Defs, Image, Text } from "react-native-svg";
-import { theme } from "@/ui/theme";
+import { theme, TThemeColor } from "@/ui/theme";
 
 export type TAvatarProps = {
   name: string;
   photoUrl: string | null;
   size: number;
+  /** Sobre a folha (surfaceRaised), o círculo precisa de outro tom para não sumir. */
+  backgroundColor?: TThemeColor;
 };
 
-export const Avatar = ({ name, photoUrl, size }: TAvatarProps) => {
+export const Avatar = ({
+  name,
+  photoUrl,
+  size,
+  backgroundColor = "surfaceRaised",
+}: TAvatarProps) => {
   const radius = size / 2;
   const fontSize = size >= 48 ? 16 : 14;
   // id único por instância: no web o id é global e os ":" do useId quebram o url(#…)
@@ -26,7 +33,7 @@ export const Avatar = ({ name, photoUrl, size }: TAvatarProps) => {
         cx={radius}
         cy={radius}
         r={radius}
-        fill={theme.colors.surfaceRaised}
+        fill={theme.colors[backgroundColor]}
       />
       {photoUrl ? (
         <Image
