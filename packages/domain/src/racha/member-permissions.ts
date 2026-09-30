@@ -9,6 +9,7 @@ export type TMemberPermissions = {
   canEditStars: boolean;
   canChangeRole: boolean;
   canExpel: boolean;
+  canTransferOwnership: boolean;
 };
 
 export function memberPermissions(
@@ -26,12 +27,19 @@ export function memberPermissions(
     !isSelf &&
     ((isOwner && targetRole !== "OWNER") ||
       (isAdmin && targetRole === "PLAYER"));
+  const canTransferOwnership = isOwner && !isSelf;
   // sem nada editável a linha não abre (ex.: Admin diante de Admin Goleiro)
   const canOpen =
     (isOwner || (isAdmin && !isSelf)) &&
-    (canEditStars || canChangeRole || canExpel);
+    (canEditStars || canChangeRole || canExpel || canTransferOwnership);
 
-  return { canOpen, canEditStars, canChangeRole, canExpel };
+  return {
+    canOpen,
+    canEditStars,
+    canChangeRole,
+    canExpel,
+    canTransferOwnership,
+  };
 }
 
 export const canLeaveRacha = (role: TMemberRole) => role !== "OWNER";

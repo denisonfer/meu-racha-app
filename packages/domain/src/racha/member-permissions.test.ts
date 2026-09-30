@@ -23,6 +23,7 @@ describe("memberPermissions", () => {
       canEditStars: true,
       canChangeRole: true,
       canExpel: true,
+      canTransferOwnership: true,
     });
   });
 
@@ -32,6 +33,7 @@ describe("memberPermissions", () => {
       canEditStars: true,
       canChangeRole: false,
       canExpel: false,
+      canTransferOwnership: false,
     });
   });
 
@@ -45,6 +47,7 @@ describe("memberPermissions", () => {
       canEditStars: false,
       canChangeRole: true,
       canExpel: true,
+      canTransferOwnership: true,
     });
   });
 
@@ -54,6 +57,7 @@ describe("memberPermissions", () => {
       canEditStars: true,
       canChangeRole: false,
       canExpel: true,
+      canTransferOwnership: false,
     });
   });
 
@@ -63,6 +67,7 @@ describe("memberPermissions", () => {
       canEditStars: true,
       canChangeRole: false,
       canExpel: false,
+      canTransferOwnership: false,
     });
   });
 
@@ -72,6 +77,7 @@ describe("memberPermissions", () => {
       canEditStars: true,
       canChangeRole: false,
       canExpel: false,
+      canTransferOwnership: false,
     });
   });
 
@@ -96,6 +102,24 @@ describe("memberPermissions", () => {
         false
       );
     }
+  });
+
+  test("só o Dono passa o racha, e nunca para si", () => {
+    expect(
+      memberPermissions("OWNER", "PLAYER", false, false).canTransferOwnership
+    ).toBe(true);
+    expect(
+      memberPermissions("OWNER", "ADMIN", false, true).canTransferOwnership
+    ).toBe(true);
+    expect(
+      memberPermissions("OWNER", "OWNER", true, false).canTransferOwnership
+    ).toBe(false);
+    expect(
+      memberPermissions("ADMIN", "PLAYER", false, false).canTransferOwnership
+    ).toBe(false);
+    expect(
+      memberPermissions("PLAYER", "PLAYER", false, false).canTransferOwnership
+    ).toBe(false);
   });
 });
 
