@@ -227,6 +227,41 @@ export type Database = {
         };
         Relationships: [];
       };
+      racha_notice: {
+        Row: {
+          created_at: string;
+          id: string;
+          kind: Database["public"]["Enums"]["racha_notice_kind"];
+          profile_id: string;
+          racha_id: string;
+          racha_name: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          kind: Database["public"]["Enums"]["racha_notice_kind"];
+          profile_id: string;
+          racha_id: string;
+          racha_name: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          kind?: Database["public"]["Enums"]["racha_notice_kind"];
+          profile_id?: string;
+          racha_id?: string;
+          racha_name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "racha_notice_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       season: {
         Row: {
           closed: boolean;
@@ -289,6 +324,10 @@ export type Database = {
         }[];
       };
       email_available: { Args: { p_email: string }; Returns: boolean };
+      expel_member: {
+        Args: { p_profile_id: string; p_racha_id: string };
+        Returns: undefined;
+      };
       get_invite: {
         Args: { p_code: string };
         Returns: {
@@ -301,6 +340,7 @@ export type Database = {
         }[];
       };
       is_racha_member: { Args: { p_racha_id: string }; Returns: boolean };
+      leave_racha: { Args: { p_racha_id: string }; Returns: undefined };
       list_join_requests: {
         Args: { p_racha_id: string };
         Returns: {
@@ -342,6 +382,16 @@ export type Database = {
         Args: { p_request_id: string };
         Returns: undefined;
       };
+      update_member: {
+        Args: {
+          p_profile_id: string;
+          p_racha_id: string;
+          p_role: Database["public"]["Enums"]["member_role"];
+          p_stars: number;
+          p_super_star: boolean;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       game_mode: "WINNER_STAYS" | "ROTATION" | "MAX_WINS";
@@ -349,6 +399,7 @@ export type Database = {
       member_role: "OWNER" | "ADMIN" | "PLAYER";
       plays_as: "OUTFIELD" | "GOALKEEPER";
       position: "ANY" | "DEFENDER" | "MIDFIELDER" | "FORWARD";
+      racha_notice_kind: "RACHA_DELETED" | "REMOVED";
       tie_return_order: "RANDOM" | "TEAM_ORDER";
       tie_rule: "BOTH_OUT" | "BOTH_STAY" | "PENALTIES" | "CHALLENGER_WINS";
     };
@@ -486,6 +537,7 @@ export const Constants = {
       member_role: ["OWNER", "ADMIN", "PLAYER"],
       plays_as: ["OUTFIELD", "GOALKEEPER"],
       position: ["ANY", "DEFENDER", "MIDFIELDER", "FORWARD"],
+      racha_notice_kind: ["RACHA_DELETED", "REMOVED"],
       tie_return_order: ["RANDOM", "TEAM_ORDER"],
       tie_rule: ["BOTH_OUT", "BOTH_STAY", "PENALTIES", "CHALLENGER_WINS"],
     },
