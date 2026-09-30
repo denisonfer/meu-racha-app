@@ -28,7 +28,14 @@ export function useRachaHomeScreen() {
       isOwner: racha.role === "OWNER",
       memberCount: racha.memberCount,
       pendingRow,
-      summary: formatRulesSummary(racha.rules),
+      // no formulário a idade tem bloco próprio; na home, só o resumo a mostra
+      summary:
+        racha.minAge === null
+          ? formatRulesSummary(racha.rules)
+          : [
+              ...formatRulesSummary(racha.rules),
+              `A partir de ${racha.minAge} anos`,
+            ],
     },
     isLoading: isPending,
     retry: () => void refetch(),
