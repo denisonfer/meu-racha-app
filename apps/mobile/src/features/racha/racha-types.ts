@@ -70,3 +70,15 @@ export type TRachaMember = {
   stars: number | null;
   isSuperStar: boolean;
 };
+
+export type TMemberUpdate = {
+  stars: number | null;
+  isSuperStar: boolean;
+  role: TMemberRole;
+};
+
+export type TRachaNotice = {
+  id: string;
+  rachaName: string;
+  kind: "RACHA_DELETED" | "REMOVED";
+};

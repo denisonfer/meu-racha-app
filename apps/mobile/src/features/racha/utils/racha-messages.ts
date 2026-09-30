@@ -1,4 +1,5 @@
 import {
+  ADMIN_LIMIT_FREE,
   MATCH_DURATION_MAX,
   MATCH_DURATION_MIN,
   MIN_AGE_MAX,
@@ -52,3 +53,17 @@ export const DISCARD_CHANGES_TITLE = "Descartar alterações?";
 export const RACHA_DELETED = "Racha excluído.";
 export const DELETE_RACHA_FAILED = JOIN_REQUEST_ACTION_FAILED;
 export const NOT_OWNER = "Só o dono pode mudar o racha.";
+
+export const ADMIN_LIMIT_HINT = `Até ${ADMIN_LIMIT_FREE} admins no plano grátis.`;
+export const ADMIN_LIMIT_REACHED = `Já são ${ADMIN_LIMIT_FREE} admins, o máximo no plano grátis.`;
+export const MEMBER_SAVED = RACHA_SAVED;
+export const SAVE_MEMBER_FAILED = SAVE_RACHA_FAILED;
+export const MEMBER_EXPELLED = (name: string) =>
+  `${name} foi removido do racha.`;
+export const MEMBER_GONE = "Este membro não está mais no racha.";
+export const MEMBER_NOT_ALLOWED = "Você não pode mais mudar este membro.";
+export const LEFT_RACHA = "Você saiu do racha.";
+export const ACTION_FAILED = JOIN_REQUEST_ACTION_FAILED;
+export const NOTICE_RACHA_DELETED = "O dono excluiu este racha.";
+export const NOTICE_REMOVED =
+  "Você não faz mais parte deste racha. Se quiser voltar, peça de novo com o código.";

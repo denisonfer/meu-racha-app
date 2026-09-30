@@ -8,9 +8,11 @@ import {
   TInviteStatus,
   TJoinRequest,
   TMyJoinRequest,
+  TMemberUpdate,
   TMyRacha,
   TRacha,
   TRachaMember,
+  TRachaNotice,
   TRachaSettings,
 } from "./racha-types";
 
@@ -20,6 +22,9 @@ const RAISE_EXCEPTION_CODES = [
   "already_resolved",
   "not_allowed",
   "stars_required",
+  "not_member",
+  "admin_limit",
+  "owner_cannot_leave",
 ];
 
 // status 0 = o pedido nem chegou ao servidor; o resto vira o código do banco
@@ -267,6 +272,58 @@ async function deleteRacha(id: string): Promise<void> {
   if (data.length === 0) throw new Error("not_allowed");
 }
 
+async function updateMember(
+  rachaId: string,
+  profileId: string,
+  update: TMemberUpdate
+): Promise<void> {
+  const { error, status } = await supabase.rpc("update_member", {
+    p_racha_id: rachaId,
+    p_profile_id: profileId,
+    // null pro Goleiro; o tipo gerado diz number
+    p_stars: update.stars as number,
+    p_super_star: update.isSuperStar,
+    p_role: update.role,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function expelMember(rachaId: string, profileId: string): Promise<void> {
+  const { error, status } = await supabase.rpc("expel_member", {
+    p_racha_id: rachaId,
+    p_profile_id: profileId,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function leaveRacha(rachaId: string): Promise<void> {
+  const { error, status } = await supabase.rpc("leave_racha", {
+    p_racha_id: rachaId,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function listRachaNotices(): Promise<TRachaNotice[]> {
+  const { data, error, status } = await supabase
+    .from("racha_notice")
+    .select("id, racha_name, kind")
+    .order("created_at", { ascending: false });
+  if (error) throw toCodedError(error, status);
+  return data.map((row) => ({
+    id: row.id,
+    rachaName: row.racha_name,
+    kind: row.kind,
+  }));
+}
+
+async function dismissRachaNotice(id: string): Promise<void> {
+  const { error, status } = await supabase
+    .from("racha_notice")
+    .delete()
+    .eq("id", id);
+  if (error) throw toCodedError(error, status);
+}
+
 export const rachaApi = {
   createRacha,
   listMyRachas,
@@ -279,6 +336,11 @@ export const rachaApi = {
   approveJoinRequest,
   refuseJoinRequest,
   listRachaMembers,
+  updateMember,
+  expelMember,
+  leaveRacha,
+  listRachaNotices,
+  dismissRachaNotice,
   updateRacha,
   deleteRacha,
 };

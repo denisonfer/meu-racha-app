@@ -6,11 +6,15 @@ AppState.addEventListener("change", (state) => {
   focusManager.setFocused(state === "active");
 });
 
+// sem acesso não volta tentando de novo (códigos de features/racha/utils/no-access.ts)
+const NO_RETRY_CODES = ["PGRST116", "not_a_member", "not_allowed"];
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000,
-      retry: 2,
+      retry: (failureCount, error) =>
+        !NO_RETRY_CODES.includes(error.message) && failureCount < 2,
     },
   },
 });
