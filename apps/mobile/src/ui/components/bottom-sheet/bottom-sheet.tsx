@@ -11,6 +11,8 @@ export const BOTTOM_SHEET_SCREEN_OPTIONS = {
   sheetAllowedDetents: "fitToContents",
   sheetGrabberVisible: true,
   sheetCornerRadius: 24,
+  // a folha nativa pode ser mais alta que o conteúdo: sem isto a sobra fica na cor do tema de navegação
+  contentStyle: { backgroundColor: theme.colors.surfaceRaised },
 } as const;
 
 export type TBottomSheetProps = PropsWithChildren<{
@@ -101,14 +103,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: theme.colors.surfaceRaised,
   },
-  header: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  header: { flexDirection: "row", alignItems: "center", gap: 16 },
   headerTexts: { flex: 1, gap: 2, paddingTop: 2 },
   closeButton: {
     width: theme.minTouch,
     height: theme.minTouch,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: -4,
-    marginRight: -10,
   },
 });
