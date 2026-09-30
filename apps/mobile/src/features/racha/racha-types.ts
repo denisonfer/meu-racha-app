@@ -74,7 +74,8 @@ export type TRachaMember = {
 export type TMemberUpdate = {
   stars: number | null;
   isSuperStar: boolean;
-  role: TMemberRole;
+  // null mantém o Cargo
+  role: TMemberRole | null;
 };
 
 export type TRachaNotice = {

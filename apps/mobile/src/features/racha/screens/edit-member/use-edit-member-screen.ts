@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useSession } from "@/features/auth";
 import { useToast } from "@/ui/components";
+import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaMembers } from "../../hooks/use-racha-members";
@@ -46,8 +47,13 @@ export function useEditMemberScreen() {
   const [opened, setOpened] = useState<TRachaMember | null>(null);
   const member = found ?? opened ?? undefined;
 
+  const noAccessQuery = isNoAccessError(membersQuery.error)
+    ? membersQuery
+    : rachaQuery;
   const isNoAccess = useLeaveOnNoAccess(
-    isNoAccessError(membersQuery.error) ? membersQuery.error : rachaQuery.error
+    noAccessQuery.error,
+    noAccessQuery.fetchStatus,
+    id
   );
   const isLoading = membersQuery.isPending || rachaQuery.isPending;
   const isError = membersQuery.isLoadingError || rachaQuery.isLoadingError;
@@ -116,6 +122,7 @@ export function useEditMemberForm({
   const showToast = useToast();
   const { session } = useSession();
   const { updateMember } = useUpdateMember(rachaId);
+  const hasRachaAccess = useHasRachaAccess(rachaId);
 
   const isGoalkeeper = member.playsAs === "GOALKEEPER";
   const permissions = memberPermissions(
@@ -191,7 +198,7 @@ export function useEditMemberForm({
       await updateMember(member.profileId, {
         stars: isGoalkeeper ? null : stars,
         isSuperStar: isGoalkeeper ? false : isSuperStar,
-        role,
+        role: role !== initial.role ? role : null,
       });
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
@@ -203,7 +210,7 @@ export function useEditMemberForm({
         setIsLeaving(true);
       } else if (code === "not_allowed") {
         router.dismissTo(`/racha/${rachaId}`);
-        showToast(MEMBER_NOT_ALLOWED);
+        if (await hasRachaAccess()) showToast(MEMBER_NOT_ALLOWED);
       } else {
         setFailure(SAVE_MEMBER_FAILED);
       }

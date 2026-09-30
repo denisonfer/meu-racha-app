@@ -7,8 +7,15 @@ import { shareInvite } from "../../utils/share-invite";
 
 export function useRachaHomeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: racha, isPending, error, refetch, isRefetching } = useRacha(id);
-  const isNoAccess = useLeaveOnNoAccess(error);
+  const {
+    data: racha,
+    isPending,
+    error,
+    fetchStatus,
+    refetch,
+    isRefetching,
+  } = useRacha(id);
+  const isNoAccess = useLeaveOnNoAccess(error, fetchStatus, id);
 
   const isOwnerOrAdmin = racha
     ? racha.role === "OWNER" || racha.role === "ADMIN"

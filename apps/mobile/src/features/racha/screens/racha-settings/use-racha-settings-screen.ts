@@ -9,6 +9,7 @@ import { usePreventRemove } from "expo-router/react-navigation";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useToast } from "@/ui/components";
+import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaForm } from "../../hooks/use-racha-form";
 import { useUpdateRacha } from "../../hooks/use-update-racha";
@@ -45,6 +46,7 @@ export function useRachaSettingsForm(racha: TRacha) {
   const isFocused = useIsFocused();
   const showToast = useToast();
   const { updateRacha } = useUpdateRacha(racha.id);
+  const hasRachaAccess = useHasRachaAccess(racha.id);
 
   // uma recarga do Racha no meio da edição não pode reescrever o que foi digitado
   const [initial] = useState<TRachaForm>(() => ({
@@ -112,8 +114,8 @@ export function useRachaSettingsForm(racha: TRacha) {
         await updateRacha(valid);
       } catch (error) {
         if (error instanceof Error && error.message === "not_allowed") {
-          showToast(NOT_OWNER);
           setIsLeaving(true);
+          if (await hasRachaAccess()) showToast(NOT_OWNER);
         } else {
           setFailedValues(values);
         }

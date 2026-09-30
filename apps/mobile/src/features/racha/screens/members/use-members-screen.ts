@@ -47,7 +47,11 @@ export function useMembersScreen() {
   const { session } = useSession();
   const membersQuery = useRachaMembers(id);
   const { data: racha } = useRacha(id);
-  const isNoAccess = useLeaveOnNoAccess(membersQuery.error);
+  const isNoAccess = useLeaveOnNoAccess(
+    membersQuery.error,
+    membersQuery.fetchStatus,
+    id
+  );
 
   const members = membersQuery.data ?? [];
   const groups = groupMembersByPosition(members).map((group) => ({

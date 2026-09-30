@@ -8,6 +8,7 @@ import {
   TInviteStatus,
   TJoinRequest,
   TMyJoinRequest,
+  TMemberRole,
   TMemberUpdate,
   TMyRacha,
   TRacha,
@@ -283,7 +284,8 @@ async function updateMember(
     // null pro Goleiro; o tipo gerado diz number
     p_stars: update.stars as number,
     p_super_star: update.isSuperStar,
-    p_role: update.role,
+    // null mantém o Cargo; o tipo gerado diz obrigatório
+    p_role: update.role as TMemberRole,
   });
   if (error) throw toCodedError(error, status);
 }

@@ -2,6 +2,7 @@ import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useExpelMember } from "../../hooks/use-expel-member";
+import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import {
   ACTION_FAILED,
@@ -17,6 +18,7 @@ export function useExpelMemberScreen() {
   }>();
   const { data: members } = useRachaMembers(id);
   const { expelMember } = useExpelMember(id);
+  const hasRachaAccess = useHasRachaAccess(id);
   const navigation = useNavigation();
   const showToast = useToast();
   const close = useBottomSheetClose();
@@ -53,7 +55,7 @@ export function useExpelMemberScreen() {
       }
       if (code === "not_allowed") {
         router.dismissTo(`/racha/${id}`);
-        showToast(MEMBER_NOT_ALLOWED);
+        if (await hasRachaAccess()) showToast(MEMBER_NOT_ALLOWED);
         return;
       }
       // a folha pode ter perdido o foco (fechada no arrasto): sem a tela em foco

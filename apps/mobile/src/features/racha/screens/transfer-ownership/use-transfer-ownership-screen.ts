@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { useBottomSheetClose, useToast } from "@/ui/components";
+import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import { useTransferOwnership } from "../../hooks/use-transfer-ownership";
@@ -20,6 +21,7 @@ export function useTransferOwnershipScreen() {
   const { data: racha } = useRacha(id);
   const { data: members } = useRachaMembers(id);
   const { transferOwnership } = useTransferOwnership(id);
+  const hasRachaAccess = useHasRachaAccess(id);
   const navigation = useNavigation();
   const showToast = useToast();
   const close = useBottomSheetClose();
@@ -57,7 +59,7 @@ export function useTransferOwnershipScreen() {
       }
       if (code === "not_allowed") {
         router.dismissTo(`/racha/${id}`);
-        showToast(NOT_OWNER);
+        if (await hasRachaAccess()) showToast(NOT_OWNER);
         return;
       }
       const message =
