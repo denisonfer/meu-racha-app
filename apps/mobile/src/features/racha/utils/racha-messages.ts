@@ -62,6 +62,15 @@ export const MEMBER_EXPELLED = (name: string) =>
   `${name} foi removido do racha.`;
 export const MEMBER_GONE = "Este membro não está mais no racha.";
 export const MEMBER_NOT_ALLOWED = "Você não pode mais mudar este membro.";
+export const OWNERSHIP_TRANSFERRED = (name: string) =>
+  `${name} agora é o dono do racha.`;
+export const TRANSFER_PLAN_LIMIT = (name: string) =>
+  `${name} já é dono de outro racha. No plano grátis, cada pessoa é dona de um só.`;
+export const OWNER_HINT_TO_LEAVE =
+  "Para sair do racha, passe ele para outro membro em Membros.";
+export const OWNER_CANNOT_LEAVE =
+  "Você agora é o dono. Para sair, passe o racha para outro membro.";
+export const NOTICE_OWNERSHIP_RECEIVED = "Você agora é o dono deste racha.";
 export const LEFT_RACHA = "Você saiu do racha.";
 export const ACTION_FAILED = JOIN_REQUEST_ACTION_FAILED;
 export const NOTICE_RACHA_DELETED = "O dono excluiu este racha.";

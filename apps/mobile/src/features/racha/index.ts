@@ -10,6 +10,7 @@ export * from "./screens/racha-settings/racha-settings-screen";
 export * from "./screens/edit-member/edit-member-screen";
 export * from "./screens/delete-racha/delete-racha-screen";
 export * from "./screens/expel-member/expel-member-screen";
+export * from "./screens/transfer-ownership/transfer-ownership-screen";
 export * from "./screens/leave-racha/leave-racha-screen";
 export {
   clearPendingInvite,

@@ -2,6 +2,7 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { Button, EmptyState, Icon, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { RulesSummary } from "../../components/rules-summary";
+import { OWNER_HINT_TO_LEAVE } from "../../utils/racha-messages";
 import { useRachaHomeScreen } from "./use-racha-home-screen";
 
 export const RachaHomeScreen = () => {
@@ -189,6 +190,12 @@ export const RachaHomeScreen = () => {
                 onPress={openLeave}
                 style={styles.leaveButton}
               />
+            </View>
+          ) : racha.isOwner ? (
+            <View style={styles.leaveZone}>
+              <Text preset="small" color="muted">
+                {OWNER_HINT_TO_LEAVE}
+              </Text>
             </View>
           ) : null}
         </View>

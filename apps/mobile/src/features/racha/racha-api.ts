@@ -296,6 +296,17 @@ async function expelMember(rachaId: string, profileId: string): Promise<void> {
   if (error) throw toCodedError(error, status);
 }
 
+async function transferOwnership(
+  rachaId: string,
+  profileId: string
+): Promise<void> {
+  const { error, status } = await supabase.rpc("transfer_ownership", {
+    p_racha_id: rachaId,
+    p_profile_id: profileId,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
 async function leaveRacha(rachaId: string): Promise<void> {
   const { error, status } = await supabase.rpc("leave_racha", {
     p_racha_id: rachaId,
@@ -338,6 +349,7 @@ export const rachaApi = {
   listRachaMembers,
   updateMember,
   expelMember,
+  transferOwnership,
   leaveRacha,
   listRachaNotices,
   dismissRachaNotice,

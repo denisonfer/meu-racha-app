@@ -72,6 +72,7 @@ const EditMemberForm = (props: TEditMemberFormProps) => {
     isDirty,
     failureMessage,
     save,
+    openTransfer,
     openExpel,
   } = useEditMemberForm(props);
 
@@ -129,16 +130,28 @@ const EditMemberForm = (props: TEditMemberFormProps) => {
           />
         ) : null}
 
-        {permissions.canExpel ? (
-          <View style={styles.expelZone}>
-            <Button
-              preset="destructiveOutline"
-              title="Expulsar do racha"
-              accessibilityHint="Abre a confirmação"
-              isDisabled={isSaving}
-              onPress={openExpel}
-              style={styles.expelButton}
-            />
+        {permissions.canTransferOwnership || permissions.canExpel ? (
+          <View style={styles.dangerZone}>
+            {permissions.canTransferOwnership ? (
+              <Button
+                preset="outline"
+                title="Passar o racha"
+                accessibilityHint="Abre a confirmação"
+                isDisabled={isSaving}
+                onPress={openTransfer}
+                style={styles.zoneButton}
+              />
+            ) : null}
+            {permissions.canExpel ? (
+              <Button
+                preset="destructiveOutline"
+                title="Expulsar do racha"
+                accessibilityHint="Abre a confirmação"
+                isDisabled={isSaving}
+                onPress={openExpel}
+                style={styles.zoneButton}
+              />
+            ) : null}
           </View>
         ) : null}
       </ScrollView>
@@ -178,10 +191,11 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.card,
     backgroundColor: theme.colors.surface,
   },
-  expelZone: {
+  dangerZone: {
+    gap: theme.space[8],
     paddingTop: theme.space[32],
     borderTopWidth: 1,
     borderColor: theme.colors.divider,
   },
-  expelButton: { minHeight: 48 },
+  zoneButton: { minHeight: 48 },
 });

@@ -6,6 +6,7 @@ import { useMyJoinRequests } from "../../hooks/use-my-join-requests";
 import { useDismissRachaNotice } from "../../hooks/use-dismiss-racha-notice";
 import { useMyRachas } from "../../hooks/use-my-rachas";
 import { useRachaNotices } from "../../hooks/use-racha-notices";
+import { TRachaNotice } from "../../racha-types";
 import {
   ROLE_ACCESSIBILITY_LABEL,
   memberCountLabel,
@@ -16,9 +17,16 @@ import {
   ACTION_FAILED,
   CANCEL_JOIN_REQUEST_FAILED,
   JOIN_REQUEST_CANCELLED,
+  NOTICE_OWNERSHIP_RECEIVED,
   NOTICE_RACHA_DELETED,
   NOTICE_REMOVED,
 } from "../../utils/racha-messages";
+
+const NOTICE_TEXT: Record<TRachaNotice["kind"], string> = {
+  RACHA_DELETED: NOTICE_RACHA_DELETED,
+  OWNERSHIP_RECEIVED: NOTICE_OWNERSHIP_RECEIVED,
+  REMOVED: NOTICE_REMOVED,
+};
 
 export function useRachasScreen() {
   const rachasQuery = useMyRachas();
@@ -78,8 +86,7 @@ export function useRachasScreen() {
     notices: (noticesQuery.data ?? []).map((notice) => ({
       id: notice.id,
       title: notice.rachaName,
-      text:
-        notice.kind === "RACHA_DELETED" ? NOTICE_RACHA_DELETED : NOTICE_REMOVED,
+      text: NOTICE_TEXT[notice.kind],
       dismiss: () => void dismissNotice(notice.id),
     })),
     rachas: (rachasQuery.data ?? []).map((racha) => {

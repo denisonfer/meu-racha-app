@@ -235,6 +235,8 @@ export function useEditMemberForm({
     isDirty,
     failureMessage: failure,
     save: () => void save(),
+    openTransfer: () =>
+      router.push(`/racha/${rachaId}/member/${member.profileId}/transfer`),
     openExpel: () =>
       router.push(`/racha/${rachaId}/member/${member.profileId}/expel`),
   };

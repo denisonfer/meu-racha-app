@@ -37,6 +37,10 @@ export default function AppLayout() {
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
       <Stack.Screen
+        name="racha/[id]/member/[profileId]/transfer"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
         name="racha/[id]/leave"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
