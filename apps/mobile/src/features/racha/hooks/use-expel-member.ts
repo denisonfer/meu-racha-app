@@ -10,6 +10,7 @@ export function useExpelMember(rachaId: string) {
     mutationFn: (profileId: string) => rachaApi.expelMember(rachaId, profileId),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: rachaKey(rachaId) });
+      void queryClient.invalidateQueries({ queryKey: ["invite"] });
       return queryClient.invalidateQueries({
         queryKey: rachaMembersKey(rachaId),
       });

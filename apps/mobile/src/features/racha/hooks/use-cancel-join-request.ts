@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { rachaApi } from "../racha-api";
+import { myRachasKey } from "./use-my-rachas";
 import { myJoinRequestsKey } from "./use-my-join-requests";
 
 export function useCancelJoinRequest() {
@@ -12,6 +13,7 @@ export function useCancelJoinRequest() {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["invite"] }),
         queryClient.invalidateQueries({ queryKey: myJoinRequestsKey }),
+        queryClient.invalidateQueries({ queryKey: myRachasKey }),
       ]),
   });
 

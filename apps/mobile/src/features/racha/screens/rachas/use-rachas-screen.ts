@@ -1,4 +1,5 @@
 import { router, useFocusEffect } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef } from "react";
 import { useToast } from "@/ui/components";
 import { useCancelJoinRequest } from "../../hooks/use-cancel-join-request";
@@ -16,6 +17,7 @@ import {
 import {
   ACTION_FAILED,
   CANCEL_JOIN_REQUEST_FAILED,
+  JOIN_REQUEST_ALREADY_ANSWERED,
   JOIN_REQUEST_CANCELLED,
   NOTICE_OWNERSHIP_RECEIVED,
   NOTICE_RACHA_DELETED,
@@ -35,6 +37,7 @@ export function useRachasScreen() {
   const { dismiss } = useDismissRachaNotice();
   const { cancelJoinRequest, isCancelling } = useCancelJoinRequest();
   const showToast = useToast();
+  const queryClient = useQueryClient();
 
   // refetch é estável; o objeto do useQuery muda a cada estado e faria loop no foco
   const { refetch: refetchRachas } = rachasQuery;
@@ -53,7 +56,9 @@ export function useRachasScreen() {
       void refetchRachas();
       void refetchJoinRequests();
       void refetchNotices();
-    }, [refetchRachas, refetchJoinRequests, refetchNotices])
+      // a home aberta depois não pode vir do cache sem a linha de pedidos
+      void queryClient.invalidateQueries({ queryKey: ["racha"] });
+    }, [refetchRachas, refetchJoinRequests, refetchNotices, queryClient])
   );
 
   const joinRequests = joinRequestsQuery.data ?? [];
@@ -67,7 +72,9 @@ export function useRachasScreen() {
       await cancelJoinRequest(rachaId);
       showToast(JOIN_REQUEST_CANCELLED, "success");
     } catch (error) {
-      if ((error as Error).message !== "join_request_not_pending") {
+      if ((error as Error).message === "join_request_not_pending") {
+        showToast(JOIN_REQUEST_ALREADY_ANSWERED);
+      } else {
         showToast(CANCEL_JOIN_REQUEST_FAILED, "danger");
       }
     }

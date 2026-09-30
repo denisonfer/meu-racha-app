@@ -6,9 +6,11 @@ import { useApproveJoinRequest } from "../../hooks/use-approve-join-request";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaJoinRequests } from "../../hooks/use-racha-join-requests";
 import {
+  APPROVE_NOW_OUTFIELD,
   JOIN_REQUEST_ACTION_FAILED,
   JOIN_REQUEST_ALREADY_RESOLVED,
   JOIN_REQUEST_APPROVED,
+  MEMBER_NOT_ALLOWED,
 } from "../../utils/racha-messages";
 
 export function useApproveJoinRequestScreen() {
@@ -75,10 +77,16 @@ export function useApproveJoinRequestScreen() {
       }
       if (code === "not_allowed") {
         close();
+        showToast(MEMBER_NOT_ALLOWED);
         return;
       }
       setIsApproving(false);
-      setFailureMessage(JOIN_REQUEST_ACTION_FAILED);
+      // a lista já recarrega no onSettled do hook: a folha troca pro campo de Estrelas
+      setFailureMessage(
+        code === "stars_required"
+          ? APPROVE_NOW_OUTFIELD
+          : JOIN_REQUEST_ACTION_FAILED
+      );
     }
   };
 

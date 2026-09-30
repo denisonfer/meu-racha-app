@@ -10,6 +10,7 @@ import {
   JOIN_REQUEST_ACTION_FAILED,
   JOIN_REQUEST_ALREADY_RESOLVED,
   JOIN_REQUEST_REFUSED,
+  MEMBER_NOT_ALLOWED,
 } from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 
@@ -26,7 +27,8 @@ export function useJoinRequestsScreen() {
     if (!isNotAllowed) return;
     void queryClient.invalidateQueries({ queryKey: rachaKey(id) });
     router.dismissTo(`/racha/${id}`);
-  }, [isNotAllowed, id, queryClient]);
+    showToast(MEMBER_NOT_ALLOWED);
+  }, [isNotAllowed, id, queryClient, showToast]);
 
   const refuseRequest = async (requestId: string) => {
     try {
@@ -34,7 +36,10 @@ export function useJoinRequestsScreen() {
       showToast(JOIN_REQUEST_REFUSED, "success");
     } catch (error) {
       const code = (error as Error).message;
-      if (code === "not_allowed") return;
+      if (code === "not_allowed") {
+        showToast(MEMBER_NOT_ALLOWED);
+        return;
+      }
       showToast(
         code === "already_resolved"
           ? JOIN_REQUEST_ALREADY_RESOLVED
