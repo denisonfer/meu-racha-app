@@ -8,7 +8,6 @@ import {
   useIsFocused,
   useLocalSearchParams,
   useNavigation,
-  type Href,
 } from "expo-router";
 import { usePreventRemove } from "expo-router/react-navigation";
 import { useEffect, useState } from "react";
@@ -228,7 +227,6 @@ export function useEditMemberForm({
     failureMessage: failure,
     save: () => void save(),
     openExpel: () =>
-      // a rota da folha de expulsar vem na tarefa seguinte; a Tarefa 7 remove o cast
-      router.push(`/racha/${rachaId}/member/${member.profileId}/expel` as Href),
+      router.push(`/racha/${rachaId}/member/${member.profileId}/expel`),
   };
 }

@@ -9,6 +9,7 @@ export * from "./screens/members/members-screen";
 export * from "./screens/racha-settings/racha-settings-screen";
 export * from "./screens/edit-member/edit-member-screen";
 export * from "./screens/delete-racha/delete-racha-screen";
+export * from "./screens/expel-member/expel-member-screen";
 export {
   clearPendingInvite,
   getPendingInvite,
