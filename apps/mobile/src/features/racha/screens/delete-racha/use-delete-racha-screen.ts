@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useDeleteRacha } from "../../hooks/use-delete-racha";
@@ -13,6 +13,7 @@ export function useDeleteRachaScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: racha } = useRacha(id);
   const { deleteRacha } = useDeleteRacha(id);
+  const navigation = useNavigation();
   const showToast = useToast();
   const close = useBottomSheetClose();
 
@@ -30,15 +31,16 @@ export function useDeleteRachaScreen() {
     setFailureMessage(null);
     setIsDeleting(true);
     try {
-      await deleteRacha();
+      const result = await deleteRacha();
       // isDeleting fica true: evita o segundo toque e o piscar do botão enquanto a folha fecha
       router.dismissTo("/rachas");
-      showToast(RACHA_DELETED, "success");
-    } catch (error) {
-      const code = (error as Error).message;
-      if (code === "not_allowed") {
-        router.dismissTo(`/racha/${id}`);
-        showToast(NOT_OWNER);
+      if (result === "deleted") showToast(RACHA_DELETED, "success");
+      else showToast(NOT_OWNER);
+    } catch {
+      // a folha pode ter perdido o foco (fechada no arrasto, o que o Android não deixa impedir):
+      // sem a tela em foco pra mostrar o erro no rodapé, ele vai pro toast
+      if (!navigation.isFocused()) {
+        showToast(DELETE_RACHA_FAILED);
         return;
       }
       setIsDeleting(false);

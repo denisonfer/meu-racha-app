@@ -1,5 +1,5 @@
 import { PropsWithChildren, ReactNode, useEffect } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { BackHandler, Pressable, StyleSheet, View } from "react-native";
 import { router, useNavigation } from "expo-router";
 import { useAppSafeArea } from "@/ui/hooks/use-app-safe-area";
 import { theme } from "@/ui/theme";
@@ -30,7 +30,7 @@ export type TBottomSheetProps = PropsWithChildren<{
 export function useBottomSheetClose() {
   const navigation = useNavigation();
 
-  // no Android o formSheet ignora gestureEnabled: se a folha já saiu, voltar tiraria a lista da pilha
+  // no Android o formSheet ignora gestureEnabled: se a folha já saiu, voltar tiraria a tela de baixo da pilha
   return () => {
     if (navigation.isFocused()) router.back();
   };
@@ -51,6 +51,16 @@ export const BottomSheet = ({
   useEffect(() => {
     navigation.setOptions({ gestureEnabled: !isBusy });
   }, [navigation, isBusy]);
+
+  useEffect(() => {
+    if (!isBusy) return;
+    // o gesto de arrastar o Android não bloqueia: o botão físico de voltar precisa ser engolido também
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => true
+    );
+    return () => subscription.remove();
+  }, [isBusy]);
 
   return (
     <View

@@ -84,6 +84,11 @@ export function useRachaSettingsForm(racha: TRacha) {
   usePreventRemove(
     isFocused && !isLeaving && (isDirty || isSaving),
     ({ data }) => {
+      // dismissTo (ex.: depois de excluir o racha) não é um voltar da pessoa: sem alerta
+      if (data.action.type === "POP_TO") {
+        navigation.dispatch(data.action);
+        return;
+      }
       if (isSaving) return;
       Alert.alert(DISCARD_CHANGES_TITLE, undefined, [
         { text: "Continuar editando", style: "cancel" },
