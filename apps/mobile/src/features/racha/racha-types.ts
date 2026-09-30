@@ -80,5 +80,5 @@ export type TMemberUpdate = {
 export type TRachaNotice = {
   id: string;
   rachaName: string;
-  kind: "RACHA_DELETED" | "REMOVED";
+  kind: Database["public"]["Enums"]["racha_notice_kind"];
 };

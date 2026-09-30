@@ -382,6 +382,10 @@ export type Database = {
         Args: { p_request_id: string };
         Returns: undefined;
       };
+      transfer_ownership: {
+        Args: { p_profile_id: string; p_racha_id: string };
+        Returns: undefined;
+      };
       update_member: {
         Args: {
           p_profile_id: string;
@@ -399,7 +403,7 @@ export type Database = {
       member_role: "OWNER" | "ADMIN" | "PLAYER";
       plays_as: "OUTFIELD" | "GOALKEEPER";
       position: "ANY" | "DEFENDER" | "MIDFIELDER" | "FORWARD";
-      racha_notice_kind: "RACHA_DELETED" | "REMOVED";
+      racha_notice_kind: "RACHA_DELETED" | "REMOVED" | "OWNERSHIP_RECEIVED";
       tie_return_order: "RANDOM" | "TEAM_ORDER";
       tie_rule: "BOTH_OUT" | "BOTH_STAY" | "PENALTIES" | "CHALLENGER_WINS";
     };
@@ -537,7 +541,7 @@ export const Constants = {
       member_role: ["OWNER", "ADMIN", "PLAYER"],
       plays_as: ["OUTFIELD", "GOALKEEPER"],
       position: ["ANY", "DEFENDER", "MIDFIELDER", "FORWARD"],
-      racha_notice_kind: ["RACHA_DELETED", "REMOVED"],
+      racha_notice_kind: ["RACHA_DELETED", "REMOVED", "OWNERSHIP_RECEIVED"],
       tie_return_order: ["RANDOM", "TEAM_ORDER"],
       tie_rule: ["BOTH_OUT", "BOTH_STAY", "PENALTIES", "CHALLENGER_WINS"],
     },
