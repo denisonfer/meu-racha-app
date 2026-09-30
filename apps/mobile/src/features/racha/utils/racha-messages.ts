@@ -64,6 +64,8 @@ export const SAVE_MEMBER_FAILED = SAVE_RACHA_FAILED;
 export const MEMBER_EXPELLED = (name: string) =>
   `${name} foi removido do racha.`;
 export const MEMBER_GONE = "Este membro não está mais no racha.";
+export const REQUESTS_NOT_ALLOWED =
+  "Você não pode mais responder pedidos neste racha.";
 export const MEMBER_NOT_ALLOWED = "Você não pode mais mudar este membro.";
 export const OWNERSHIP_TRANSFERRED = (name: string) =>
   `${name} agora é o dono do racha.`;

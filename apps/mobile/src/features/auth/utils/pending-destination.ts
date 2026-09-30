@@ -18,6 +18,16 @@ export const setSigningOut = (value: boolean) => {
   isSigningOut = value;
 };
 
+// a folha de baixo abriria sem o cache e sem contexto: salva a tela de baixo
+export function sheetParentPath(path: string) {
+  const [pathname = ""] = path.split("?");
+  const parent = pathname
+    .replace(/^(\/racha\/[^/]+)\/(?:delete|leave)$/, "$1")
+    .replace(/^(\/racha\/[^/]+\/member\/[^/]+)\/(?:expel|transfer)$/, "$1")
+    .replace(/^(\/racha\/[^/]+)\/approve\/[^/]+$/, "$1/requests");
+  return parent === pathname ? path : parent;
+}
+
 export async function savePendingDestination(path: string) {
   if (isSigningOut) {
     isSigningOut = false;
@@ -26,7 +36,10 @@ export async function savePendingDestination(path: string) {
   const [pathname = ""] = path.split("?");
   if (AUTH_PATHS.includes(pathname)) return;
   // o dono evita que outra conta, entrando no aparelho, caia na tela da anterior
-  await storage.setItem(KEY, JSON.stringify({ path, ownerId: lastOwnerId() }));
+  await storage.setItem(
+    KEY,
+    JSON.stringify({ path: sheetParentPath(path), ownerId: lastOwnerId() })
+  );
 }
 
 export async function takePendingDestination(

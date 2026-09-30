@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useSignUp } from "../../hooks/use-sign-up";
 import {
@@ -17,6 +17,8 @@ const TOTAL_STEPS = stepFields.length;
 export function useSignUpScreen() {
   const [step, setStep] = useState(0);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  // o estado só vale no próximo render: dois toques seguidos passariam os dois
+  const isAdvancingRef = useRef(false);
   const { signUp, isPending } = useSignUp();
   const queryClient = useQueryClient();
 
@@ -88,11 +90,13 @@ export function useSignUpScreen() {
   }
 
   async function goForward() {
-    if (isAdvancing) return;
+    if (isAdvancingRef.current) return;
+    isAdvancingRef.current = true;
     setIsAdvancing(true);
     try {
       await advance();
     } finally {
+      isAdvancingRef.current = false;
       setIsAdvancing(false);
     }
   }

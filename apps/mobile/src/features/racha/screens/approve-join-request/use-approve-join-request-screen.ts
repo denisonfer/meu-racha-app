@@ -3,6 +3,7 @@ import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useApproveJoinRequest } from "../../hooks/use-approve-join-request";
+import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaJoinRequests } from "../../hooks/use-racha-join-requests";
 import {
@@ -10,7 +11,7 @@ import {
   JOIN_REQUEST_ACTION_FAILED,
   JOIN_REQUEST_ALREADY_RESOLVED,
   JOIN_REQUEST_APPROVED,
-  MEMBER_NOT_ALLOWED,
+  REQUESTS_NOT_ALLOWED,
 } from "../../utils/racha-messages";
 
 export function useApproveJoinRequestScreen() {
@@ -22,6 +23,7 @@ export function useApproveJoinRequestScreen() {
   const { data: requests, isError: isListError } = useRachaJoinRequests(id);
   const { data: racha } = useRacha(id);
   const { approve } = useApproveJoinRequest(id);
+  const hasRachaAccess = useHasRachaAccess(id);
   const showToast = useToast();
 
   const [stars, setStars] = useState<number | null>(null);
@@ -77,7 +79,7 @@ export function useApproveJoinRequestScreen() {
       }
       if (code === "not_allowed") {
         close();
-        showToast(MEMBER_NOT_ALLOWED);
+        if (await hasRachaAccess()) showToast(REQUESTS_NOT_ALLOWED);
         return;
       }
       setIsApproving(false);

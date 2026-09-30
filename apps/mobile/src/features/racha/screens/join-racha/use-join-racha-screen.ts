@@ -7,6 +7,7 @@ import { useInvite } from "../../hooks/use-invite";
 import { useRequestJoin } from "../../hooks/use-request-join";
 import {
   CANCEL_JOIN_REQUEST_FAILED,
+  JOIN_REQUEST_ALREADY_ANSWERED,
   JOIN_REQUEST_CANCELLED,
   REQUEST_JOIN_FAILED,
 } from "../../utils/racha-messages";
@@ -65,7 +66,9 @@ export function useJoinRachaScreen() {
       await cancelJoinRequest(invite.rachaId);
       showToast(JOIN_REQUEST_CANCELLED, "success");
     } catch (error) {
-      if ((error as Error).message !== "join_request_not_pending") {
+      if ((error as Error).message === "join_request_not_pending") {
+        showToast(JOIN_REQUEST_ALREADY_ANSWERED);
+      } else {
         showToast(CANCEL_JOIN_REQUEST_FAILED, "danger");
       }
     }

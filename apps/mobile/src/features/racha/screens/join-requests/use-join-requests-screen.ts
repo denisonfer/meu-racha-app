@@ -1,8 +1,9 @@
 import { formatAge, formatPlaysAs, isBelowMinAge } from "@meu-racha/domain";
 import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { useToast } from "@/ui/components";
+import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { rachaKey, useRacha } from "../../hooks/use-racha";
 import { useRachaJoinRequests } from "../../hooks/use-racha-join-requests";
 import { useRefuseJoinRequest } from "../../hooks/use-refuse-join-request";
@@ -10,7 +11,7 @@ import {
   JOIN_REQUEST_ACTION_FAILED,
   JOIN_REQUEST_ALREADY_RESOLVED,
   JOIN_REQUEST_REFUSED,
-  MEMBER_NOT_ALLOWED,
+  REQUESTS_NOT_ALLOWED,
 } from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 
@@ -22,13 +23,19 @@ export function useJoinRequestsScreen() {
   const showToast = useToast();
   const queryClient = useQueryClient();
 
+  const hasRachaAccess = useHasRachaAccess(id);
+
+  const notifyNotAllowed = useEffectEvent(async () => {
+    if (await hasRachaAccess()) showToast(REQUESTS_NOT_ALLOWED);
+  });
+
   const isNotAllowed = requestsQuery.error?.message === "not_allowed";
   useEffect(() => {
     if (!isNotAllowed) return;
     void queryClient.invalidateQueries({ queryKey: rachaKey(id) });
     router.dismissTo(`/racha/${id}`);
-    showToast(MEMBER_NOT_ALLOWED);
-  }, [isNotAllowed, id, queryClient, showToast]);
+    void notifyNotAllowed();
+  }, [isNotAllowed, id, queryClient]);
 
   const refuseRequest = async (requestId: string) => {
     try {
@@ -37,7 +44,7 @@ export function useJoinRequestsScreen() {
     } catch (error) {
       const code = (error as Error).message;
       if (code === "not_allowed") {
-        showToast(MEMBER_NOT_ALLOWED);
+        if (await hasRachaAccess()) showToast(REQUESTS_NOT_ALLOWED);
         return;
       }
       showToast(
