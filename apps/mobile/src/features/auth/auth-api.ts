@@ -17,6 +17,8 @@ async function signUp(input: Omit<TSignUpInput, "photo">) {
         plays_as: input.playsAs,
         primary_position: input.primaryPosition,
         secondary_position: input.secondaryPosition,
+        // o gatilho do banco recusa a conta sem este aceite
+        terms_accepted: true,
       },
     },
   });
@@ -46,8 +48,9 @@ async function uploadAvatar(userId: string, image: TPickedImage) {
 async function signIn(input: TSignInInput) {
   const { error } = await supabase.auth.signInWithPassword(input);
 
-  if (isAuthRetryableFetchError(error)) throw new Error("network_error");
-  if (error) throw error;
+  if (isAuthRetryableFetchError(error) || (error?.status ?? 0) >= 500)
+    throw new Error("network_error");
+  if (error) throw toCodedError(error);
 }
 
 async function checkEmailAvailable(email: string) {

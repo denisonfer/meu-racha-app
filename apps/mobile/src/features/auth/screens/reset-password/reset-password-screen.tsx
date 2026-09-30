@@ -10,6 +10,7 @@ export const ResetPasswordScreen = () => {
     retry,
     control,
     isPending,
+    isPasswordChanged,
     submit,
     requestNewLink,
     backToSignIn,
@@ -78,6 +79,7 @@ export const ResetPasswordScreen = () => {
           label="Nova senha"
           preset="password"
           placeholder="mínimo de 8 caracteres"
+          isDisabled={isPasswordChanged}
           next={confirmationRef}
         />
         <FormInput
@@ -86,6 +88,7 @@ export const ResetPasswordScreen = () => {
           name="confirmation"
           label="Repita a senha"
           preset="password"
+          isDisabled={isPasswordChanged}
           returnKeyType="go"
           onSubmitEditing={submit}
         />

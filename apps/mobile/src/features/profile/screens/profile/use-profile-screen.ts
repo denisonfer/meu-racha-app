@@ -1,5 +1,6 @@
 import { OVERALL_MIN, roleBadge } from "@meu-racha/domain";
 import { useSignOut } from "@/features/auth";
+import { useMyRachas } from "@/features/racha";
 import { keeperStats, lineStats } from "@/ui/components";
 import { useMyProfile } from "../../hooks/use-my-profile";
 
@@ -9,6 +10,7 @@ const ZERO_KEEPER = { wins: 0, cleanSheets: 0, goals: 0, games: 0 };
 export function useProfileScreen() {
   const { data: profile, isPending, refetch, isRefetching } = useMyProfile();
   const { signOut, isPending: isSigningOut } = useSignOut();
+  const { data: rachas } = useMyRachas();
 
   const card = profile && {
     overall: OVERALL_MIN,
@@ -19,7 +21,7 @@ export function useProfileScreen() {
       profile.playsAs === "GOALKEEPER"
         ? keeperStats(ZERO_KEEPER)
         : lineStats(ZERO_LINE),
-    context: "sem Racha ainda",
+    context: rachas?.length ? "Overall de entrada" : "sem Racha ainda",
   };
 
   return {

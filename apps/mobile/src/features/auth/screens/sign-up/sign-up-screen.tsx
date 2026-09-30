@@ -13,7 +13,9 @@ export const SignUpScreen = () => {
     isFirstStep,
     isLastStep,
     isPending,
+    isAdvancing,
     goForward,
+    recoverPassword,
     goBack,
   } = useSignUpScreen();
 
@@ -24,7 +26,9 @@ export const SignUpScreen = () => {
       <View style={styles.content}>
         <StepIndicator total={totalSteps} current={step + 1} />
 
-        {step === 0 ? <StepAccount control={control} /> : null}
+        {step === 0 ? (
+          <StepAccount control={control} onRecoverPassword={recoverPassword} />
+        ) : null}
         {step === 1 ? <StepProfile control={control} /> : null}
         {step === 2 ? <StepTerms control={control} /> : null}
       </View>
@@ -32,7 +36,7 @@ export const SignUpScreen = () => {
       <ScreenFooter>
         <Button
           title={isLastStep ? "Criar conta" : "Continuar"}
-          isLoading={isPending}
+          isLoading={isPending || isAdvancing}
           onPress={goForward}
         />
       </ScreenFooter>

@@ -12,3 +12,4 @@ export * from "./screens/delete-racha/delete-racha-screen";
 export * from "./screens/expel-member/expel-member-screen";
 export * from "./screens/transfer-ownership/transfer-ownership-screen";
 export * from "./screens/leave-racha/leave-racha-screen";
+export * from "./hooks/use-my-rachas";

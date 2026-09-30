@@ -1,15 +1,18 @@
 import { useRef } from "react";
 import { Control, useWatch } from "react-hook-form";
 import { StyleSheet, TextInput, View } from "react-native";
-import { FormInput, Text, TInputStatus } from "@/ui/components";
+import { FormInput, Text, TextLink, TInputStatus } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { useAvailability } from "../../../hooks/use-availability";
+import { EMAIL_TAKEN_MESSAGE } from "../../../utils/auth-messages";
 import { TSignUpFormInput } from "../sign-up-schema";
 
 export const StepAccount = ({
   control,
+  onRecoverPassword,
 }: {
   control: Control<TSignUpFormInput>;
+  onRecoverPassword: (email: string) => void;
 }) => {
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
@@ -41,6 +44,17 @@ export const StepAccount = ({
         status={availabilityStatus(emailCheck)}
         next={passwordRef}
       />
+      {emailCheck.isAvailable === false ? (
+        <Text preset="small" color="errorText" accessibilityRole="alert">
+          {EMAIL_TAKEN_MESSAGE}.{" "}
+          <TextLink
+            preset="small"
+            onPress={() => onRecoverPassword((email ?? "").trim())}
+          >
+            Recuperar senha
+          </TextLink>
+        </Text>
+      ) : null}
       <FormInput
         ref={passwordRef}
         control={control}

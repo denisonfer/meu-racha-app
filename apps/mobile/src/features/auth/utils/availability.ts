@@ -1,6 +1,7 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { authApi } from "../auth-api";
+import { EMAIL_TAKEN_MESSAGE } from "./auth-messages";
 
 const normalize = (value: string) => value.trim().toLowerCase();
 
@@ -8,7 +9,7 @@ const checks = {
   email: {
     isAskable: (value: string) => z.email().safeParse(value).success,
     ask: authApi.checkEmailAvailable,
-    takenMessage: "Esse e-mail já tem conta",
+    takenMessage: EMAIL_TAKEN_MESSAGE,
   },
 } as const;
 

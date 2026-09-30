@@ -13,7 +13,7 @@ import {
 export function useResetPasswordScreen() {
   const { token_hash } = useLocalSearchParams<{ token_hash?: string }>();
   const { status, retry } = useRecoveryLink(token_hash);
-  const { changePassword, isPending } = useChangePassword();
+  const { changePassword, isPending, isPasswordChanged } = useChangePassword();
   const { session } = useSession();
 
   const { control, handleSubmit } = useForm<TResetPasswordForm>({
@@ -27,6 +27,7 @@ export function useResetPasswordScreen() {
     retry,
     control,
     isPending,
+    isPasswordChanged,
     submit: handleSubmit((values) =>
       changePassword(values.password, {
         onSuccess: async () => {
