@@ -1,6 +1,5 @@
 import { DEFAULT_MIN_AGE, isSameRules } from "@meu-racha/domain";
 import {
-  Href,
   router,
   useIsFocused,
   useLocalSearchParams,
@@ -126,7 +125,6 @@ export function useRachaSettingsForm(racha: TRacha) {
     isDirty,
     failureMessage: hasSaveFailed ? SAVE_RACHA_FAILED : null,
     save,
-    // a rota é da próxima tarefa e ainda não está nos tipos gerados
-    openDelete: () => router.push(`/racha/${racha.id}/delete` as Href),
+    openDelete: () => router.push(`/racha/${racha.id}/delete`),
   };
 }
