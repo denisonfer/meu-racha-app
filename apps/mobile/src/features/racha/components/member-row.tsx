@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   superChip: {
-    height: 20,
+    alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 6,
     borderRadius: theme.radius.check,
