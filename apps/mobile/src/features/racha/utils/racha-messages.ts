@@ -81,3 +81,25 @@ export const ACTION_FAILED = JOIN_REQUEST_ACTION_FAILED;
 export const NOTICE_RACHA_DELETED = "O dono excluiu este racha.";
 export const NOTICE_REMOVED =
   "Você não faz mais parte deste racha. Se quiser voltar, peça de novo com o código.";
+
+export const PLACE_REQUIRED = "Informe o local.";
+export const PLACE_TOO_LONG = "Máximo de 120 caracteres.";
+export const KICKOFF_REQUIRED = "Informe o horário.";
+export const WEEKDAY_REQUIRED = "Escolha o dia.";
+export const HOUR_INVALID = "De 0 a 23.";
+export const MINUTE_INVALID = "De 0 a 59.";
+export const PRICE_REQUIRED = "Informe o valor.";
+export const PRICE_INVALID = "De 1 a 9999 reais.";
+export const MONTHLY_PRICE_INVALID = "De 1 a 9999 reais, ou vazio.";
+export const spotLimitTooSmall = (floor: number) =>
+  `O limite precisa ser de pelo menos ${floor}, o dobro da linha por time.`;
+export const LINE_TOO_BIG_FOR_SPOT_LIMIT =
+  "O limite de vagas ficou pequeno para essa linha. Aumente ou apague o limite na logística.";
+export const PIX_LOCKED = "Confirme seu e-mail para cadastrar a chave PIX.";
+export const LOGISTICS_NOT_ALLOWED =
+  "Você não pode mais mudar a logística deste racha.";
+export const SLOT_HINT = "Os dois ou nenhum. Vazio: o racha não é recorrente.";
+export const PRICE_HINT = "Reais inteiros, no mínimo 1.";
+export const MONTHLY_PRICE_HINT = "Sem ele, o racha não tem mensalista.";
+export const SPOT_LIMIT_HINT = "Opcional. No mínimo o dobro da linha por time.";
+export const SPOT_LIMIT_TOO_BIG = "No máximo 32767.";

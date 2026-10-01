@@ -189,13 +189,21 @@ export type Database = {
           game_mode: Database["public"]["Enums"]["game_mode"];
           id: string;
           invite_code: string;
+          is_paid: boolean;
+          kickoff_time: string | null;
           match_duration_min: number | null;
           max_consecutive_wins: number;
           min_age: number | null;
+          monthly_price: number | null;
           name: string;
           outfield_per_team: number;
+          place: string;
+          price: number | null;
+          reminder_lead_hours: number;
+          spot_limit: number | null;
           tie_return_order: Database["public"]["Enums"]["tie_return_order"];
           tie_rule: Database["public"]["Enums"]["tie_rule"];
+          weekday: number | null;
         };
         Insert: {
           consider_position?: boolean;
@@ -203,13 +211,21 @@ export type Database = {
           game_mode?: Database["public"]["Enums"]["game_mode"];
           id?: string;
           invite_code: string;
+          is_paid?: boolean;
+          kickoff_time?: string | null;
           match_duration_min?: number | null;
           max_consecutive_wins?: number;
           min_age?: number | null;
+          monthly_price?: number | null;
           name: string;
           outfield_per_team?: number;
+          place: string;
+          price?: number | null;
+          reminder_lead_hours?: number;
+          spot_limit?: number | null;
           tie_return_order?: Database["public"]["Enums"]["tie_return_order"];
           tie_rule?: Database["public"]["Enums"]["tie_rule"];
+          weekday?: number | null;
         };
         Update: {
           consider_position?: boolean;
@@ -217,13 +233,21 @@ export type Database = {
           game_mode?: Database["public"]["Enums"]["game_mode"];
           id?: string;
           invite_code?: string;
+          is_paid?: boolean;
+          kickoff_time?: string | null;
           match_duration_min?: number | null;
           max_consecutive_wins?: number;
           min_age?: number | null;
+          monthly_price?: number | null;
           name?: string;
           outfield_per_team?: number;
+          place?: string;
+          price?: number | null;
+          reminder_lead_hours?: number;
+          spot_limit?: number | null;
           tie_return_order?: Database["public"]["Enums"]["tie_return_order"];
           tie_rule?: Database["public"]["Enums"]["tie_rule"];
+          weekday?: number | null;
         };
         Relationships: [];
       };
@@ -315,6 +339,7 @@ export type Database = {
           p_min_age?: number;
           p_name: string;
           p_outfield_per_team: number;
+          p_place: string;
           p_tie_return_order: Database["public"]["Enums"]["tie_return_order"];
           p_tie_rule: Database["public"]["Enums"]["tie_rule"];
         };
@@ -393,6 +418,20 @@ export type Database = {
           p_role: Database["public"]["Enums"]["member_role"];
           p_stars: number;
           p_super_star: boolean;
+        };
+        Returns: undefined;
+      };
+      update_racha_logistics: {
+        Args: {
+          p_is_paid: boolean;
+          p_kickoff_time: string;
+          p_min_age: number;
+          p_monthly_price: number;
+          p_place: string;
+          p_price: number;
+          p_racha_id: string;
+          p_spot_limit: number;
+          p_weekday: number;
         };
         Returns: undefined;
       };

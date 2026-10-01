@@ -13,6 +13,7 @@ import {
   TMyRacha,
   TRacha,
   TRachaMember,
+  TRachaLogistics,
   TRachaNotice,
   TRachaSettings,
 } from "./racha-types";
@@ -47,13 +48,45 @@ function toInviteStatus(value: string | null): TInviteStatus | null {
   return value === "MEMBER" || value === "PENDING" ? value : null;
 }
 
+function throwSpotLimitCheckViolation(error: PostgrestError): void {
+  if (
+    error.code === "23514" &&
+    error.message.includes("spot_limit_fits_two_teams")
+  ) {
+    throw new Error("spot_limit_fits_two_teams");
+  }
+}
+
+function parseKickoffTime(kickoffTime: string | null): {
+  kickoffHour: number | null;
+  kickoffMinute: number | null;
+} {
+  if (kickoffTime === null) {
+    return { kickoffHour: null, kickoffMinute: null };
+  }
+  const [hour, minute] = kickoffTime.split(":");
+  return { kickoffHour: Number(hour), kickoffMinute: Number(minute) };
+}
+
+function formatKickoffTimeForRpc(
+  kickoffHour: number | null,
+  kickoffMinute: number | null
+): string | null {
+  if (kickoffHour === null || kickoffMinute === null) return null;
+  const hour = String(kickoffHour).padStart(2, "0");
+  const minute = String(kickoffMinute).padStart(2, "0");
+  return `${hour}:${minute}:00`;
+}
+
 async function createRacha(
   name: string,
+  place: string,
   rules: TRachaRules,
   minAge: number | null
 ): Promise<TCreatedRacha> {
   const { data, error, status } = await supabase.rpc("create_racha", {
     p_name: name,
+    p_place: place,
     p_outfield_per_team: rules.outfieldPerTeam,
     p_game_mode: rules.gameMode,
     p_max_consecutive_wins: rules.maxConsecutiveWins,
@@ -96,7 +129,7 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
   const { data, error, status } = await supabase
     .from("racha")
     .select(
-      "id, name, invite_code, outfield_per_team, game_mode, max_consecutive_wins, tie_rule, tie_return_order, consider_position, match_duration_min, min_age, members:member(count), me:member(role), pending:join_request(count)"
+      "id, name, invite_code, place, weekday, kickoff_time, is_paid, price, monthly_price, spot_limit, outfield_per_team, game_mode, max_consecutive_wins, tie_rule, tie_return_order, consider_position, match_duration_min, min_age, members:member(count), me:member(role), pending:join_request(count)"
     )
     .eq("id", id)
     .eq("members.is_active", true)
@@ -109,6 +142,8 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
 
   if (!me) throw new Error("not_a_member");
 
+  const { kickoffHour, kickoffMinute } = parseKickoffTime(data.kickoff_time);
+
   return {
     id: data.id,
     name: data.name,
@@ -117,6 +152,14 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
     memberCount: data.members[0]?.count ?? 0,
     pendingCount: data.pending[0]?.count ?? 0,
     minAge: data.min_age,
+    place: data.place,
+    weekday: data.weekday,
+    kickoffHour,
+    kickoffMinute,
+    isPaid: data.is_paid,
+    price: data.price,
+    monthlyPrice: data.monthly_price,
+    spotLimit: data.spot_limit,
     rules: {
       outfieldPerTeam: data.outfield_per_team,
       gameMode: data.game_mode,
@@ -247,7 +290,6 @@ async function updateRacha(
     .from("racha")
     .update({
       name: settings.name,
-      min_age: settings.minAge,
       outfield_per_team: settings.rules.outfieldPerTeam,
       game_mode: settings.rules.gameMode,
       max_consecutive_wins: settings.rules.maxConsecutiveWins,
@@ -258,9 +300,38 @@ async function updateRacha(
     })
     .eq("id", id)
     .select("id");
-  if (error) throw toCodedError(error, status);
+  if (error) {
+    throwSpotLimitCheckViolation(error);
+    throw toCodedError(error, status);
+  }
   // a RLS filtra quem não é Dono: 0 linhas, sem erro
   if (data.length === 0) throw new Error("not_allowed");
+}
+
+async function updateRachaLogistics(
+  id: string,
+  logistics: TRachaLogistics
+): Promise<void> {
+  const kickoffTime = formatKickoffTimeForRpc(
+    logistics.kickoffHour,
+    logistics.kickoffMinute
+  );
+  const { error, status } = await supabase.rpc("update_racha_logistics", {
+    p_racha_id: id,
+    p_place: logistics.place,
+    // o tipo gerado diz not-null; null quando não recorrente
+    p_weekday: logistics.weekday as number,
+    p_kickoff_time: kickoffTime as string,
+    p_min_age: logistics.minAge as number,
+    p_is_paid: logistics.isPaid,
+    p_price: logistics.price as number,
+    p_monthly_price: logistics.monthlyPrice as number,
+    p_spot_limit: logistics.spotLimit as number,
+  });
+  if (error) {
+    throwSpotLimitCheckViolation(error);
+    throw toCodedError(error, status);
+  }
 }
 
 async function deleteRacha(id: string): Promise<void> {
@@ -356,5 +427,6 @@ export const rachaApi = {
   listRachaNotices,
   dismissRachaNotice,
   updateRacha,
+  updateRachaLogistics,
   deleteRacha,
 };

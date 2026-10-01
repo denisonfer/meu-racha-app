@@ -5,7 +5,7 @@ import {
   ScreenFooter,
   Text,
 } from "@/ui/components";
-import { RachaForm } from "../../components/racha-form";
+import { CreateRachaForm } from "../../components/create-racha-form";
 import { useCreateRachaScreen } from "./use-create-racha-screen";
 
 export const CreateRachaScreen = () => {
@@ -20,7 +20,7 @@ export const CreateRachaScreen = () => {
 
   return (
     <Screen title="Criar racha" canGoBack>
-      <RachaForm {...form} isNameAutoFocused isDisabled={isCreating} />
+      <CreateRachaForm {...form} isNameAutoFocused isDisabled={isCreating} />
 
       <ScreenFooter>
         {isBlocked ? (

@@ -1,14 +1,14 @@
 import { ActivityIndicator } from "react-native";
 import { EmptyState, Screen } from "@/ui/components";
 import { theme } from "@/ui/theme";
-import { useRachaSettingsScreen } from "./use-racha-settings-screen";
-import { RachaSettingsForm } from "./racha-settings-form";
+import { LogisticsForm } from "./logistics-form";
+import { useLogisticsScreen } from "./use-logistics-screen";
 
-export const RachaSettingsScreen = () => {
-  const { racha, isLoading, retry, isRetrying } = useRachaSettingsScreen();
+export const LogisticsScreen = () => {
+  const { racha, isLoading, retry, isRetrying } = useLogisticsScreen();
 
   return (
-    <Screen title="Configurações do racha" canGoBack>
+    <Screen title="Logística" canGoBack>
       {isLoading ? (
         <ActivityIndicator color={theme.colors.foreground} />
       ) : !racha ? (
@@ -20,7 +20,7 @@ export const RachaSettingsScreen = () => {
           isLoading={isRetrying}
         />
       ) : (
-        <RachaSettingsForm racha={racha} />
+        <LogisticsForm racha={racha} />
       )}
     </Screen>
   );

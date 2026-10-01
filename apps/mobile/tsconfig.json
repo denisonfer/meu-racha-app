@@ -9,5 +9,6 @@
       "@meu-racha/domain/*": ["../../packages/domain/src/*/index.ts"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": ["**/*.test.ts"]
 }

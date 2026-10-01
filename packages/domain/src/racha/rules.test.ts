@@ -4,9 +4,20 @@ import {
   formatRulesSummary,
   isSameRules,
   RACHA_NAME_PATTERN,
+  spotLimitFloor,
   type TRachaRules,
   type TTieRule,
 } from "./rules";
+
+describe("spotLimitFloor", () => {
+  test("5 na linha → piso 10", () => {
+    expect(spotLimitFloor(5)).toBe(10);
+  });
+
+  test("3 na linha → piso 6", () => {
+    expect(spotLimitFloor(3)).toBe(6);
+  });
+});
 
 describe("formatRulesSummary", () => {
   test("padrões do motor", () => {

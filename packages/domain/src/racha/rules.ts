@@ -29,6 +29,16 @@ export const MIN_AGE_MIN = 16;
 export const MIN_AGE_MAX = 90;
 export const DEFAULT_MIN_AGE = 30;
 
+export const PLACE_MAX = 120;
+export const PRICE_MIN = 1;
+export const PRICE_MAX = 9999;
+export const HOUR_MIN = 0;
+export const HOUR_MAX = 23;
+export const MINUTE_MIN = 0;
+export const MINUTE_MAX = 59;
+export const SPOT_LIMIT_MAX = 32767; // teto do smallint
+export const spotLimitFloor = (outfieldPerTeam: number) => 2 * outfieldPerTeam;
+
 export const DEFAULT_RACHA_RULES: TRachaRules = {
   outfieldPerTeam: 5,
   gameMode: "WINNER_STAYS",

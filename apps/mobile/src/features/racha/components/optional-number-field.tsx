@@ -3,14 +3,18 @@ import { Chip, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 
 type TOptionalNumberFieldProps = {
-  label: string;
+  // hora e minuto não têm rótulo: o título da seção já diz o que é
+  label?: string;
   value: number | null;
   onChange: (value: number | null) => void;
   unit: string;
-  noneLabel: string;
-  restoreValue: number;
+  // sem o chip, 0 continua sendo um número — horário meia-noite não é "nenhum"
+  noneLabel?: string;
+  restoreValue?: number;
   hint: string;
   error?: string;
+  // a mensagem do dia/horário fica fora do campo; a borda ainda marca os dois
+  isInvalid?: boolean;
   isDisabled?: boolean;
   accessibilityLabel: string;
   isOptional?: boolean;
@@ -25,6 +29,7 @@ export const OptionalNumberField = ({
   restoreValue,
   hint,
   error,
+  isInvalid = false,
   isDisabled = false,
   accessibilityLabel,
   isOptional = false,
@@ -33,17 +38,21 @@ export const OptionalNumberField = ({
 
   return (
     <View style={styles.stack}>
-      <Text style={styles.bold}>
-        {label}
-        {isOptional ? (
-          <Text preset="small" color="muted">
-            {" "}
-            Opcional
-          </Text>
-        ) : null}
-      </Text>
+      {label ? (
+        <Text style={styles.bold}>
+          {label}
+          {isOptional ? (
+            <Text preset="small" color="muted">
+              {" "}
+              Opcional
+            </Text>
+          ) : null}
+        </Text>
+      ) : null}
       <View style={styles.row}>
-        <View style={[styles.field, error ? styles.fieldError : null]}>
+        <View
+          style={[styles.field, error || isInvalid ? styles.fieldError : null]}
+        >
           <TextInput
             value={value === null ? "" : String(value)}
             onChangeText={(text) => {
@@ -62,22 +71,24 @@ export const OptionalNumberField = ({
             {unit}
           </Text>
         </View>
-        <Chip
-          label={noneLabel}
-          isSelected={isNone}
-          isDisabled={isDisabled}
-          onPress={() => onChange(isNone ? restoreValue : null)}
-        />
+        {noneLabel ? (
+          <Chip
+            label={noneLabel}
+            isSelected={isNone}
+            isDisabled={isDisabled}
+            onPress={() => onChange(isNone ? (restoreValue ?? null) : null)}
+          />
+        ) : null}
       </View>
       {error ? (
         <Text preset="small" color="errorText" accessibilityRole="alert">
           {error}
         </Text>
-      ) : (
+      ) : hint ? (
         <Text preset="small" color="muted">
           {hint}
         </Text>
-      )}
+      ) : null}
     </View>
   );
 };

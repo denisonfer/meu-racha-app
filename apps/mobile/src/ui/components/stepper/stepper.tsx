@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet, View } from "react-native";
-import { Icon } from "../icon";
+import { StyleSheet, View } from "react-native";
 import { Text } from "../text/text";
 import { theme } from "@/ui/theme";
+import { StepButton } from "./step-button";
 
 export type TStepperProps = {
   label?: string;
@@ -88,30 +88,6 @@ export const Stepper = ({
   );
 };
 
-type TStepButtonProps = {
-  icon: "minus" | "plus";
-  isEnabled: boolean;
-  onPress: () => void;
-};
-
-const StepButton = ({ icon, isEnabled, onPress }: TStepButtonProps) => (
-  <Pressable
-    onPress={onPress}
-    disabled={!isEnabled}
-    style={({ pressed }) => [
-      styles.button,
-      {
-        borderColor: isEnabled
-          ? theme.colors.muted
-          : theme.colors.mutedDisabled,
-        opacity: pressed ? 0.8 : 1,
-      },
-    ]}
-  >
-    <Icon name={icon} color={isEnabled ? "foreground" : "textDisabled"} />
-  </Pressable>
-);
-
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
@@ -136,13 +112,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     // largura fixa por dígito: o número trocando não empurra os botões
     fontVariant: ["tabular-nums"],
-  },
-  button: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: theme.minTouch,
-    height: theme.minTouch,
-    borderRadius: theme.radius.control,
-    borderWidth: 1,
   },
 });

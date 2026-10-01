@@ -5,6 +5,7 @@ import { myRachasKey } from "./use-my-rachas";
 
 type TCreateRachaInput = {
   name: string;
+  place: string;
   rules: TRachaRules;
   minAge: number | null;
 };
@@ -13,8 +14,8 @@ export function useCreateRacha() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({ name, rules, minAge }: TCreateRachaInput) =>
-      rachaApi.createRacha(name, rules, minAge),
+    mutationFn: ({ name, place, rules, minAge }: TCreateRachaInput) =>
+      rachaApi.createRacha(name, place, rules, minAge),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: myRachasKey });
     },

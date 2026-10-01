@@ -20,6 +20,14 @@ export type TRacha = {
   memberCount: number;
   pendingCount: number;
   minAge: number | null;
+  place: string;
+  weekday: number | null;
+  kickoffHour: number | null;
+  kickoffMinute: number | null;
+  isPaid: boolean;
+  price: number | null;
+  monthlyPrice: number | null;
+  spotLimit: number | null;
 };
 
 export type TCreatedRacha = {
@@ -29,8 +37,19 @@ export type TCreatedRacha = {
 
 export type TRachaSettings = {
   name: string;
-  minAge: number | null;
   rules: TRachaRules;
+};
+
+export type TRachaLogistics = {
+  place: string;
+  weekday: number | null;
+  kickoffHour: number | null;
+  kickoffMinute: number | null;
+  minAge: number | null;
+  isPaid: boolean;
+  price: number | null;
+  monthlyPrice: number | null;
+  spotLimit: number | null;
 };
 
 export type TInviteStatus = "MEMBER" | "PENDING";

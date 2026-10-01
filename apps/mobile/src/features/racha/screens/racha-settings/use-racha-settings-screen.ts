@@ -1,4 +1,4 @@
-import { DEFAULT_MIN_AGE, isSameRules } from "@meu-racha/domain";
+import { isSameRules } from "@meu-racha/domain";
 import {
   router,
   useIsFocused,
@@ -17,11 +17,14 @@ import { TRachaForm } from "../../racha-form-schema";
 import { TRacha } from "../../racha-types";
 import {
   DISCARD_CHANGES_TITLE,
+  LINE_TOO_BIG_FOR_SPOT_LIMIT,
   NAME_REQUIRED_TO_SAVE,
   NOT_OWNER,
   RACHA_SAVED,
   SAVE_RACHA_FAILED,
 } from "../../utils/racha-messages";
+
+type TSaveFailureReason = "generic" | "spot_limit_fits_two_teams";
 
 export function useRachaSettingsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -51,10 +54,11 @@ export function useRachaSettingsForm(racha: TRacha) {
   // uma recarga do Racha no meio da edição não pode reescrever o que foi digitado
   const [initial] = useState<TRachaForm>(() => ({
     name: racha.name,
-    minAge: racha.minAge,
     rules: racha.rules,
   }));
   const [failedValues, setFailedValues] = useState<TRachaForm | null>(null);
+  const [saveFailureReason, setSaveFailureReason] =
+    useState<TSaveFailureReason | null>(null);
   const [isLeaving, setIsLeaving] = useState(false);
 
   const {
@@ -70,7 +74,6 @@ export function useRachaSettingsForm(racha: TRacha) {
 
   const isDirty =
     values.name.trim() !== initial.name ||
-    values.minAge !== initial.minAge ||
     !isSameRules(values.rules, initial.rules);
 
   // o erro vale para os valores que falharam: some quando um campo muda
@@ -78,7 +81,6 @@ export function useRachaSettingsForm(racha: TRacha) {
     failedValues !== null &&
     !isSaving &&
     failedValues.name === values.name &&
-    failedValues.minAge === values.minAge &&
     isSameRules(failedValues.rules, values.rules);
 
   // só com a tela em foco: com a folha de excluir por cima, a exclusão precisa
@@ -111,13 +113,19 @@ export function useRachaSettingsForm(racha: TRacha) {
   const save = () =>
     submit(async (valid) => {
       try {
-        await updateRacha(valid);
+        await updateRacha({ name: valid.name, rules: valid.rules });
       } catch (error) {
         if (error instanceof Error && error.message === "not_allowed") {
           setIsLeaving(true);
           if (await hasRachaAccess()) showToast(NOT_OWNER);
         } else {
           setFailedValues(values);
+          setSaveFailureReason(
+            error instanceof Error &&
+              error.message === "spot_limit_fits_two_teams"
+              ? "spot_limit_fits_two_teams"
+              : "generic"
+          );
         }
         return;
       }
@@ -125,12 +133,17 @@ export function useRachaSettingsForm(racha: TRacha) {
       setIsLeaving(true);
     });
 
+  const failureMessage = hasSaveFailed
+    ? saveFailureReason === "spot_limit_fits_two_teams"
+      ? LINE_TOO_BIG_FOR_SPOT_LIMIT
+      : SAVE_RACHA_FAILED
+    : null;
+
   return {
     form,
-    minAgeRestoreValue: initial.minAge ?? DEFAULT_MIN_AGE,
     isSaving,
     isDirty,
-    failureMessage: hasSaveFailed ? SAVE_RACHA_FAILED : null,
+    failureMessage,
     save,
     openDelete: () => router.push(`/racha/${racha.id}/delete`),
   };

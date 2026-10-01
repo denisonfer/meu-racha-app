@@ -3,6 +3,7 @@ import { Button, EmptyState, Icon, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { RulesSummary } from "../../components/rules-summary";
 import { OWNER_HINT_TO_LEAVE } from "../../utils/racha-messages";
+import { StepHeading } from "./step-heading";
 import { useRachaHomeScreen } from "./use-racha-home-screen";
 
 export const RachaHomeScreen = () => {
@@ -16,6 +17,7 @@ export const RachaHomeScreen = () => {
     openRequests,
     openMembers,
     openSettings,
+    openLogistics,
     canLeave,
     openLeave,
   } = useRachaHomeScreen();
@@ -129,6 +131,29 @@ export const RachaHomeScreen = () => {
                 <RulesSummary parts={racha.summary} />
               </View>
             )}
+
+            {racha.isOwnerOrAdmin ? (
+              <>
+                <View style={styles.divider} />
+                <Pressable
+                  onPress={openLogistics}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Logística, ${racha.place}`}
+                  style={({ pressed }) => [
+                    styles.rulesRow,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <View style={styles.rulesTexts}>
+                    <Text preset="small" color="muted" style={styles.bold}>
+                      Logística
+                    </Text>
+                    <Text style={styles.bold}>{racha.place}</Text>
+                  </View>
+                  <Icon name="chevron-right" color="muted" />
+                </Pressable>
+              </>
+            ) : null}
           </View>
 
           {racha.isOwner ? (
@@ -203,36 +228,6 @@ export const RachaHomeScreen = () => {
     </Screen>
   );
 };
-
-type TStepHeadingProps = {
-  number: number;
-  title: string;
-  text: string;
-  isHighlighted?: boolean;
-};
-
-const StepHeading = ({
-  number,
-  title,
-  text,
-  isHighlighted = false,
-}: TStepHeadingProps) => (
-  <View style={styles.stepHeading}>
-    <Text
-      preset="stat"
-      color={isHighlighted ? "action" : "muted"}
-      style={styles.stepNumber}
-    >
-      {number}
-    </Text>
-    <View style={styles.stepTexts}>
-      <Text preset="h3">{title}</Text>
-      <Text preset="small" color={isHighlighted ? "foreground" : "muted"}>
-        {text}
-      </Text>
-    </View>
-  </View>
-);
 
 const styles = StyleSheet.create({
   content: { gap: 20 },
@@ -336,9 +331,6 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.action,
     backgroundColor: theme.colors.surfaceRaised,
   },
-  stepHeading: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
-  stepNumber: { width: 24, fontSize: 32, lineHeight: 32 },
-  stepTexts: { flex: 1, gap: theme.space[4] },
   codeBox: {
     justifyContent: "center",
     gap: 2,

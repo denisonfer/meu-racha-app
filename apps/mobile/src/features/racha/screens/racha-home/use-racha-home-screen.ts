@@ -35,6 +35,8 @@ export function useRachaHomeScreen() {
       role: racha.role,
       inviteCode: racha.inviteCode,
       isOwner: racha.role === "OWNER",
+      isOwnerOrAdmin,
+      place: racha.place,
       memberCount: racha.memberCount,
       pendingRow,
       // no formulário a idade tem bloco próprio; na home, só o resumo a mostra
@@ -55,6 +57,7 @@ export function useRachaHomeScreen() {
     openRequests: () => router.push(`/racha/${id}/requests`),
     openMembers: () => router.push(`/racha/${id}/members`),
     openSettings: () => router.push(`/racha/${id}/settings`),
+    openLogistics: () => router.push(`/racha/${id}/logistics`),
     openLeave: () => router.push(`/racha/${id}/leave`),
   };
 }

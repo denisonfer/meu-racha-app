@@ -1,34 +1,5 @@
-import { PropsWithChildren } from "react";
-import Svg, { Circle, Line, Path, Rect } from "react-native-svg";
-
-type TBrandIconProps = {
-  size?: number;
-  color?: string;
-  strokeWidth?: number;
-  accessibilityLabel?: string;
-};
-
-const BrandSvg = ({
-  size = 24,
-  color,
-  strokeWidth = 2,
-  accessibilityLabel,
-  children,
-}: PropsWithChildren<TBrandIconProps>) => (
-  <Svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    accessibilityLabel={accessibilityLabel}
-  >
-    {children}
-  </Svg>
-);
+import { Circle, Line, Path, Rect } from "react-native-svg";
+import { BrandSvg, TBrandIconProps } from "./brand-svg";
 
 export const RachaIcon = (props: TBrandIconProps) => (
   <BrandSvg {...props}>

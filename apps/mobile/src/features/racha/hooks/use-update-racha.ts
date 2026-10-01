@@ -18,7 +18,6 @@ export function useUpdateRacha(id: string) {
           old && {
             ...old,
             name: settings.name,
-            minAge: settings.minAge,
             rules: settings.rules,
           }
       );
