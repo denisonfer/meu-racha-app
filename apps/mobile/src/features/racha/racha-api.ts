@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { AVATAR_BUCKET } from "@/lib/storage-buckets";
 import {
   TCreatedRacha,
+  TEventInput,
   TInvite,
   TInviteStatus,
   TJoinRequest,
@@ -11,6 +12,8 @@ import {
   TMemberRole,
   TMemberUpdate,
   TMyRacha,
+  TMyRachaEvent,
+  TOpenEvent,
   TRacha,
   TRachaMember,
   TRachaLogistics,
@@ -27,6 +30,10 @@ const RAISE_EXCEPTION_CODES = [
   "not_member",
   "admin_limit",
   "owner_cannot_leave",
+  "past_date",
+  "event_exists",
+  "event_active",
+  "conductor",
 ];
 
 // status 0 = o pedido nem chegou ao servidor; o resto vira o código do banco
@@ -54,6 +61,21 @@ function throwSpotLimitCheckViolation(error: PostgrestError): void {
     error.message.includes("spot_limit_fits_two_teams")
   ) {
     throw new Error("spot_limit_fits_two_teams");
+  }
+}
+
+function throwEventConstraintViolation(error: PostgrestError): void {
+  if (error.code === "23514" && error.message.includes("event_place_text")) {
+    throw new Error("event_place_text");
+  }
+  if (
+    error.code === "23514" &&
+    error.message.includes("event_spot_limit_fits_two_teams")
+  ) {
+    throw new Error("spot_limit_fits_two_teams");
+  }
+  if (error.code === "23505" && error.message.includes("event_one_upcoming")) {
+    throw new Error("event_exists");
   }
 }
 
@@ -341,7 +363,112 @@ async function deleteRacha(id: string): Promise<void> {
     .eq("id", id)
     .select("id");
   if (error) throw toCodedError(error, status);
+  // 0 linhas também é evento rolando; a tela distingue pela leitura, não por outro código
   if (data.length === 0) throw new Error("not_allowed");
+}
+
+async function listOpenEvents(rachaId: string): Promise<TOpenEvent[]> {
+  const { data, error, status } = await supabase.rpc("list_open_events", {
+    p_racha_id: rachaId,
+  });
+  if (error) throw toCodedError(error, status);
+
+  return data.map((row) => ({
+    id: row.id,
+    status: row.status,
+    startsOn: row.starts_on,
+    startsAt: row.starts_at,
+    place: row.place,
+    isPaid: row.is_paid,
+    outfieldPerTeam: row.outfield_per_team,
+    // o tipo gerado diz not-null; preço, vagas e condutor vêm null
+    price: row.price ?? null,
+    spotLimit: row.spot_limit ?? null,
+    conductorId: row.conductor_id ?? null,
+    conductorName: row.conductor_name ?? null,
+  }));
+}
+
+async function listMyRachaEvents(): Promise<TMyRachaEvent[]> {
+  const { data, error, status } = await supabase.rpc("list_my_racha_events");
+  if (error) throw toCodedError(error, status);
+
+  return data.map((row) => ({
+    rachaId: row.racha_id,
+    id: row.id,
+    status: row.status,
+    startsOn: row.starts_on,
+    startsAt: row.starts_at,
+    place: row.place,
+  }));
+}
+
+async function createEvent(
+  rachaId: string,
+  input: TEventInput
+): Promise<string> {
+  const startsAt = formatKickoffTimeForRpc(
+    input.kickoffHour,
+    input.kickoffMinute
+  );
+  const { data, error, status } = await supabase.rpc("create_event", {
+    p_racha_id: rachaId,
+    p_starts_on: input.startsOn,
+    // hora 0 é horário; null numa das metades fica null. o tipo gerado diz string/number
+    p_starts_at: startsAt as string,
+    p_place: input.place,
+    p_is_paid: input.isPaid,
+    p_price: input.price as number,
+    p_spot_limit: input.spotLimit as number,
+  });
+  if (error) {
+    throwEventConstraintViolation(error);
+    throw toCodedError(error, status);
+  }
+  if (!data) throw new Error("create_event_empty");
+  return data;
+}
+
+async function updateEvent(eventId: string, input: TEventInput): Promise<void> {
+  const startsAt = formatKickoffTimeForRpc(
+    input.kickoffHour,
+    input.kickoffMinute
+  );
+  const { error, status } = await supabase.rpc("update_event", {
+    p_event_id: eventId,
+    p_starts_on: input.startsOn,
+    // hora 0 é horário; null numa das metades fica null. o tipo gerado diz string/number
+    p_starts_at: startsAt as string,
+    p_place: input.place,
+    p_is_paid: input.isPaid,
+    p_price: input.price as number,
+    p_spot_limit: input.spotLimit as number,
+  });
+  if (error) {
+    throwEventConstraintViolation(error);
+    throw toCodedError(error, status);
+  }
+}
+
+async function cancelEvent(eventId: string): Promise<void> {
+  const { error, status } = await supabase.rpc("cancel_event", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function assumeEventConduction(eventId: string): Promise<void> {
+  const { error, status } = await supabase.rpc("assume_event_conduction", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function finishEvent(eventId: string): Promise<void> {
+  const { error, status } = await supabase.rpc("finish_event", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
 }
 
 async function updateMember(
@@ -429,4 +556,11 @@ export const rachaApi = {
   updateRacha,
   updateRachaLogistics,
   deleteRacha,
+  listOpenEvents,
+  listMyRachaEvents,
+  createEvent,
+  updateEvent,
+  cancelEvent,
+  assumeEventConduction,
+  finishEvent,
 };

@@ -11,10 +11,11 @@ type TRachaCardProps = {
   pendingLabel: string | null;
   accessibilityLabel: string;
   canCreateEvent: boolean;
+  event: { kicker: string; when: string; place: string } | null;
   onPress: () => void;
+  onCreateEvent: () => void;
 };
 
-// Só a variante sem Evento: a do próximo Evento chega com a fatia 5
 export const RachaCard = ({
   name,
   role,
@@ -22,7 +23,9 @@ export const RachaCard = ({
   pendingLabel,
   accessibilityLabel,
   canCreateEvent,
+  event,
   onPress,
+  onCreateEvent,
 }: TRachaCardProps) => (
   <View style={styles.card}>
     <Pressable
@@ -50,18 +53,31 @@ export const RachaCard = ({
     </Pressable>
 
     <View style={styles.cardBottom}>
-      <View style={styles.cardNoEvent}>
-        <Text style={styles.bold}>Nenhum evento marcado</Text>
-        <Text preset="small" color="muted">
-          {canCreateEvent
-            ? "Marque o próximo jogo para a galera confirmar presença."
-            : "Quando o dono marcar o próximo jogo, ele aparece aqui."}
-        </Text>
-      </View>
-      {/* sem destino: criar evento é a fatia 5 */}
-      {canCreateEvent ? (
-        <Button title="Criar primeiro evento" onPress={() => {}} />
-      ) : null}
+      {event ? (
+        <View style={styles.cardEvent}>
+          <Text preset="small" color="muted" style={styles.bold}>
+            {event.kicker}
+          </Text>
+          <Text style={styles.bold}>{event.when}</Text>
+          <Text preset="small" color="muted">
+            {event.place}
+          </Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.cardNoEvent}>
+            <Text style={styles.bold}>Nenhum evento marcado</Text>
+            <Text preset="small" color="muted">
+              {canCreateEvent
+                ? "Defina dia, hora e local do próximo jogo."
+                : "Quando um evento for marcado, ele aparece aqui."}
+            </Text>
+          </View>
+          {canCreateEvent ? (
+            <Button title="Criar evento" onPress={onCreateEvent} />
+          ) : null}
+        </>
+      )}
     </View>
   </View>
 );
@@ -112,4 +128,5 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.divider,
   },
   cardNoEvent: { gap: 2 },
+  cardEvent: { gap: 4 },
 });

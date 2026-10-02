@@ -4,6 +4,7 @@ import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useDeleteRacha } from "../../hooks/use-delete-racha";
 import { useRacha } from "../../hooks/use-racha";
 import {
+  DELETE_LOCKED,
   DELETE_RACHA_FAILED,
   NOT_OWNER,
   RACHA_DELETED,
@@ -32,6 +33,11 @@ export function useDeleteRachaScreen() {
     setIsDeleting(true);
     try {
       const result = await deleteRacha();
+      if (result === "event_active") {
+        close();
+        showToast(DELETE_LOCKED);
+        return;
+      }
       // isDeleting fica true: evita o segundo toque e o piscar do botão enquanto a folha fecha
       router.dismissTo("/rachas");
       if (result === "deleted") showToast(RACHA_DELETED, "success");

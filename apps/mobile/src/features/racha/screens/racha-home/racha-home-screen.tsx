@@ -2,8 +2,12 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { Button, EmptyState, Icon, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { RulesSummary } from "../../components/rules-summary";
-import { OWNER_HINT_TO_LEAVE } from "../../utils/racha-messages";
-import { StepHeading } from "./step-heading";
+import {
+  CONDUCTOR_CANNOT_LEAVE,
+  OWNER_HINT_TO_LEAVE,
+} from "../../utils/racha-messages";
+import { EventCard } from "./event-card";
+import { InviteCard } from "./invite-card";
 import { useRachaHomeScreen } from "./use-racha-home-screen";
 
 export const RachaHomeScreen = () => {
@@ -18,8 +22,14 @@ export const RachaHomeScreen = () => {
     openMembers,
     openSettings,
     openLogistics,
+    eventCard,
+    showEmptyEvent,
+    showCreateEvent,
+    eventsMissing,
     canLeave,
+    showConductorCannotLeave,
     openLeave,
+    openCreateEvent,
   } = useRachaHomeScreen();
 
   return (
@@ -60,6 +70,52 @@ export const RachaHomeScreen = () => {
               {racha.name}
             </Text>
           </View>
+
+          {eventsMissing ? (
+            <EmptyState
+              title="Não deu pra abrir o evento"
+              text="Confira a internet e tente de novo."
+              actionLabel="Tentar de novo"
+              onAction={retry}
+              isLoading={isRetrying}
+            />
+          ) : eventCard ? (
+            <View style={styles.eventBlock}>
+              <EventCard {...eventCard} />
+              {showCreateEvent ? (
+                <Button
+                  title="Criar evento"
+                  preset="secondary"
+                  onPress={openCreateEvent}
+                />
+              ) : null}
+            </View>
+          ) : showEmptyEvent ? (
+            <View style={styles.nextEventCard}>
+              <View style={styles.emptyCopy}>
+                <Text preset="small" color="muted" style={styles.bold}>
+                  Próximo evento
+                </Text>
+                <Text style={styles.bold}>Nenhum evento marcado</Text>
+                <Text preset="small" color="muted">
+                  {showCreateEvent
+                    ? "Defina dia, hora e local do próximo jogo."
+                    : "Quando o dono marcar o próximo jogo, ele aparece aqui."}
+                </Text>
+              </View>
+              {showCreateEvent ? (
+                <Button
+                  title="Criar evento"
+                  preset="secondary"
+                  onPress={openCreateEvent}
+                />
+              ) : null}
+            </View>
+          ) : null}
+
+          {racha.isOwner ? (
+            <InviteCard code={racha.inviteCode} onShare={shareInvite} />
+          ) : null}
 
           {racha.pendingRow ? (
             <Pressable
@@ -156,56 +212,6 @@ export const RachaHomeScreen = () => {
             ) : null}
           </View>
 
-          {racha.isOwner ? (
-            <View style={styles.steps}>
-              <Text preset="h2">Próximos passos</Text>
-
-              <View style={[styles.step, styles.stepHighlighted]}>
-                <StepHeading
-                  number={1}
-                  isHighlighted
-                  title="Compartilhar convite"
-                  text="Mande o link ou o código. Quem entrar vira membro do racha."
-                />
-                <View
-                  style={styles.codeBox}
-                  accessible
-                  accessibilityLabel={`Código do racha: ${racha.inviteCode.split("").join(" ")}`}
-                >
-                  <Text preset="caption" color="muted" style={styles.bold}>
-                    Código do racha
-                  </Text>
-                  <Text style={styles.code}>{racha.inviteCode}</Text>
-                </View>
-                <Button title="Compartilhar convite" onPress={shareInvite} />
-              </View>
-
-              <View style={styles.step}>
-                <StepHeading
-                  number={2}
-                  title="Criar o primeiro evento"
-                  text="Marque dia, hora e local. A galera confirma presença por lá."
-                />
-
-                <Button
-                  title="Criar evento"
-                  preset="secondary"
-                  onPress={() => {}}
-                />
-              </View>
-            </View>
-          ) : (
-            <View style={styles.nextEventCard}>
-              <Text preset="small" color="muted" style={styles.bold}>
-                Próximo evento
-              </Text>
-              <Text style={styles.bold}>Nenhum evento marcado</Text>
-              <Text preset="small" color="muted">
-                Quando o dono marcar o próximo jogo, ele aparece aqui.
-              </Text>
-            </View>
-          )}
-
           {canLeave ? (
             <View style={styles.leaveZone}>
               <Button
@@ -220,6 +226,12 @@ export const RachaHomeScreen = () => {
             <View style={styles.leaveZone}>
               <Text preset="small" color="muted">
                 {OWNER_HINT_TO_LEAVE}
+              </Text>
+            </View>
+          ) : showConductorCannotLeave ? (
+            <View style={styles.leaveZone}>
+              <Text preset="small" color="muted">
+                {CONDUCTOR_CANNOT_LEAVE}
               </Text>
             </View>
           ) : null}
@@ -306,44 +318,18 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   rulesTexts: { flex: 1, gap: theme.space[4] },
+  eventBlock: { gap: 12 },
   nextEventCard: {
-    gap: 2,
+    gap: 12,
     padding: theme.space[16],
     borderRadius: theme.radius.card,
     backgroundColor: theme.colors.surface,
   },
+  emptyCopy: { gap: 2 },
   leaveZone: {
     paddingTop: theme.space[32],
     borderTopWidth: 1,
     borderColor: theme.colors.divider,
   },
   leaveButton: { minHeight: 48 },
-  steps: { gap: 12 },
-  step: {
-    gap: theme.space[16],
-    padding: theme.space[16],
-    borderRadius: theme.radius.card,
-    backgroundColor: theme.colors.surface,
-  },
-  stepHighlighted: {
-    padding: 14, // compensa a borda de 2
-    borderWidth: 2,
-    borderColor: theme.colors.action,
-    backgroundColor: theme.colors.surfaceRaised,
-  },
-  codeBox: {
-    justifyContent: "center",
-    gap: 2,
-    height: 64,
-    paddingHorizontal: theme.space[16],
-    borderRadius: theme.radius.control,
-    backgroundColor: theme.colors.background,
-  },
-  code: {
-    ...theme.text.stat,
-    fontSize: 30,
-    lineHeight: 30,
-    letterSpacing: 4,
-    fontVariant: ["tabular-nums"],
-  },
 });

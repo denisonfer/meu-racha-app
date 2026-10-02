@@ -103,3 +103,20 @@ export const PRICE_HINT = "Reais inteiros, no mínimo 1.";
 export const MONTHLY_PRICE_HINT = "Sem ele, o racha não tem mensalista.";
 export const SPOT_LIMIT_HINT = "Opcional. No mínimo o dobro da linha por time.";
 export const SPOT_LIMIT_TOO_BIG = "No máximo 32767.";
+
+export const EVENT_PLACE_REQUIRED = "Informe o local deste jogo.";
+export const EVENT_DATE_PAST = "A data não pode ser no passado.";
+export const EVENT_TIME_PAST = "O horário precisa ser no futuro.";
+export const EVENT_START_PAST = "Escolha uma data e um horário futuros.";
+export const EVENT_DATE_INVALID = "Confira a data.";
+export const eventSpotLimitTooSmall = (floor: number) => `O mínimo é ${floor}.`;
+export const MOTOR_LOCKED =
+  "O motor fica travado enquanto o evento está em curso. Encerre o evento para mudar.";
+export const DELETE_LOCKED =
+  "Encerre o evento em andamento para excluir o racha.";
+export const CONDUCTOR_CANNOT_LEAVE =
+  "Passe a condução ou encerre o evento para sair do racha.";
+export const conductorName = (name: string) => `${name} está conduzindo.`;
+export const EVENT_NOT_ALLOWED = "Você não pode mais editar este evento.";
+export const CANCEL_EVENT_TITLE = "Cancelar este evento?";
+export const FINISH_EVENT_TITLE = "Encerrar este evento?";

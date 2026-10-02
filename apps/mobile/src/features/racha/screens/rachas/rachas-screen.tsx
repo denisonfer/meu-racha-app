@@ -23,6 +23,7 @@ export const RachasScreen = () => {
     isRetrying,
     createRacha,
     openRacha,
+    createEvent,
     cancelJoinRequest,
     enterCode,
   } = useRachasScreen();
@@ -72,6 +73,7 @@ export const RachasScreen = () => {
                 key={racha.id}
                 {...racha}
                 onPress={() => openRacha(racha.id)}
+                onCreateEvent={() => createEvent(racha.id)}
               />
             ))}
             {joinRequests.length > 0 ? (

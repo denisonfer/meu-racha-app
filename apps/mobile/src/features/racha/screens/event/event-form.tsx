@@ -1,59 +1,37 @@
-import { DEFAULT_MIN_AGE } from "@meu-racha/domain";
-import { ScrollView, StyleSheet, Switch, TextInput, View } from "react-native";
-import {
-  Button,
-  Chip,
-  Input,
-  NoticeBanner,
-  ScreenFooter,
-  Text,
-} from "@/ui/components";
+import { ScrollView, StyleSheet, Switch, View } from "react-native";
+import { Button, Input, ScreenFooter, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { OptionalNumberField } from "../../components/optional-number-field";
-import { TRacha } from "../../racha-types";
-import {
-  MONTHLY_PRICE_HINT,
-  PIX_LOCKED,
-  PRICE_HINT,
-  SLOT_HINT,
-  SPOT_LIMIT_HINT,
-} from "../../utils/racha-messages";
-import { AmountField } from "./amount-field";
-import { useLogisticsForm } from "./use-logistics-screen";
+import { PRICE_HINT, SPOT_LIMIT_HINT } from "../../utils/racha-messages";
+import { AmountField } from "../logistics/amount-field";
+import { EventDateField } from "./event-date-field";
+import { TEventEditor, useEventForm } from "./use-event-screen";
 
-const WEEKDAYS = [
-  { value: 1, label: "Seg" },
-  { value: 2, label: "Ter" },
-  { value: 3, label: "Qua" },
-  { value: 4, label: "Qui" },
-  { value: 5, label: "Sex" },
-  { value: 6, label: "Sáb" },
-  { value: 7, label: "Dom" },
-] as const;
-
-export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
+export const EventForm = ({ editor }: { editor: TEventEditor }) => {
   const {
     values,
     errors,
     isSaving,
+    isDatePickerOpen,
+    today,
     isDirty,
     canSave,
     failureMessage,
-    setPlace,
-    selectWeekday,
+    setStartsOn,
+    openDatePicker,
+    closeDatePicker,
     setHour,
     setMinute,
-    setMinAge,
+    setPlace,
     setIsPaid,
     setPriceText,
-    setMonthlyPriceText,
     setSpotLimitText,
     save,
-  } = useLogisticsForm(racha);
+  } = useEventForm(editor);
 
   return (
     <>
-      {/* abre no topo: rolar até o Pago esconderia o local */}
+      {/* abre no topo: rolar até o Pago esconderia a data */}
       <ScrollView
         style={[styles.scroll, isSaving && styles.dim]}
         contentContainerStyle={styles.content}
@@ -61,30 +39,18 @@ export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
         showsVerticalScrollIndicator={false}
         pointerEvents={isSaving ? "none" : "auto"}
       >
-        <Input
-          label="Local"
-          value={values.place}
-          onChangeText={setPlace}
-          error={errors.place}
+        <EventDateField
+          value={values.startsOn}
+          minimum={today}
+          error={errors.startsOn}
           isDisabled={isSaving}
+          isOpen={isDatePickerOpen}
+          onOpen={openDatePicker}
+          onClose={closeDatePicker}
+          onChange={setStartsOn}
         />
 
-        <View style={styles.section}>
-          <Text style={styles.bold}>Dia e horário fixos</Text>
-          <View style={styles.chips} accessibilityRole="radiogroup">
-            {WEEKDAYS.map((day) => (
-              <Chip
-                key={day.value}
-                label={day.label}
-                isSelected={values.weekday === day.value}
-                isDisabled={isSaving}
-                onPress={() => selectWeekday(day.value)}
-              />
-            ))}
-          </View>
-          <Text preset="small" color="muted">
-            {SLOT_HINT}
-          </Text>
+        <View style={styles.time}>
           <View style={styles.timeRow}>
             <OptionalNumberField
               value={values.kickoffHour}
@@ -114,17 +80,12 @@ export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
           ) : null}
         </View>
 
-        <OptionalNumberField
-          label="Idade mínima"
-          value={values.minAge}
-          onChange={setMinAge}
-          unit="anos"
-          noneLabel="Sem idade mínima"
-          restoreValue={DEFAULT_MIN_AGE}
-          hint="Não barra ninguém: aparece no convite e destaca, no pedido, quem tem menos que isso."
-          error={errors.minAge}
+        <Input
+          label="Local"
+          value={values.place}
+          onChangeText={setPlace}
+          error={errors.place}
           isDisabled={isSaving}
-          accessibilityLabel="Idade mínima, em anos"
         />
 
         <View style={styles.card}>
@@ -156,25 +117,6 @@ export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
                 keepHint
                 isDisabled={isSaving}
               />
-              <AmountField
-                label="Valor mensal"
-                value={values.monthlyPrice}
-                onChangeText={setMonthlyPriceText}
-                placeholder="Opcional"
-                error={errors.monthlyPrice}
-                hint={MONTHLY_PRICE_HINT}
-                isDisabled={isSaving}
-              />
-              <View style={styles.amount}>
-                <Text style={styles.bold}>Chave PIX</Text>
-                <TextInput
-                  value=""
-                  editable={false}
-                  accessibilityLabel="Chave PIX"
-                  style={styles.pixInput}
-                />
-                <NoticeBanner tone="warning" text={PIX_LOCKED} />
-              </View>
             </View>
           ) : null}
         </View>
@@ -217,19 +159,14 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   dim: { opacity: 0.45 },
   content: { gap: theme.space[24], paddingBottom: theme.space[24] },
-  section: { gap: 12 },
-  bold: { fontFamily: "Manrope-Bold" },
-  grow: { flex: 1 },
-  chips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.space[8],
-  },
+  time: { gap: 12 },
   timeRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: theme.space[8],
   },
+  bold: { fontFamily: "Manrope-Bold" },
+  grow: { flex: 1 },
   card: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.card,
@@ -247,16 +184,5 @@ const styles = StyleSheet.create({
     paddingBottom: theme.space[16],
     borderTopWidth: 1,
     borderColor: theme.colors.divider,
-  },
-  amount: { gap: theme.space[8] },
-  pixInput: {
-    minHeight: theme.minTouch,
-    paddingHorizontal: theme.space[16],
-    backgroundColor: theme.colors.surfaceDisabled,
-    borderRadius: theme.radius.control,
-    borderWidth: 1,
-    borderColor: theme.colors.mutedDisabled,
-    color: theme.colors.textDisabled,
-    ...theme.text.body,
   },
 });

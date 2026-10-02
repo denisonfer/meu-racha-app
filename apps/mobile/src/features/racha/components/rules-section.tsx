@@ -64,6 +64,7 @@ type TRulesSectionProps = {
   isDisabled: boolean;
   matchDurationError?: string;
   isHintVisible?: boolean;
+  lockMessage?: string | null;
 };
 
 export const RulesSection = ({
@@ -75,22 +76,30 @@ export const RulesSection = ({
   isDisabled,
   matchDurationError,
   isHintVisible = true,
+  lockMessage = null,
 }: TRulesSectionProps) => {
   return (
     <View style={[styles.card, isDisabled && styles.cardDisabled]}>
       <Pressable
         onPress={onToggle}
-        disabled={isDisabled}
+        disabled={isDisabled && !lockMessage}
         accessibilityRole="button"
         accessibilityLabel={`Regras do jogo: ${summary.join(", ")}`}
         accessibilityHint={isExpanded ? "Recolher" : "Ajustar as regras"}
-        accessibilityState={{ expanded: isExpanded, disabled: isDisabled }}
+        accessibilityState={{
+          expanded: isExpanded,
+          disabled: isDisabled && !lockMessage,
+        }}
         style={styles.header}
       >
         <View style={styles.headerTexts}>
           <Text preset="h3">Regras do jogo</Text>
           <RulesSummary parts={summary} />
-          {isExpanded || !isHintVisible ? null : (
+          {lockMessage ? (
+            <Text preset="small" color="muted">
+              {lockMessage}
+            </Text>
+          ) : isExpanded || !isHintVisible ? null : (
             <Text preset="small" color="muted">
               Já vem no jeito da maioria dos rachas.
             </Text>

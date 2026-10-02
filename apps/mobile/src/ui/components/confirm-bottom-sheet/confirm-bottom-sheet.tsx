@@ -8,6 +8,7 @@ export type TConfirmBottomSheetProps = {
   title: string;
   message: string;
   confirmLabel: string;
+  cancelLabel?: string;
   busyLabel: string;
   isBusy: boolean;
   failureMessage: string | null;
@@ -19,6 +20,7 @@ export const ConfirmBottomSheet = ({
   title,
   message,
   confirmLabel,
+  cancelLabel = "Cancelar",
   busyLabel,
   isBusy,
   failureMessage,
@@ -46,7 +48,7 @@ export const ConfirmBottomSheet = ({
         style={styles.confirmButton}
       />
       <Button
-        title="Cancelar"
+        title={cancelLabel}
         preset="outline"
         onPress={onCancel}
         isDisabled={isBusy}

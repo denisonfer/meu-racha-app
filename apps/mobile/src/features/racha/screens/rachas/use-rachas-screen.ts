@@ -1,3 +1,4 @@
+import { formatEventWhen } from "@meu-racha/domain";
 import { router, useFocusEffect } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef } from "react";
@@ -6,6 +7,7 @@ import { useCancelJoinRequest } from "../../hooks/use-cancel-join-request";
 import { useMyJoinRequests } from "../../hooks/use-my-join-requests";
 import { useDismissRachaNotice } from "../../hooks/use-dismiss-racha-notice";
 import { useMyRachas } from "../../hooks/use-my-rachas";
+import { useMyRachaEvents } from "../../hooks/use-my-racha-events";
 import { useRachaNotices } from "../../hooks/use-racha-notices";
 import { TRachaNotice } from "../../racha-types";
 import {
@@ -32,6 +34,7 @@ const NOTICE_TEXT: Record<TRachaNotice["kind"], string> = {
 
 export function useRachasScreen() {
   const rachasQuery = useMyRachas();
+  const eventsQuery = useMyRachaEvents();
   const joinRequestsQuery = useMyJoinRequests();
   const noticesQuery = useRachaNotices();
   const { dismiss } = useDismissRachaNotice();
@@ -41,6 +44,7 @@ export function useRachasScreen() {
 
   // refetch é estável; o objeto do useQuery muda a cada estado e faria loop no foco
   const { refetch: refetchRachas } = rachasQuery;
+  const { refetch: refetchEvents } = eventsQuery;
   const { refetch: refetchJoinRequests } = joinRequestsQuery;
   const { refetch: refetchNotices } = noticesQuery;
 
@@ -54,14 +58,24 @@ export function useRachasScreen() {
         return;
       }
       void refetchRachas();
+      void refetchEvents();
       void refetchJoinRequests();
       void refetchNotices();
       // a home aberta depois não pode vir do cache sem a linha de pedidos
       void queryClient.invalidateQueries({ queryKey: ["racha"] });
-    }, [refetchRachas, refetchJoinRequests, refetchNotices, queryClient])
+    }, [
+      refetchRachas,
+      refetchEvents,
+      refetchJoinRequests,
+      refetchNotices,
+      queryClient,
+    ])
   );
 
   const joinRequests = joinRequestsQuery.data ?? [];
+  const eventsByRacha = new Map(
+    (eventsQuery.data ?? []).map((event) => [event.rachaId, event])
+  );
   // isCancelling só vê a última mutation: um cancelamento por vez
   const isAnyCancelling = joinRequests.some((request) =>
     isCancelling(request.rachaId)
@@ -97,6 +111,7 @@ export function useRachasScreen() {
       dismiss: () => void dismissNotice(notice.id),
     })),
     rachas: (rachasQuery.data ?? []).map((racha) => {
+      const event = eventsByRacha.get(racha.id);
       const isOwnerOrAdmin = racha.role === "OWNER" || racha.role === "ADMIN";
       const hasPending = isOwnerOrAdmin && racha.pendingCount > 0;
       const membersLabel = memberCountLabel(racha.memberCount);
@@ -114,8 +129,17 @@ export function useRachasScreen() {
         membersLabel,
         pendingLabel: hasPending ? pendingBadgeLabel(racha.pendingCount) : null,
         accessibilityLabel: labelParts.join(", "),
-        // Evento só o Dono cria por enquanto; o resto vê o aviso sem botão
-        canCreateEvent: racha.role === "OWNER",
+        canCreateEvent: isOwnerOrAdmin,
+        event: event
+          ? {
+              kicker:
+                event.status === "active"
+                  ? "Evento em curso"
+                  : "Evento agendado",
+              when: formatEventWhen(event.startsOn, event.startsAt),
+              place: event.place,
+            }
+          : null,
       };
     }),
     joinRequests: joinRequests.map((request) => ({
@@ -124,16 +148,25 @@ export function useRachasScreen() {
       isCancelling: isCancelling(request.rachaId),
       isCancelDisabled: isAnyCancelling && !isCancelling(request.rachaId),
     })),
-    isLoading: rachasQuery.isPending || joinRequestsQuery.isPending,
-    isError: rachasQuery.isError || joinRequestsQuery.isError,
+    isLoading:
+      rachasQuery.isPending ||
+      joinRequestsQuery.isPending ||
+      eventsQuery.isPending,
+    isError:
+      rachasQuery.isError || joinRequestsQuery.isError || eventsQuery.isError,
     retry: () => {
       void rachasQuery.refetch();
+      void eventsQuery.refetch();
       void joinRequestsQuery.refetch();
       void refetchNotices();
     },
-    isRetrying: rachasQuery.isRefetching || joinRequestsQuery.isRefetching,
+    isRetrying:
+      rachasQuery.isRefetching ||
+      joinRequestsQuery.isRefetching ||
+      eventsQuery.isRefetching,
     createRacha: () => router.push("/racha/create"),
     openRacha: (id: string) => router.push(`/racha/${id}`),
+    createEvent: (id: string) => router.push(`/racha/${id}/event/new`),
     cancelJoinRequest: (rachaId: string) => void cancel(rachaId),
     enterCode: () => router.push("/racha/join"),
   };

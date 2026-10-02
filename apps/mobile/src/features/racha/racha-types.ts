@@ -102,3 +102,38 @@ export type TRachaNotice = {
   rachaName: string;
   kind: Database["public"]["Enums"]["racha_notice_kind"];
 };
+
+export type TEventStatus = Database["public"]["Enums"]["event_status"];
+
+export type TMyRachaEvent = {
+  rachaId: string;
+  id: string;
+  status: TEventStatus;
+  startsOn: string;
+  startsAt: string;
+  place: string;
+};
+
+export type TOpenEvent = {
+  id: string;
+  status: TEventStatus;
+  startsOn: string;
+  startsAt: string;
+  place: string;
+  isPaid: boolean;
+  price: number | null;
+  spotLimit: number | null;
+  outfieldPerTeam: number;
+  conductorId: string | null;
+  conductorName: string | null;
+};
+
+export type TEventInput = {
+  startsOn: string;
+  kickoffHour: number | null;
+  kickoffMinute: number | null;
+  place: string;
+  isPaid: boolean;
+  price: number | null;
+  spotLimit: number | null;
+};

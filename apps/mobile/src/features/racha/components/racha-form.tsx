@@ -28,12 +28,17 @@ export const RachaForm = ({
   isRulesExpanded,
   toggleRules,
   isDisabled,
+  isRulesDisabled = false,
+  rulesLockMessage,
   isNameAutoFocused = false,
   isRulesHintVisible = true,
   children,
 }: TRachaFormProps &
   PropsWithChildren<{
     isDisabled: boolean;
+    // o motor trava com evento rolando; o nome continua editável
+    isRulesDisabled?: boolean;
+    rulesLockMessage?: string | null;
     isNameAutoFocused?: boolean;
     isRulesHintVisible?: boolean;
   }>) => (
@@ -55,9 +60,10 @@ export const RachaForm = ({
       onChange={setRule}
       isExpanded={isRulesExpanded}
       onToggle={toggleRules}
-      isDisabled={isDisabled}
+      isDisabled={isDisabled || isRulesDisabled}
       matchDurationError={matchDurationError}
       isHintVisible={isRulesHintVisible}
+      lockMessage={rulesLockMessage}
     />
     {children}
   </RachaFormScroll>

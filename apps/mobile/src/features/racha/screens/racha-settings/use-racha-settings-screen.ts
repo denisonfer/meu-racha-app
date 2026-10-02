@@ -6,25 +6,36 @@ import {
   useNavigation,
 } from "expo-router";
 import { usePreventRemove } from "expo-router/react-navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useToast } from "@/ui/components";
 import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
+import { openEventsKey, useOpenEvents } from "../../hooks/use-open-events";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaForm } from "../../hooks/use-racha-form";
 import { useUpdateRacha } from "../../hooks/use-update-racha";
+import { rachaApi } from "../../racha-api";
 import { TRachaForm } from "../../racha-form-schema";
-import { TRacha } from "../../racha-types";
+import { TOpenEvent, TRacha } from "../../racha-types";
 import {
+  DELETE_RACHA_FAILED,
+  DELETE_LOCKED,
   DISCARD_CHANGES_TITLE,
   LINE_TOO_BIG_FOR_SPOT_LIMIT,
+  MOTOR_LOCKED,
   NAME_REQUIRED_TO_SAVE,
   NOT_OWNER,
   RACHA_SAVED,
   SAVE_RACHA_FAILED,
 } from "../../utils/racha-messages";
 
-type TSaveFailureReason = "generic" | "spot_limit_fits_two_teams";
+type TSaveFailureReason =
+  "generic" | "spot_limit_fits_two_teams" | "event_active";
+
+function hasActiveEvent(events: TOpenEvent[] | undefined): boolean {
+  return Boolean(events?.some((event) => event.status === "active"));
+}
 
 export function useRachaSettingsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -48,8 +59,13 @@ export function useRachaSettingsForm(racha: TRacha) {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const showToast = useToast();
+  const queryClient = useQueryClient();
   const { updateRacha } = useUpdateRacha(racha.id);
   const hasRachaAccess = useHasRachaAccess(racha.id);
+  const { data: openEvents, fetchStatus } = useOpenEvents(racha.id);
+
+  // só com a consulta parada: um "active" velho no cache não pode travar o motor
+  const isMotorLocked = fetchStatus === "idle" && hasActiveEvent(openEvents);
 
   // uma recarga do Racha no meio da edição não pode reescrever o que foi digitado
   const [initial] = useState<TRachaForm>(() => ({
@@ -72,9 +88,10 @@ export function useRachaSettingsForm(racha: TRacha) {
     isRulesInitiallyExpanded: true,
   });
 
-  const isDirty =
-    values.name.trim() !== initial.name ||
-    !isSameRules(values.rules, initial.rules);
+  const isNameDirty = values.name.trim() !== initial.name;
+  const isRulesDirty = !isSameRules(values.rules, initial.rules);
+  // com o motor travado, só o nome entra no Salvar
+  const isDirty = isMotorLocked ? isNameDirty : isNameDirty || isRulesDirty;
 
   // o erro vale para os valores que falharam: some quando um campo muda
   const hasSaveFailed =
@@ -113,18 +130,24 @@ export function useRachaSettingsForm(racha: TRacha) {
   const save = () =>
     submit(async (valid) => {
       try {
-        await updateRacha({ name: valid.name, rules: valid.rules });
+        await updateRacha({
+          name: valid.name,
+          // com o motor travado, manda o que já estava: o gatilho só olha o que mudou
+          rules: isMotorLocked ? initial.rules : valid.rules,
+        });
       } catch (error) {
         if (error instanceof Error && error.message === "not_allowed") {
           setIsLeaving(true);
           if (await hasRachaAccess()) showToast(NOT_OWNER);
         } else {
           setFailedValues(values);
+          const code = error instanceof Error ? error.message : "";
           setSaveFailureReason(
-            error instanceof Error &&
-              error.message === "spot_limit_fits_two_teams"
+            code === "spot_limit_fits_two_teams"
               ? "spot_limit_fits_two_teams"
-              : "generic"
+              : code === "event_active"
+                ? "event_active"
+                : "generic"
           );
         }
         return;
@@ -136,15 +159,39 @@ export function useRachaSettingsForm(racha: TRacha) {
   const failureMessage = hasSaveFailed
     ? saveFailureReason === "spot_limit_fits_two_teams"
       ? LINE_TOO_BIG_FOR_SPOT_LIMIT
-      : SAVE_RACHA_FAILED
+      : saveFailureReason === "event_active"
+        ? MOTOR_LOCKED
+        : SAVE_RACHA_FAILED
     : null;
+
+  const openDelete = async () => {
+    if (isMotorLocked) return;
+    // a trava pode ter nascido depois da última leitura
+    let events: TOpenEvent[];
+    try {
+      events = await queryClient.fetchQuery({
+        queryKey: openEventsKey(racha.id),
+        queryFn: () => rachaApi.listOpenEvents(racha.id),
+        staleTime: 0,
+      });
+    } catch {
+      showToast(DELETE_RACHA_FAILED);
+      return;
+    }
+    if (hasActiveEvent(events)) {
+      showToast(DELETE_LOCKED);
+      return;
+    }
+    router.push(`/racha/${racha.id}/delete`);
+  };
 
   return {
     form,
     isSaving,
     isDirty,
+    isMotorLocked,
     failureMessage,
     save,
-    openDelete: () => router.push(`/racha/${racha.id}/delete`),
+    openDelete: () => void openDelete(),
   };
 }

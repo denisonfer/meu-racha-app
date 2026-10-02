@@ -40,6 +40,18 @@ export default function AppLayout() {
         name="racha/[id]/leave"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/assume"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/cancel"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/finish"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
     </Stack>
   );
 }

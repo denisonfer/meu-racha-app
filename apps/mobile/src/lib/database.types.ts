@@ -34,6 +34,97 @@ export type Database = {
   };
   public: {
     Tables: {
+      event: {
+        Row: {
+          conductor_id: string | null;
+          consider_position: boolean;
+          ended_at: string | null;
+          ended_by: string | null;
+          game_mode: Database["public"]["Enums"]["game_mode"];
+          id: string;
+          is_paid: boolean;
+          match_duration_min: number | null;
+          max_consecutive_wins: number;
+          outfield_per_team: number;
+          place: string;
+          price: number | null;
+          racha_id: string;
+          reminder_lead_hours: number;
+          spot_limit: number | null;
+          starts_at: string;
+          starts_on: string;
+          status: Database["public"]["Enums"]["event_status"];
+          tie_return_order: Database["public"]["Enums"]["tie_return_order"];
+          tie_rule: Database["public"]["Enums"]["tie_rule"];
+        };
+        Insert: {
+          conductor_id?: string | null;
+          consider_position: boolean;
+          ended_at?: string | null;
+          ended_by?: string | null;
+          game_mode: Database["public"]["Enums"]["game_mode"];
+          id?: string;
+          is_paid?: boolean;
+          match_duration_min?: number | null;
+          max_consecutive_wins: number;
+          outfield_per_team: number;
+          place: string;
+          price?: number | null;
+          racha_id: string;
+          reminder_lead_hours: number;
+          spot_limit?: number | null;
+          starts_at: string;
+          starts_on: string;
+          status?: Database["public"]["Enums"]["event_status"];
+          tie_return_order: Database["public"]["Enums"]["tie_return_order"];
+          tie_rule: Database["public"]["Enums"]["tie_rule"];
+        };
+        Update: {
+          conductor_id?: string | null;
+          consider_position?: boolean;
+          ended_at?: string | null;
+          ended_by?: string | null;
+          game_mode?: Database["public"]["Enums"]["game_mode"];
+          id?: string;
+          is_paid?: boolean;
+          match_duration_min?: number | null;
+          max_consecutive_wins?: number;
+          outfield_per_team?: number;
+          place?: string;
+          price?: number | null;
+          racha_id?: string;
+          reminder_lead_hours?: number;
+          spot_limit?: number | null;
+          starts_at?: string;
+          starts_on?: string;
+          status?: Database["public"]["Enums"]["event_status"];
+          tie_return_order?: Database["public"]["Enums"]["tie_return_order"];
+          tie_rule?: Database["public"]["Enums"]["tie_rule"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_conductor_id_fkey";
+            columns: ["conductor_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_ended_by_fkey";
+            columns: ["ended_by"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_racha_id_fkey";
+            columns: ["racha_id"];
+            isOneToOne: false;
+            referencedRelation: "racha";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       join_request: {
         Row: {
           created_at: string;
@@ -330,6 +421,23 @@ export type Database = {
         Args: { p_request_id: string; p_stars: number; p_super_star: boolean };
         Returns: undefined;
       };
+      assume_event_conduction: {
+        Args: { p_event_id: string };
+        Returns: undefined;
+      };
+      cancel_event: { Args: { p_event_id: string }; Returns: undefined };
+      create_event: {
+        Args: {
+          p_is_paid: boolean;
+          p_place: string;
+          p_price: number;
+          p_racha_id: string;
+          p_spot_limit: number;
+          p_starts_at: string;
+          p_starts_on: string;
+        };
+        Returns: string;
+      };
       create_racha: {
         Args: {
           p_consider_position: boolean;
@@ -353,6 +461,7 @@ export type Database = {
         Args: { p_profile_id: string; p_racha_id: string };
         Returns: undefined;
       };
+      finish_event: { Args: { p_event_id: string }; Returns: undefined };
       get_invite: {
         Args: { p_code: string };
         Returns: {
@@ -385,6 +494,33 @@ export type Database = {
           racha_name: string;
         }[];
       };
+      list_my_racha_events: {
+        Args: never;
+        Returns: {
+          id: string;
+          place: string;
+          racha_id: string;
+          starts_at: string;
+          starts_on: string;
+          status: Database["public"]["Enums"]["event_status"];
+        }[];
+      };
+      list_open_events: {
+        Args: { p_racha_id: string };
+        Returns: {
+          conductor_id: string;
+          conductor_name: string;
+          id: string;
+          is_paid: boolean;
+          outfield_per_team: number;
+          place: string;
+          price: number;
+          spot_limit: number;
+          starts_at: string;
+          starts_on: string;
+          status: Database["public"]["Enums"]["event_status"];
+        }[];
+      };
       list_racha_members: {
         Args: { p_racha_id: string };
         Returns: {
@@ -403,12 +539,28 @@ export type Database = {
         Args: { p_racha_id: string };
         Returns: Database["public"]["Enums"]["member_role"];
       };
+      racha_has_active_event: {
+        Args: { p_racha_id: string };
+        Returns: boolean;
+      };
       refuse_join_request: {
         Args: { p_request_id: string };
         Returns: undefined;
       };
       transfer_ownership: {
         Args: { p_profile_id: string; p_racha_id: string };
+        Returns: undefined;
+      };
+      update_event: {
+        Args: {
+          p_event_id: string;
+          p_is_paid: boolean;
+          p_place: string;
+          p_price: number;
+          p_spot_limit: number;
+          p_starts_at: string;
+          p_starts_on: string;
+        };
         Returns: undefined;
       };
       update_member: {
@@ -437,6 +589,7 @@ export type Database = {
       };
     };
     Enums: {
+      event_status: "upcoming" | "active" | "finished";
       game_mode: "WINNER_STAYS" | "ROTATION" | "MAX_WINS";
       join_request_status: "PENDING" | "APPROVED" | "REJECTED";
       member_role: "OWNER" | "ADMIN" | "PLAYER";
@@ -575,6 +728,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      event_status: ["upcoming", "active", "finished"],
       game_mode: ["WINNER_STAYS", "ROTATION", "MAX_WINS"],
       join_request_status: ["PENDING", "APPROVED", "REJECTED"],
       member_role: ["OWNER", "ADMIN", "PLAYER"],
