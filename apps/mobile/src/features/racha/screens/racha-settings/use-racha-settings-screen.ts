@@ -62,10 +62,16 @@ export function useRachaSettingsForm(racha: TRacha) {
   const queryClient = useQueryClient();
   const { updateRacha } = useUpdateRacha(racha.id);
   const hasRachaAccess = useHasRachaAccess(racha.id);
-  const { data: openEvents, fetchStatus } = useOpenEvents(racha.id);
+  const {
+    data: openEvents,
+    fetchStatus,
+    isFetchedAfterMount,
+  } = useOpenEvents(racha.id);
 
-  // só com a consulta parada: um "active" velho no cache não pode travar o motor
-  const isMotorLocked = fetchStatus === "idle" && hasActiveEvent(openEvents);
+  // uma resposta desta tela mantém a trava durante refetch, sem confiar no cache inicial
+  const isMotorLocked =
+    hasActiveEvent(openEvents) &&
+    (fetchStatus === "idle" || isFetchedAfterMount);
 
   // uma recarga do Racha no meio da edição não pode reescrever o que foi digitado
   const [initial] = useState<TRachaForm>(() => ({

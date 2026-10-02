@@ -40,6 +40,7 @@ export type Database = {
           consider_position: boolean;
           ended_at: string | null;
           ended_by: string | null;
+          ended_by_system: boolean;
           game_mode: Database["public"]["Enums"]["game_mode"];
           id: string;
           is_paid: boolean;
@@ -62,6 +63,7 @@ export type Database = {
           consider_position: boolean;
           ended_at?: string | null;
           ended_by?: string | null;
+          ended_by_system?: boolean;
           game_mode: Database["public"]["Enums"]["game_mode"];
           id?: string;
           is_paid?: boolean;
@@ -84,6 +86,7 @@ export type Database = {
           consider_position?: boolean;
           ended_at?: string | null;
           ended_by?: string | null;
+          ended_by_system?: boolean;
           game_mode?: Database["public"]["Enums"]["game_mode"];
           id?: string;
           is_paid?: boolean;

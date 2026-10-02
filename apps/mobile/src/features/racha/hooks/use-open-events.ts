@@ -9,5 +9,7 @@ export function useOpenEvents(rachaId: string) {
   return useQuery({
     queryKey: openEventsKey(rachaId),
     queryFn: () => rachaApi.listOpenEvents(rachaId),
+    // o cron só muda Eventos abertos; sem nenhum, o foco já atualiza a agenda
+    refetchInterval: (query) => (query.state.data?.length ? 60_000 : false),
   });
 }
