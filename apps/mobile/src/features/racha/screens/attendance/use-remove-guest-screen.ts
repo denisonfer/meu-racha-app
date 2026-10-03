@@ -32,7 +32,7 @@ export function useRemoveGuestScreen() {
   const showToast = useToast();
   const close = useBottomSheetClose();
 
-  const guest = attendanceQuery.data?.find(
+  const guest = attendanceQuery.data?.people.find(
     (person) => person.kind === "guest" && person.guestId === guestId
   );
   // título vem do param (lista) ou do cache; guarda para não sumir após o delete

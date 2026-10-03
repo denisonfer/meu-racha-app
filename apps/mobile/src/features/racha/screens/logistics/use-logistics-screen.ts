@@ -44,7 +44,8 @@ const isSameLogistics = (a: TLogisticsForm, b: TLogisticsForm) =>
   a.isPaid === b.isPaid &&
   a.price === b.price &&
   a.monthlyPrice === b.monthlyPrice &&
-  a.spotLimit === b.spotLimit;
+  a.spotLimit === b.spotLimit &&
+  a.payerTarget === b.payerTarget;
 
 const messageFor = (
   issues: { path: PropertyKey[]; message: string }[],
@@ -99,6 +100,7 @@ export function useLogisticsForm(racha: TRacha) {
     price: racha.price,
     monthlyPrice: racha.monthlyPrice,
     spotLimit: racha.spotLimit,
+    payerTarget: racha.payerTarget,
   }));
   const [values, setValues] = useState(initial);
   const [outfieldPerTeam, setOutfieldPerTeam] = useState(
@@ -200,7 +202,25 @@ export function useLogisticsForm(racha: TRacha) {
     if (isSaving) return;
     const result = buildLogisticsSchema(outfieldPerTeam).safeParse(values);
     if (!result.success) return;
-    void persist(result.data);
+    const logistics: TRachaLogistics = {
+      ...result.data,
+      price: result.data.isPaid ? result.data.price : null,
+      monthlyPrice: result.data.isPaid ? result.data.monthlyPrice : null,
+      payerTarget: result.data.isPaid ? result.data.payerTarget : null,
+    };
+    if (initial.isPaid && !logistics.isPaid) {
+      Alert.alert(
+        "Tornar racha grátis?",
+        "O valor da diária, o valor mensal e a Meta serão apagados do Racha. Eventos já criados mantêm suas configurações de Pago, diária e Meta; a mensalidade é uma configuração do Racha. Passes mensais já registrados e saldos de Crédito dos membros permanecem.",
+        [
+          { text: "Continuar editando", style: "cancel" },
+          { text: "Tornar grátis", onPress: () => void persist(logistics) },
+        ],
+        { cancelable: false }
+      );
+      return;
+    }
+    void persist(logistics);
   };
 
   return {
@@ -214,6 +234,7 @@ export function useLogisticsForm(racha: TRacha) {
       price: messageFor(issues, "price"),
       monthlyPrice: messageFor(issues, "monthlyPrice"),
       spotLimit: messageFor(issues, "spotLimit"),
+      payerTarget: messageFor(issues, "payerTarget"),
     },
     isSaving,
     isDirty,
@@ -266,6 +287,11 @@ export function useLogisticsForm(racha: TRacha) {
       setValues((current) => ({
         ...current,
         spotLimit: digitsOrNull(text),
+      })),
+    setPayerTargetText: (text: string) =>
+      setValues((current) => ({
+        ...current,
+        payerTarget: digitsOrNull(text),
       })),
     save,
   };

@@ -30,7 +30,7 @@ export function useMonthlyPassScreen() {
   const close = useBottomSheetClose();
 
   const event = eventsQuery.data?.find((item) => item.id === eventId);
-  const person = attendanceQuery.data?.find(
+  const person = attendanceQuery.data?.people.find(
     (item) => item.kind === "member" && item.profileId === profileId
   );
 
@@ -57,12 +57,25 @@ export function useMonthlyPassScreen() {
   const serverEnabled = person?.isMonthlyPass ?? false;
 
   const [enabled, setEnabled] = useState(serverEnabled);
+  const [lastServerState, setLastServerState] = useState({
+    profileId: person?.profileId,
+    enabled: serverEnabled,
+  });
   const [isSaving, setIsSaving] = useState(false);
   const [failureMessage, setFailureMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (person) setEnabled(person.isMonthlyPass);
-  }, [person?.profileId, person?.isMonthlyPass]);
+  if (
+    person &&
+    (lastServerState.profileId !== person.profileId ||
+      lastServerState.enabled !== person.isMonthlyPass)
+  ) {
+    // Uma atualização do servidor substitui a edição local antes de desenhar a tela.
+    setLastServerState({
+      profileId: person.profileId,
+      enabled: person.isMonthlyPass,
+    });
+    setEnabled(person.isMonthlyPass);
+  }
 
   const firstName = person?.name.split(" ")[0] ?? "membro";
   const isDirty = person != null && enabled !== person.isMonthlyPass;

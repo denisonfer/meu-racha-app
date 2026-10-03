@@ -129,8 +129,6 @@ export const ATTENDANCE_SPOT_LIMIT_BELOW_OCCUPANCY =
   "O limite não pode ser menor que o número de participantes confirmados.";
 export const ATTENDANCE_EVENT_MONTH_LOCKED =
   "Este evento já tem pagamento registrado. Cancele e crie outro para mudar de mês.";
-export const ATTENDANCE_WAITLISTED_UNPAID =
-  "O pagamento na fila estará disponível com o Crédito da lista de espera.";
 export const ATTENDANCE_MENSALISTA_PAID =
   "Mensalista permanece como pago neste mês.";
 export const ATTENDANCE_MONTHLY_PRICE_REQUIRED =
@@ -157,7 +155,22 @@ export const ATTENDANCE_EVENT_GONE_TEXT =
   "Este evento não está mais na agenda. Volte para a home do racha.";
 export const ATTENDANCE_EVENT_GONE_ACTION = "Voltar ao racha";
 export const ATTENDANCE_QUEUE_PAY_NOTE =
-  "Pagamento de quem está na fila fica para a etapa de Caixa.";
+  "Pagar não garante vaga. Se não entrar, o valor pago pode virar Crédito.";
+export const ATTENDANCE_CREDIT_ALREADY_USED =
+  "Esse crédito já foi usado em outro Evento. A correção não foi aplicada.";
+export const ATTENDANCE_PRESENT_PAYERS = (
+  count: number,
+  target: number | null
+) =>
+  target == null
+    ? `Pagantes presentes: ${count} · Meta não definida`
+    : `Pagantes presentes: ${count}/${target}`;
+export const ATTENDANCE_CREDIT_BALANCE = (amount: number) =>
+  `Crédito: R$ ${amount}`;
+export const PAYER_TARGET_REQUIRED =
+  "Informe a Meta de pagantes (quantos pagantes que vieram cobrem o dia).";
+export const PAYER_TARGET_INVALID =
+  "A Meta precisa ser um número maior que zero.";
 export const ATTENDANCE_MONTHLY_HINT =
   "Cobertura do mês do Evento. Outubro não quita novembro.";
 export const ATTENDANCE_MONTHLY_SAVE = "Salvar";

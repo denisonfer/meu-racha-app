@@ -48,6 +48,7 @@ export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
     setPriceText,
     setMonthlyPriceText,
     setSpotLimitText,
+    setPayerTargetText,
     save,
   } = useLogisticsForm(racha);
 
@@ -163,6 +164,18 @@ export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
                 placeholder="Opcional"
                 error={errors.monthlyPrice}
                 hint={MONTHLY_PRICE_HINT}
+                isDisabled={isSaving}
+              />
+              <Input
+                label="Meta de pagantes"
+                preset="numeric"
+                value={
+                  values.payerTarget === null ? "" : String(values.payerTarget)
+                }
+                onChangeText={setPayerTargetText}
+                hint="Quantos pagantes que vieram cobrem o custo do dia."
+                error={errors.payerTarget}
+                maxLength={4}
                 isDisabled={isSaving}
               />
               <View style={styles.amount}>

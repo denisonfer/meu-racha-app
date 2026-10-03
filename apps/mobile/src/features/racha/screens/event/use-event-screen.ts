@@ -77,7 +77,8 @@ const isSameEvent = (a: TEventForm, b: TEventForm) =>
   a.place.trim() === b.place.trim() &&
   a.isPaid === b.isPaid &&
   a.price === b.price &&
-  a.spotLimit === b.spotLimit;
+  a.spotLimit === b.spotLimit &&
+  a.payerTarget === b.payerTarget;
 
 const messageFor = (
   issues: { path: PropertyKey[]; message: string }[],
@@ -92,6 +93,7 @@ const formFromRacha = (racha: TRacha): TEventForm => ({
   isPaid: racha.isPaid,
   price: racha.price,
   spotLimit: racha.spotLimit,
+  payerTarget: racha.payerTarget,
 });
 
 const formFromEvent = (event: TOpenEvent): TEventForm => {
@@ -104,6 +106,7 @@ const formFromEvent = (event: TOpenEvent): TEventForm => {
     isPaid: event.isPaid,
     price: event.price,
     spotLimit: event.spotLimit,
+    payerTarget: event.payerTarget,
   };
 };
 
@@ -375,15 +378,29 @@ export function useEventForm(editor: TEventEditor) {
     ) {
       return;
     }
-    void persist({
+    const input: TEventInput = {
       startsOn,
       kickoffHour: result.data.kickoffHour,
       kickoffMinute: result.data.kickoffMinute,
       place: result.data.place,
       isPaid: result.data.isPaid,
-      price: result.data.price,
+      price: result.data.isPaid ? result.data.price : null,
       spotLimit: result.data.spotLimit,
-    });
+      payerTarget: result.data.isPaid ? result.data.payerTarget : null,
+    };
+    if (event?.isPaid && !input.isPaid) {
+      Alert.alert(
+        "Tornar evento grátis?",
+        "Se houver pagamentos registrados neste evento, eles serão desfeitos no app. Créditos usados na diária voltarão ao saldo com a validade original. O app não devolve dinheiro: o Dono ou Admin precisa devolver por fora os valores recebidos.",
+        [
+          { text: "Continuar editando", style: "cancel" },
+          { text: "Tornar grátis", onPress: () => void persist(input) },
+        ],
+        { cancelable: false }
+      );
+      return;
+    }
+    void persist(input);
   };
 
   return {
@@ -396,6 +413,7 @@ export function useEventForm(editor: TEventEditor) {
       place: messageFor(issues, "place"),
       price: messageFor(issues, "price"),
       spotLimit: messageFor(issues, "spotLimit"),
+      payerTarget: messageFor(issues, "payerTarget"),
     },
     isSaving,
     isDatePickerOpen,
@@ -433,6 +451,11 @@ export function useEventForm(editor: TEventEditor) {
       setValues((current) => ({
         ...current,
         spotLimit: digitsOrNull(text),
+      })),
+    setPayerTargetText: (text: string) =>
+      setValues((current) => ({
+        ...current,
+        payerTarget: digitsOrNull(text),
       })),
     save,
   };

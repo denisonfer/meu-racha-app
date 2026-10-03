@@ -26,6 +26,7 @@ export const EventForm = ({ editor }: { editor: TEventEditor }) => {
     setIsPaid,
     setPriceText,
     setSpotLimitText,
+    setPayerTargetText,
     save,
   } = useEventForm(editor);
 
@@ -115,6 +116,18 @@ export const EventForm = ({ editor }: { editor: TEventEditor }) => {
                 error={errors.price}
                 hint={PRICE_HINT}
                 keepHint
+                isDisabled={isSaving}
+              />
+              <Input
+                label="Meta de pagantes"
+                preset="numeric"
+                value={
+                  values.payerTarget === null ? "" : String(values.payerTarget)
+                }
+                onChangeText={setPayerTargetText}
+                hint="Quantos pagantes que vieram cobrem o custo do dia."
+                error={errors.payerTarget}
+                maxLength={4}
                 isDisabled={isSaving}
               />
             </View>

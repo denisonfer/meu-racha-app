@@ -15,9 +15,6 @@ import { conductorName } from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 import { TEventCardAction } from "./event-card";
 
-const spotsLabel = (limit: number) =>
-  limit === 1 ? "1 vaga" : `${limit} vagas`;
-
 export function useRachaHomeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const {
@@ -149,8 +146,7 @@ export function useRachaHomeScreen() {
         shownEvent.isPaid && racha?.monthlyPrice != null
           ? applyBrlMask(String(racha.monthlyPrice))
           : null,
-      spots:
-        shownEvent.spotLimit === null ? null : spotsLabel(shownEvent.spotLimit),
+      spotLimit: shownEvent.spotLimit,
       conductorLine: conductorLine(shownEvent),
       confirmedCount: shownEvent.confirmedCount,
       myStatus: shownEvent.myStatus,

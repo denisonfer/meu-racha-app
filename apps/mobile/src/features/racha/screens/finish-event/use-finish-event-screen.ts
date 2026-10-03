@@ -28,8 +28,8 @@ export function useFinishEventScreen() {
     try {
       await finishEvent(eventId);
       // isFinishing fica true: evita o segundo toque e o piscar do botão enquanto a folha fecha.
-      // encerrar não abre outro evento
-      router.dismissTo(`/racha/${id}`);
+      // depois do settle, a Presença mostra quem pagou e a Meta
+      router.dismissTo(`/racha/${id}/event/${eventId}/attendance`);
     } catch {
       // a folha pode ter perdido o foco (fechada no arrasto, o que o Android não deixa impedir):
       // sem a tela em foco pra mostrar o erro no rodapé, ele vai pro toast

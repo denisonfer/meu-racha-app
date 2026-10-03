@@ -6,6 +6,8 @@ import {
   HOUR_INVALID,
   KICKOFF_REQUIRED,
   MINUTE_INVALID,
+  PAYER_TARGET_INVALID,
+  PAYER_TARGET_REQUIRED,
   PLACE_TOO_LONG,
   PRICE_INVALID,
   PRICE_REQUIRED,
@@ -29,6 +31,7 @@ const valid: TEventForm = {
   isPaid: false,
   price: null,
   spotLimit: null,
+  payerTarget: null,
 };
 
 const messages = (outfieldPerTeam: number, patch: Partial<TEventForm>) => {
@@ -172,6 +175,19 @@ describe("pago", () => {
 
   test("pago desligado conserva um valor já gravado", () => {
     expect(passes(5, { isPaid: false, price: 25 })).toBe(true);
+  });
+
+  test("pago sem meta pede a meta", () => {
+    expect(
+      messages(5, { isPaid: true, price: 25, payerTarget: null })
+    ).toContain(PAYER_TARGET_REQUIRED);
+  });
+
+  test("meta 0 falha; 1 passa", () => {
+    expect(messages(5, { isPaid: true, price: 25, payerTarget: 0 })).toContain(
+      PAYER_TARGET_INVALID
+    );
+    expect(passes(5, { isPaid: true, price: 25, payerTarget: 1 })).toBe(true);
   });
 });
 

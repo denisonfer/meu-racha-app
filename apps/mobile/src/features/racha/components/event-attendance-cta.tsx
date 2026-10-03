@@ -9,6 +9,7 @@ import {
 
 type TEventAttendanceCtaProps = {
   confirmedCount: number;
+  spotLimit: number | null;
   myStatus: TAttendanceStatus | null;
   myQueuePosition: number | null;
   onOpenAttendance: () => void;
@@ -20,6 +21,7 @@ type TEventAttendanceCtaProps = {
  */
 export const EventAttendanceCta = ({
   confirmedCount,
+  spotLimit,
   myStatus,
   myQueuePosition,
   onOpenAttendance,
@@ -27,20 +29,37 @@ export const EventAttendanceCta = ({
   const queueHint = attendanceQueueHint(myStatus, myQueuePosition);
   const confirmedLabel = ATTENDANCE_CONFIRMED_COUNT(confirmedCount);
   const countWord = confirmedCount === 1 ? "confirmado" : "confirmados";
+  const spotsWord = spotLimit === 1 ? "vaga" : "vagas";
 
   return (
     <View style={styles.block}>
       <View
-        style={styles.countRow}
+        style={[styles.countRow, spotLimit == null && styles.countRowSingle]}
         accessible
-        accessibilityLabel={confirmedLabel}
+        accessibilityLabel={
+          spotLimit == null
+            ? confirmedLabel
+            : `${confirmedLabel}. ${spotLimit} ${spotsWord} neste evento`
+        }
       >
-        <Text preset="stat" color="action" style={styles.countNum}>
-          {confirmedCount}
-        </Text>
-        <Text preset="small" color="muted" style={styles.bold}>
-          {countWord}
-        </Text>
+        <View style={styles.countItem}>
+          <Text preset="stat" color="action" style={styles.countNum}>
+            {confirmedCount}
+          </Text>
+          <Text preset="small" color="muted" style={styles.bold}>
+            {countWord}
+          </Text>
+        </View>
+        {spotLimit == null ? null : (
+          <View style={styles.countItem}>
+            <Text preset="stat" color="muted" style={styles.countNum}>
+              {spotLimit}
+            </Text>
+            <Text preset="small" color="muted" style={styles.bold}>
+              {spotsWord}
+            </Text>
+          </View>
+        )}
       </View>
       {queueHint ? (
         <Text preset="small" color="muted">
@@ -61,6 +80,13 @@ export const EventAttendanceCta = ({
 const styles = StyleSheet.create({
   block: { gap: 12 },
   countRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  countRowSingle: { justifyContent: "flex-start" },
+  countItem: {
     flexDirection: "row",
     alignItems: "baseline",
     gap: 6,

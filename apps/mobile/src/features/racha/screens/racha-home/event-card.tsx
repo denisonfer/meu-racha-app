@@ -16,7 +16,7 @@ type TEventCardProps = {
   isPaid: boolean;
   price: string | null;
   monthlyPrice: string | null;
-  spots: string | null;
+  spotLimit: number | null;
   conductorLine: string | null;
   confirmedCount: number;
   myStatus: TAttendanceStatus | null;
@@ -64,7 +64,7 @@ export const EventCard = ({
   isPaid,
   price,
   monthlyPrice,
-  spots,
+  spotLimit,
   conductorLine,
   confirmedCount,
   myStatus,
@@ -81,7 +81,7 @@ export const EventCard = ({
       {when}
     </Text>
     <Text style={styles.bold}>{place}</Text>
-    {price || monthlyPrice || spots ? (
+    {price || monthlyPrice ? (
       <View style={styles.facts}>
         {price ? (
           <View style={styles.amount}>
@@ -105,11 +105,6 @@ export const EventCard = ({
             </Text>
           </View>
         ) : null}
-        {spots ? (
-          <Text preset="small" color="muted" style={styles.bold}>
-            {spots}
-          </Text>
-        ) : null}
       </View>
     ) : null}
     {conductorLine ? (
@@ -119,6 +114,7 @@ export const EventCard = ({
     ) : null}
     <EventAttendanceCta
       confirmedCount={confirmedCount}
+      spotLimit={spotLimit}
       myStatus={myStatus}
       myQueuePosition={myQueuePosition}
       onOpenAttendance={onOpenAttendance}

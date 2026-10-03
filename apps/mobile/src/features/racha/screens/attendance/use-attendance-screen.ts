@@ -35,8 +35,11 @@ import {
   ATTENDANCE_NOT_CONFIRMED,
   ATTENDANCE_REMOVE_GUEST,
   ATTENDANCE_SPOT_LIMIT,
+  ATTENDANCE_CREDIT_ALREADY_USED,
+  ATTENDANCE_CREDIT_BALANCE,
+  ATTENDANCE_PRESENT_PAYERS,
+  ATTENDANCE_QUEUE_PAY_NOTE,
   ATTENDANCE_WAITLISTED,
-  ATTENDANCE_WAITLISTED_UNPAID,
 } from "../../utils/racha-messages";
 
 function attendanceErrorMessage(code: string): string {
@@ -47,8 +50,8 @@ function attendanceErrorMessage(code: string): string {
       return ATTENDANCE_MENSALISTA_PAID;
     case "not_confirmed":
       return ATTENDANCE_NOT_CONFIRMED;
-    case "waitlisted_unpaid":
-      return ATTENDANCE_WAITLISTED_UNPAID;
+    case "credit_already_used":
+      return ATTENDANCE_CREDIT_ALREADY_USED;
     case "monthly_price_required":
       return ATTENDANCE_MONTHLY_PRICE_REQUIRED;
     default:
@@ -114,16 +117,26 @@ export function useAttendanceScreen() {
 
   const eventsIdle = eventsQuery.fetchStatus === "idle";
   const event = eventsQuery.data?.find((item) => item.id === eventId);
+  const attendance = attendanceQuery.data;
+  const isFinished = attendance?.eventStatus === "finished";
+  // finished some da lista aberta; a RPC de presença ainda serve
   const isMissingEvent =
-    eventsIdle && eventsQuery.isSuccess && event === undefined;
+    eventsIdle &&
+    eventsQuery.isSuccess &&
+    event === undefined &&
+    attendanceQuery.isFetched &&
+    !attendanceQuery.isSuccess;
 
   const isAdmin =
     racha != null && (racha.role === "OWNER" || racha.role === "ADMIN");
-  const canMonthlyPass = isAdmin && racha?.monthlyPrice != null;
+  const canMonthlyPass = isAdmin && racha?.monthlyPrice != null && !isFinished;
 
-  const people = attendanceQuery.data ?? [];
+  const people = attendance?.people ?? [];
   const confirmed = people.filter(
-    (person) => person.kind === "guest" || person.status === "confirmed"
+    (person) =>
+      person.kind === "guest" ||
+      person.status === "confirmed" ||
+      (isAdmin && person.kind === "member" && person.status === null)
   );
   const waitlisted = people
     .filter((person) => person.status === "waitlisted")
@@ -132,18 +145,18 @@ export function useAttendanceScreen() {
     ? people.filter((person) => person.status === "cancelled")
     : [];
 
+  const confirmedCountDisplay = event?.confirmedCount ?? confirmed.length;
   const remainingSpots =
     event?.spotLimit == null
       ? null
       : Math.max(0, event.spotLimit - event.confirmedCount);
 
   const capacityText = (() => {
-    if (!event) return "";
     const count =
-      event.confirmedCount === 1
+      confirmedCountDisplay === 1
         ? "1 confirmado"
-        : `${event.confirmedCount} confirmados`;
-    if (remainingSpots === null) return count;
+        : `${confirmedCountDisplay} confirmados`;
+    if (!event || remainingSpots === null) return count;
     if (remainingSpots === 0) return `${count} · lotado`;
     return remainingSpots === 1
       ? `${count} · 1 vaga`
@@ -167,7 +180,7 @@ export function useAttendanceScreen() {
   ): TAttendanceRowAction[] => {
     const actions: TAttendanceRowAction[] = [];
 
-    if (isAdmin && person.kind === "guest" && person.guestId) {
+    if (isAdmin && !isFinished && person.kind === "guest" && person.guestId) {
       actions.push({
         label: ATTENDANCE_REMOVE_GUEST,
         accessibilityLabel: `Remover ${person.name}`,
@@ -180,6 +193,7 @@ export function useAttendanceScreen() {
 
     if (
       isAdmin &&
+      !isFinished &&
       person.kind === "member" &&
       person.profileId &&
       person.profileId !== userId
@@ -264,7 +278,15 @@ export function useAttendanceScreen() {
             ? ("monthly" as const)
             : null,
       positionText: formatPosition(person),
-      paymentNote: person.paymentNote,
+      paymentNote:
+        person.paymentNote ??
+        (section === "waitlisted" &&
+        (event?.isPaid || (isFinished && !!racha?.isPaid)) &&
+        !person.isPaidEffective
+          ? ATTENDANCE_QUEUE_PAY_NOTE
+          : person.creditBalance != null && person.creditBalance > 0
+            ? ATTENDANCE_CREDIT_BALANCE(person.creditBalance)
+            : null),
       queuePosition: section === "waitlisted" ? person.queuePosition : null,
       stars: person.stars,
       isSuperStar: person.isSuperStar,
@@ -312,9 +334,10 @@ export function useAttendanceScreen() {
     }));
   };
 
-  const myCta = attendanceCta(event?.myStatus ?? null);
+  const myCta = isFinished ? null : attendanceCta(event?.myStatus ?? null);
 
   const onMyAttendancePress = async () => {
+    if (!myCta) return;
     try {
       if (myCta.kind === "confirm") {
         await confirmAttendance(id, eventId);
@@ -350,26 +373,45 @@ export function useAttendanceScreen() {
     isError,
     isMissingEvent,
     summary:
-      event && racha
+      racha && (event || isFinished)
         ? {
             top: `${racha.name} · ${
-              event.status === "active" ? "Evento em curso" : "Evento agendado"
+              isFinished
+                ? "Evento encerrado"
+                : event?.status === "active"
+                  ? "Evento em curso"
+                  : "Evento agendado"
             }`,
-            when: formatEventWhen(event.startsOn, event.startsAt),
-            place: event.place,
+            when: event
+              ? formatEventWhen(event.startsOn, event.startsAt)
+              : "Encerrado",
+            place: event?.place ?? racha.place,
             capacityText,
-            confirmedCount: event.confirmedCount,
+            confirmedCount: confirmedCountDisplay,
           }
         : null,
     isAdmin,
-    eventIsPaid: !!event?.isPaid,
-    canAddGuest: isAdmin,
-    myAttendance: {
-      title: myCta.title,
-      preset: myCta.preset,
-      isLoading: isAttendanceBusy(eventId),
-      onPress: () => void onMyAttendancePress(),
-    },
+    eventIsPaid: !!event?.isPaid || (isFinished && !!racha?.isPaid),
+    canAddGuest: isAdmin && !isFinished,
+    presentPayersText:
+      isAdmin && (event?.isPaid || (isFinished && racha?.isPaid))
+        ? ATTENDANCE_PRESENT_PAYERS(
+            attendance?.presentPayerCount ?? 0,
+            attendance?.payerTarget ?? null
+          )
+        : null,
+    myCreditText:
+      !isAdmin && (attendance?.myCreditBalance ?? 0) > 0
+        ? `Seu crédito: R$ ${attendance?.myCreditBalance}`
+        : null,
+    myAttendance: myCta
+      ? {
+          title: myCta.title,
+          preset: myCta.preset,
+          isLoading: isAttendanceBusy(eventId),
+          onPress: () => void onMyAttendancePress(),
+        }
+      : null,
     confirmedCount: confirmed.length,
     confirmedGroups: groupPeople(confirmed, "confirmed"),
     showConfirmedGroupTitles: confirmed.length > 1,

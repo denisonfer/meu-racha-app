@@ -47,6 +47,7 @@ export type Database = {
           match_duration_min: number | null;
           max_consecutive_wins: number;
           outfield_per_team: number;
+          payer_target: number | null;
           place: string;
           price: number | null;
           racha_id: string;
@@ -70,6 +71,7 @@ export type Database = {
           match_duration_min?: number | null;
           max_consecutive_wins: number;
           outfield_per_team: number;
+          payer_target?: number | null;
           place: string;
           price?: number | null;
           racha_id: string;
@@ -93,6 +95,7 @@ export type Database = {
           match_duration_min?: number | null;
           max_consecutive_wins?: number;
           outfield_per_team?: number;
+          payer_target?: number | null;
           place?: string;
           price?: number | null;
           racha_id?: string;
@@ -223,8 +226,10 @@ export type Database = {
           did_attend: boolean;
           event_id: string;
           event_year_month: string;
+          had_slot_since_payment: boolean;
           monthly_coverage_month: string | null;
           paid_marked_at: string | null;
+          payment_cycle_id: string;
           profile_id: string;
           racha_id: string;
         };
@@ -236,8 +241,10 @@ export type Database = {
           did_attend?: boolean;
           event_id: string;
           event_year_month: string;
+          had_slot_since_payment?: boolean;
           monthly_coverage_month?: string | null;
           paid_marked_at?: string | null;
+          payment_cycle_id?: string;
           profile_id: string;
           racha_id: string;
         };
@@ -249,8 +256,10 @@ export type Database = {
           did_attend?: boolean;
           event_id?: string;
           event_year_month?: string;
+          had_slot_since_payment?: boolean;
           monthly_coverage_month?: string | null;
           paid_marked_at?: string | null;
+          payment_cycle_id?: string;
           profile_id?: string;
           racha_id?: string;
         };
@@ -434,6 +443,7 @@ export type Database = {
           monthly_price: number | null;
           name: string;
           outfield_per_team: number;
+          payer_target: number | null;
           place: string;
           price: number | null;
           reminder_lead_hours: number;
@@ -456,6 +466,7 @@ export type Database = {
           monthly_price?: number | null;
           name: string;
           outfield_per_team?: number;
+          payer_target?: number | null;
           place: string;
           price?: number | null;
           reminder_lead_hours?: number;
@@ -478,6 +489,7 @@ export type Database = {
           monthly_price?: number | null;
           name?: string;
           outfield_per_team?: number;
+          payer_target?: number | null;
           place?: string;
           price?: number | null;
           reminder_lead_hours?: number;
@@ -683,6 +695,7 @@ export type Database = {
       create_event: {
         Args: {
           p_is_paid: boolean;
+          p_payer_target: number;
           p_place: string;
           p_price: number;
           p_racha_id: string;
@@ -735,14 +748,19 @@ export type Database = {
           avatar_path: string;
           cash_paid_amount: number;
           credit_applied_amount: number;
+          credit_balance: number;
           did_attend: boolean;
           display_name: string;
+          event_status: Database["public"]["Enums"]["event_status"];
           guest_id: string;
           is_monthly_pass: boolean;
           is_paid_effective: boolean;
           is_super_star: boolean;
           kind: string;
+          my_credit_balance: number;
+          payer_target: number;
           plays_as: Database["public"]["Enums"]["plays_as"];
+          present_payer_count: number;
           primary_position: Database["public"]["Enums"]["position"];
           profile_id: string;
           queue_position: number;
@@ -780,6 +798,7 @@ export type Database = {
           my_status: string;
           place: string;
           racha_id: string;
+          spot_limit: number | null;
           starts_at: string;
           starts_on: string;
           status: Database["public"]["Enums"]["event_status"];
@@ -796,6 +815,7 @@ export type Database = {
           my_queue_position: number;
           my_status: string;
           outfield_per_team: number;
+          payer_target: number;
           place: string;
           price: number;
           spot_limit: number;
@@ -874,6 +894,7 @@ export type Database = {
         Args: {
           p_event_id: string;
           p_is_paid: boolean;
+          p_payer_target: number;
           p_place: string;
           p_price: number;
           p_spot_limit: number;
@@ -898,6 +919,7 @@ export type Database = {
           p_kickoff_time: string;
           p_min_age: number;
           p_monthly_price: number;
+          p_payer_target: number;
           p_place: string;
           p_price: number;
           p_racha_id: string;

@@ -20,6 +20,8 @@ import {
   MONTHLY_PRICE_INVALID,
   PLACE_REQUIRED,
   PLACE_TOO_LONG,
+  PAYER_TARGET_INVALID,
+  PAYER_TARGET_REQUIRED,
   PRICE_INVALID,
   PRICE_REQUIRED,
   SPOT_LIMIT_TOO_BIG,
@@ -74,6 +76,7 @@ export function buildLogisticsSchema(outfieldPerTeam: number) {
         .int()
         .max(SPOT_LIMIT_MAX, SPOT_LIMIT_TOO_BIG)
         .nullable(),
+      payerTarget: z.number().int().nullable(),
     })
     .superRefine((value, ctx) => {
       const hasHour = value.kickoffHour !== null;
@@ -100,6 +103,24 @@ export function buildLogisticsSchema(outfieldPerTeam: number) {
           code: "custom",
           message: PRICE_REQUIRED,
           path: ["price"],
+        });
+      }
+
+      if (value.isPaid && value.payerTarget === null) {
+        ctx.addIssue({
+          code: "custom",
+          message: PAYER_TARGET_REQUIRED,
+          path: ["payerTarget"],
+        });
+      } else if (
+        value.isPaid &&
+        value.payerTarget !== null &&
+        value.payerTarget <= 0
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          message: PAYER_TARGET_INVALID,
+          path: ["payerTarget"],
         });
       }
 

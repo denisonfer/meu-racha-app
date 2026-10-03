@@ -10,6 +10,7 @@ type TRachaCardEvent = {
   when: string;
   place: string;
   confirmedCount: number;
+  spotLimit: number | null;
   myStatus: TAttendanceStatus | null;
   myQueuePosition: number | null;
   onOpenAttendance: () => void;
@@ -77,6 +78,7 @@ export const RachaCard = ({
           </View>
           <EventAttendanceCta
             confirmedCount={event.confirmedCount}
+            spotLimit={event.spotLimit}
             myStatus={event.myStatus}
             myQueuePosition={event.myQueuePosition}
             onOpenAttendance={event.onOpenAttendance}

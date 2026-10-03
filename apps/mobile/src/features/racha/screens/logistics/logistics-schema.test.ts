@@ -6,6 +6,8 @@ import {
   MONTHLY_PRICE_INVALID,
   PLACE_REQUIRED,
   PLACE_TOO_LONG,
+  PAYER_TARGET_INVALID,
+  PAYER_TARGET_REQUIRED,
   PRICE_INVALID,
   PRICE_REQUIRED,
   SPOT_LIMIT_TOO_BIG,
@@ -24,6 +26,7 @@ const valid: TLogisticsForm = {
   price: null,
   monthlyPrice: null,
   spotLimit: null,
+  payerTarget: null,
 };
 
 const messages = (outfieldPerTeam: number, patch: Partial<TLogisticsForm>) => {
@@ -122,18 +125,40 @@ describe("pago", () => {
   });
 
   test("mensal 0 está fora; mensal vazio passa", () => {
-    expect(messages(5, { isPaid: true, price: 25, monthlyPrice: 0 })).toContain(
-      MONTHLY_PRICE_INVALID
-    );
-    expect(passes(5, { isPaid: true, price: 25, monthlyPrice: null })).toBe(
-      true
-    );
+    expect(
+      messages(5, { isPaid: true, price: 25, monthlyPrice: 0, payerTarget: 1 })
+    ).toContain(MONTHLY_PRICE_INVALID);
+    expect(
+      passes(5, {
+        isPaid: true,
+        price: 25,
+        monthlyPrice: null,
+        payerTarget: 1,
+      })
+    ).toBe(true);
   });
 
   test("pago desligado conserva um valor já gravado", () => {
     expect(passes(5, { isPaid: false, price: 25, monthlyPrice: 40 })).toBe(
       true
     );
+  });
+
+  test("pago sem meta pede a meta", () => {
+    expect(
+      messages(5, { isPaid: true, price: 25, payerTarget: null })
+    ).toContain(PAYER_TARGET_REQUIRED);
+  });
+
+  test("meta 0 ou negativa falha; 1 passa", () => {
+    expect(messages(5, { isPaid: true, price: 25, payerTarget: 0 })).toContain(
+      PAYER_TARGET_INVALID
+    );
+    expect(passes(5, { isPaid: true, price: 25, payerTarget: 1 })).toBe(true);
+  });
+
+  test("grátis sem meta passa", () => {
+    expect(passes(5, { isPaid: false, payerTarget: null })).toBe(true);
   });
 });
 

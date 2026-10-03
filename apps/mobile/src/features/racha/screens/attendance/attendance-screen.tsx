@@ -21,6 +21,8 @@ export const AttendanceScreen = () => {
     isAdmin,
     eventIsPaid,
     canAddGuest,
+    presentPayersText,
+    myCreditText,
     myAttendance,
     confirmedCount,
     confirmedGroups,
@@ -85,13 +87,26 @@ export const AttendanceScreen = () => {
             </View>
           </View>
 
-          <Button
-            title={myAttendance.title}
-            preset={myAttendance.preset}
-            onPress={myAttendance.onPress}
-            isLoading={myAttendance.isLoading}
-            accessibilityLabel={myAttendance.title}
-          />
+          {presentPayersText ? (
+            <Text preset="small" color="muted" style={styles.bold}>
+              {presentPayersText}
+            </Text>
+          ) : null}
+          {myCreditText ? (
+            <Text preset="small" color="muted" style={styles.bold}>
+              {myCreditText}
+            </Text>
+          ) : null}
+
+          {myAttendance ? (
+            <Button
+              title={myAttendance.title}
+              preset={myAttendance.preset}
+              onPress={myAttendance.onPress}
+              isLoading={myAttendance.isLoading}
+              accessibilityLabel={myAttendance.title}
+            />
+          ) : null}
 
           <View style={styles.sectionHead}>
             <Text preset="h3">Confirmados · {confirmedCount}</Text>

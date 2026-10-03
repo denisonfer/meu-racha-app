@@ -139,6 +139,7 @@ export function useRachasScreen() {
               when: formatEventWhen(event.startsOn, event.startsAt),
               place: event.place,
               confirmedCount: event.confirmedCount,
+              spotLimit: event.spotLimit,
               myStatus: event.myStatus,
               myQueuePosition: event.myQueuePosition,
               onOpenAttendance: () =>

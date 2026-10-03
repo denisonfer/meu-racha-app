@@ -24,6 +24,8 @@ import {
   KICKOFF_REQUIRED,
   MINUTE_INVALID,
   PLACE_TOO_LONG,
+  PAYER_TARGET_INVALID,
+  PAYER_TARGET_REQUIRED,
   PRICE_INVALID,
   PRICE_REQUIRED,
   SPOT_LIMIT_TOO_BIG,
@@ -77,6 +79,7 @@ export function buildEventSchema(
         .int()
         .max(SPOT_LIMIT_MAX, SPOT_LIMIT_TOO_BIG)
         .nullable(),
+      payerTarget: z.number().int().nullable(),
     })
     .superRefine((value, ctx) => {
       const iso = dateMaskToISO(value.startsOn);
@@ -144,6 +147,24 @@ export function buildEventSchema(
           code: "custom",
           message: PRICE_REQUIRED,
           path: ["price"],
+        });
+      }
+
+      if (value.isPaid && value.payerTarget === null) {
+        ctx.addIssue({
+          code: "custom",
+          message: PAYER_TARGET_REQUIRED,
+          path: ["payerTarget"],
+        });
+      } else if (
+        value.isPaid &&
+        value.payerTarget !== null &&
+        value.payerTarget <= 0
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          message: PAYER_TARGET_INVALID,
+          path: ["payerTarget"],
         });
       }
 

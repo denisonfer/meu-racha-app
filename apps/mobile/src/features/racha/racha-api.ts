@@ -8,6 +8,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { AVATAR_BUCKET } from "@/lib/storage-buckets";
 import {
+  TAttendanceList,
   TAttendancePerson,
   TAttendanceStatus,
   TAttendanceTarget,
@@ -48,9 +49,11 @@ const RAISE_EXCEPTION_CODES = [
   "spot_limit_below_occupancy",
   "event_month_locked",
   "not_confirmed",
-  "waitlisted_unpaid",
   "mensalista_paid",
   "monthly_price_required",
+  "payer_target_required",
+  "payer_target_invalid",
+  "credit_already_used",
 ];
 
 // status 0 = o pedido nem chegou ao servidor; o resto vira o código do banco
@@ -176,7 +179,7 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
   const { data, error, status } = await supabase
     .from("racha")
     .select(
-      "id, name, invite_code, place, weekday, kickoff_time, is_paid, price, monthly_price, spot_limit, outfield_per_team, game_mode, max_consecutive_wins, tie_rule, tie_return_order, consider_position, match_duration_min, min_age, members:member(count), me:member(role), pending:join_request(count)"
+      "id, name, invite_code, place, weekday, kickoff_time, is_paid, price, monthly_price, spot_limit, payer_target, outfield_per_team, game_mode, max_consecutive_wins, tie_rule, tie_return_order, consider_position, match_duration_min, min_age, members:member(count), me:member(role), pending:join_request(count)"
     )
     .eq("id", id)
     .eq("members.is_active", true)
@@ -207,6 +210,7 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
     price: data.price,
     monthlyPrice: data.monthly_price,
     spotLimit: data.spot_limit,
+    payerTarget: data.payer_target,
     rules: {
       outfieldPerTeam: data.outfield_per_team,
       gameMode: data.game_mode,
@@ -374,6 +378,7 @@ async function updateRachaLogistics(
     p_price: logistics.price as number,
     p_monthly_price: logistics.monthlyPrice as number,
     p_spot_limit: logistics.spotLimit as number,
+    p_payer_target: logistics.payerTarget as number,
   });
   if (error) {
     throwSpotLimitCheckViolation(error);
@@ -409,6 +414,7 @@ async function listOpenEvents(rachaId: string): Promise<TOpenEvent[]> {
     // o tipo gerado diz not-null; preço, vagas e condutor vêm null
     price: row.price ?? null,
     spotLimit: row.spot_limit ?? null,
+    payerTarget: row.payer_target ?? null,
     conductorId: row.conductor_id ?? null,
     conductorName: row.conductor_name ?? null,
     confirmedCount: row.confirmed_count,
@@ -430,6 +436,7 @@ async function listMyRachaEvents(): Promise<TMyRachaEvent[]> {
     startsAt: row.starts_at,
     place: row.place,
     confirmedCount: row.confirmed_count,
+    spotLimit: row.spot_limit,
     // o tipo gerado diz string; sem linha de presença vem null
     myStatus: toAttendanceStatus(row.my_status ?? null),
     myQueuePosition: row.my_queue_position ?? null,
@@ -453,6 +460,7 @@ async function createEvent(
     p_is_paid: input.isPaid,
     p_price: input.price as number,
     p_spot_limit: input.spotLimit as number,
+    p_payer_target: input.payerTarget as number,
   });
   if (error) {
     throwEventConstraintViolation(error);
@@ -476,6 +484,7 @@ async function updateEvent(eventId: string, input: TEventInput): Promise<void> {
     p_is_paid: input.isPaid,
     p_price: input.price as number,
     p_spot_limit: input.spotLimit as number,
+    p_payer_target: input.payerTarget as number,
   });
   if (error) {
     throwEventConstraintViolation(error);
@@ -504,15 +513,14 @@ async function finishEvent(eventId: string): Promise<void> {
   if (error) throw toCodedError(error, status);
 }
 
-async function listEventAttendance(
-  eventId: string
-): Promise<TAttendancePerson[]> {
+async function listEventAttendance(eventId: string): Promise<TAttendanceList> {
   const { data, error, status } = await supabase.rpc("list_event_attendance", {
     p_event_id: eventId,
   });
   if (error) throw toCodedError(error, status);
 
-  return data.map((row) => {
+  const head = data[0];
+  const people: TAttendancePerson[] = data.map((row) => {
     const kind = row.kind === "guest" ? "guest" : "member";
     return {
       kind,
@@ -538,8 +546,17 @@ async function listEventAttendance(
         row.credit_applied_amount ?? null,
         row.cash_paid_amount ?? null
       ),
+      creditBalance: row.credit_balance ?? null,
     };
   });
+
+  return {
+    eventStatus: head?.event_status ?? "upcoming",
+    payerTarget: head?.payer_target ?? null,
+    presentPayerCount: head?.present_payer_count ?? 0,
+    myCreditBalance: head?.my_credit_balance ?? 0,
+    people,
+  };
 }
 
 async function confirmAttendance(eventId: string): Promise<void> {

@@ -28,6 +28,7 @@ export type TRacha = {
   price: number | null;
   monthlyPrice: number | null;
   spotLimit: number | null;
+  payerTarget: number | null;
 };
 
 export type TCreatedRacha = {
@@ -50,6 +51,7 @@ export type TRachaLogistics = {
   price: number | null;
   monthlyPrice: number | null;
   spotLimit: number | null;
+  payerTarget: number | null;
 };
 
 export type TInviteStatus = "MEMBER" | "PENDING";
@@ -116,6 +118,7 @@ export type TMyRachaEvent = {
   startsAt: string;
   place: string;
   confirmedCount: number;
+  spotLimit: number | null;
   myStatus: TAttendanceStatus | null;
   myQueuePosition: number | null;
 };
@@ -129,6 +132,7 @@ export type TOpenEvent = {
   isPaid: boolean;
   price: number | null;
   spotLimit: number | null;
+  payerTarget: number | null;
   outfieldPerTeam: number;
   conductorId: string | null;
   conductorName: string | null;
@@ -145,6 +149,7 @@ export type TEventInput = {
   isPaid: boolean;
   price: number | null;
   spotLimit: number | null;
+  payerTarget: number | null;
 };
 
 export type TAttendancePerson = {
@@ -169,6 +174,16 @@ export type TAttendancePerson = {
   stars: number | null;
   isSuperStar: boolean;
   paymentNote: string | null;
+  // null = Jogador vendo outro Membro
+  creditBalance: number | null;
+};
+
+export type TAttendanceList = {
+  eventStatus: TEventStatus;
+  payerTarget: number | null;
+  presentPayerCount: number;
+  myCreditBalance: number;
+  people: TAttendancePerson[];
 };
 
 export type TGuestInput = {

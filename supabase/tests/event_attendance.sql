@@ -161,7 +161,7 @@ begin
 
   begin
     perform public.update_event(
-      v_event, v_future, time '19:00', 'Quadra Presenca', true, 50, 5::smallint
+      v_event, v_future, time '19:00', 'Quadra Presenca', true, 50, 5::smallint, 2
     );
     raise exception 'spot_limit_below_occupancy_succeeded';
   exception when others then
@@ -187,7 +187,7 @@ begin
 
   begin
     perform public.update_event(
-      v_event, v_future + 35, time '19:00', 'Quadra Presenca', true, 50, 10::smallint
+      v_event, v_future + 35, time '19:00', 'Quadra Presenca', true, 50, 10::smallint, 2
     );
     raise exception 'month_move_with_monthly_coverage_succeeded';
   exception when others then
@@ -316,7 +316,7 @@ begin
   perform set_config('request.jwt.claim.sub', v_owner::text, true);
   begin
     perform public.update_event(
-      v_event, v_future + 35, time '19:00', 'Quadra Presenca', true, 50, 10::smallint
+      v_event, v_future + 35, time '19:00', 'Quadra Presenca', true, 50, 10::smallint, 2
     );
     raise exception 'month_move_with_payment_succeeded';
   exception when others then
@@ -340,7 +340,7 @@ begin
 
   perform set_config('request.jwt.claim.sub', v_owner::text, true);
   perform public.update_event(
-    v_event, v_future, time '19:00', 'Quadra Presenca', true, 50, 12::smallint
+    v_event, v_future, time '19:00', 'Quadra Presenca', true, 50, 12::smallint, 2
   );
   if (select status from public.event_attendance where event_id = v_event and profile_id = v_p4)
     <> 'confirmed' then
