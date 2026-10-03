@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { Button, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { EventAttendanceCta } from "../../components/event-attendance-cta";
+import { TAttendanceStatus } from "../../racha-types";
 
 export type TEventCardAction = {
   kind: "assume" | "edit" | "cancel" | "finish";
@@ -16,6 +18,10 @@ type TEventCardProps = {
   monthlyPrice: string | null;
   spots: string | null;
   conductorLine: string | null;
+  confirmedCount: number;
+  myStatus: TAttendanceStatus | null;
+  myQueuePosition: number | null;
+  onOpenAttendance: () => void;
   actions: TEventCardAction[];
   upcoming: {
     when: string;
@@ -60,6 +66,10 @@ export const EventCard = ({
   monthlyPrice,
   spots,
   conductorLine,
+  confirmedCount,
+  myStatus,
+  myQueuePosition,
+  onOpenAttendance,
   actions,
   upcoming,
 }: TEventCardProps) => (
@@ -107,6 +117,12 @@ export const EventCard = ({
         {conductorLine}
       </Text>
     ) : null}
+    <EventAttendanceCta
+      confirmedCount={confirmedCount}
+      myStatus={myStatus}
+      myQueuePosition={myQueuePosition}
+      onOpenAttendance={onOpenAttendance}
+    />
     {actions.map((action) => {
       const view = ACTION_VIEW[action.kind];
       return (

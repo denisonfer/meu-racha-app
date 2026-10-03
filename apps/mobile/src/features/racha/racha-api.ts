@@ -1,10 +1,19 @@
 import type { PostgrestError } from "@supabase/supabase-js";
-import { normalizeInviteCode, type TRachaRules } from "@meu-racha/domain";
+import {
+  initialsOf,
+  normalizeInviteCode,
+  OVERALL_MIN,
+  type TRachaRules,
+} from "@meu-racha/domain";
 import { supabase } from "@/lib/supabase";
 import { AVATAR_BUCKET } from "@/lib/storage-buckets";
 import {
+  TAttendancePerson,
+  TAttendanceStatus,
+  TAttendanceTarget,
   TCreatedRacha,
   TEventInput,
+  TGuestInput,
   TInvite,
   TInviteStatus,
   TJoinRequest,
@@ -20,6 +29,7 @@ import {
   TRachaNotice,
   TRachaSettings,
 } from "./racha-types";
+import { attendancePaymentNote } from "./utils/racha-messages";
 
 // raise exception chega na message, não no code
 const RAISE_EXCEPTION_CODES = [
@@ -34,6 +44,13 @@ const RAISE_EXCEPTION_CODES = [
   "event_exists",
   "event_active",
   "conductor",
+  "spot_limit",
+  "spot_limit_below_occupancy",
+  "event_month_locked",
+  "not_confirmed",
+  "waitlisted_unpaid",
+  "mensalista_paid",
+  "monthly_price_required",
 ];
 
 // status 0 = o pedido nem chegou ao servidor; o resto vira o código do banco
@@ -53,6 +70,14 @@ function toPhotoUrl(avatarPath: string | null): string | null {
 
 function toInviteStatus(value: string | null): TInviteStatus | null {
   return value === "MEMBER" || value === "PENDING" ? value : null;
+}
+
+function toAttendanceStatus(value: string | null): TAttendanceStatus | null {
+  return value === "confirmed" ||
+    value === "waitlisted" ||
+    value === "cancelled"
+    ? value
+    : null;
 }
 
 function throwSpotLimitCheckViolation(error: PostgrestError): void {
@@ -386,6 +411,10 @@ async function listOpenEvents(rachaId: string): Promise<TOpenEvent[]> {
     spotLimit: row.spot_limit ?? null,
     conductorId: row.conductor_id ?? null,
     conductorName: row.conductor_name ?? null,
+    confirmedCount: row.confirmed_count,
+    // o tipo gerado diz string; sem linha de presença vem null
+    myStatus: toAttendanceStatus(row.my_status ?? null),
+    myQueuePosition: row.my_queue_position ?? null,
   }));
 }
 
@@ -400,6 +429,10 @@ async function listMyRachaEvents(): Promise<TMyRachaEvent[]> {
     startsOn: row.starts_on,
     startsAt: row.starts_at,
     place: row.place,
+    confirmedCount: row.confirmed_count,
+    // o tipo gerado diz string; sem linha de presença vem null
+    myStatus: toAttendanceStatus(row.my_status ?? null),
+    myQueuePosition: row.my_queue_position ?? null,
   }));
 }
 
@@ -467,6 +500,156 @@ async function assumeEventConduction(eventId: string): Promise<void> {
 async function finishEvent(eventId: string): Promise<void> {
   const { error, status } = await supabase.rpc("finish_event", {
     p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function listEventAttendance(
+  eventId: string
+): Promise<TAttendancePerson[]> {
+  const { data, error, status } = await supabase.rpc("list_event_attendance", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+
+  return data.map((row) => {
+    const kind = row.kind === "guest" ? "guest" : "member";
+    return {
+      kind,
+      profileId: row.profile_id ?? null,
+      guestId: row.guest_id ?? null,
+      name: row.display_name,
+      photoUrl: toPhotoUrl(row.avatar_path),
+      initials: initialsOf(row.display_name),
+      overall: OVERALL_MIN,
+      // Avulso: confirmed implícito — a UI usa o chip Avulso, não o status
+      status: kind === "guest" ? null : row.status,
+      queuePosition: row.queue_position ?? null,
+      didAttend: row.did_attend,
+      isPaidEffective: row.is_paid_effective,
+      isMonthlyPass: row.is_monthly_pass,
+      playsAs: row.plays_as,
+      primaryPosition: row.primary_position ?? null,
+      secondaryPosition: row.secondary_position ?? null,
+      role: row.role ?? null,
+      stars: row.stars ?? null,
+      isSuperStar: row.is_super_star,
+      paymentNote: attendancePaymentNote(
+        row.credit_applied_amount ?? null,
+        row.cash_paid_amount ?? null
+      ),
+    };
+  });
+}
+
+async function confirmAttendance(eventId: string): Promise<void> {
+  const { error, status } = await supabase.rpc("confirm_attendance", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function cancelAttendance(eventId: string): Promise<void> {
+  const { error, status } = await supabase.rpc("cancel_attendance", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function setAttendanceForMember(
+  eventId: string,
+  profileId: string,
+  attendanceStatus: Extract<TAttendanceStatus, "confirmed" | "cancelled">
+): Promise<void> {
+  const { error, status } = await supabase.rpc("set_attendance_for_member", {
+    p_event_id: eventId,
+    p_profile_id: profileId,
+    p_status: attendanceStatus,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+function attendanceTargetArgs(target: TAttendanceTarget): {
+  p_profile_id: string;
+  p_guest_id: string;
+} {
+  // exatamente um dos dois; o tipo gerado diz string obrigatória
+  if (target.kind === "member") {
+    return {
+      p_profile_id: target.profileId,
+      p_guest_id: null as unknown as string,
+    };
+  }
+  return {
+    p_profile_id: null as unknown as string,
+    p_guest_id: target.guestId,
+  };
+}
+
+async function setAttendanceAttended(
+  eventId: string,
+  target: TAttendanceTarget,
+  didAttend: boolean
+): Promise<void> {
+  const { error, status } = await supabase.rpc("set_attendance_attended", {
+    p_event_id: eventId,
+    ...attendanceTargetArgs(target),
+    p_did_attend: didAttend,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function setAttendancePaid(
+  eventId: string,
+  target: TAttendanceTarget,
+  paid: boolean
+): Promise<void> {
+  const { error, status } = await supabase.rpc("set_attendance_paid", {
+    p_event_id: eventId,
+    ...attendanceTargetArgs(target),
+    p_paid: paid,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function addGuest(eventId: string, input: TGuestInput): Promise<string> {
+  const { data, error, status } = await supabase.rpc("add_guest", {
+    p_event_id: eventId,
+    p_display_name: input.displayName,
+    p_plays_as: input.playsAs,
+    // null pro Goleiro; o tipo gerado diz obrigatório
+    p_primary_position: input.primaryPosition as NonNullable<
+      typeof input.primaryPosition
+    >,
+    p_secondary_position: input.secondaryPosition as NonNullable<
+      typeof input.secondaryPosition
+    >,
+    p_stars: input.stars as number,
+    p_is_super_star: input.isSuperStar,
+  });
+  if (error) throw toCodedError(error, status);
+  if (!data) throw new Error("add_guest_empty");
+  return data;
+}
+
+async function removeGuest(guestId: string): Promise<void> {
+  const { error, status } = await supabase.rpc("remove_guest", {
+    p_guest_id: guestId,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function setMonthlyPass(
+  rachaId: string,
+  profileId: string,
+  yearMonth: string,
+  enabled: boolean
+): Promise<void> {
+  const { error, status } = await supabase.rpc("set_monthly_pass", {
+    p_racha_id: rachaId,
+    p_profile_id: profileId,
+    p_year_month: yearMonth,
+    p_enabled: enabled,
   });
   if (error) throw toCodedError(error, status);
 }
@@ -563,4 +746,13 @@ export const rachaApi = {
   cancelEvent,
   assumeEventConduction,
   finishEvent,
+  listEventAttendance,
+  confirmAttendance,
+  cancelAttendance,
+  setAttendanceForMember,
+  setAttendanceAttended,
+  setAttendancePaid,
+  addGuest,
+  removeGuest,
+  setMonthlyPass,
 };

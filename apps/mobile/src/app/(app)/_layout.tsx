@@ -20,6 +20,7 @@ export default function AppLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
       <Stack.Screen
         name="racha/[id]/approve/[requestId]"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
@@ -50,6 +51,18 @@ export default function AppLayout() {
       />
       <Stack.Screen
         name="racha/[id]/event/[eventId]/finish"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/guest"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/remove-guest"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/monthly-pass"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
     </Stack>

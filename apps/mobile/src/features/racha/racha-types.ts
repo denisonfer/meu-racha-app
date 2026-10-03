@@ -105,6 +105,9 @@ export type TRachaNotice = {
 
 export type TEventStatus = Database["public"]["Enums"]["event_status"];
 
+export type TAttendanceStatus =
+  Database["public"]["Enums"]["attendance_status"];
+
 export type TMyRachaEvent = {
   rachaId: string;
   id: string;
@@ -112,6 +115,9 @@ export type TMyRachaEvent = {
   startsOn: string;
   startsAt: string;
   place: string;
+  confirmedCount: number;
+  myStatus: TAttendanceStatus | null;
+  myQueuePosition: number | null;
 };
 
 export type TOpenEvent = {
@@ -126,6 +132,9 @@ export type TOpenEvent = {
   outfieldPerTeam: number;
   conductorId: string | null;
   conductorName: string | null;
+  confirmedCount: number;
+  myStatus: TAttendanceStatus | null;
+  myQueuePosition: number | null;
 };
 
 export type TEventInput = {
@@ -137,3 +146,39 @@ export type TEventInput = {
   price: number | null;
   spotLimit: number | null;
 };
+
+export type TAttendancePerson = {
+  kind: "member" | "guest";
+  profileId: string | null;
+  guestId: string | null;
+  name: string;
+  photoUrl: string | null;
+  initials: string;
+  // Membro e Avulso: Overall do Card; fatia sem partidas → OVERALL_MIN (40)
+  overall: number;
+  // Avulso: confirmed implícito → null
+  status: TAttendanceStatus | null;
+  queuePosition: number | null;
+  didAttend: boolean;
+  isPaidEffective: boolean;
+  isMonthlyPass: boolean;
+  playsAs: TPlaysAs;
+  primaryPosition: TPosition | null;
+  secondaryPosition: TPosition | null;
+  role: TMemberRole | null;
+  stars: number | null;
+  isSuperStar: boolean;
+  paymentNote: string | null;
+};
+
+export type TGuestInput = {
+  displayName: string;
+  playsAs: TPlaysAs;
+  primaryPosition: TPosition | null;
+  secondaryPosition: TPosition | null;
+  stars: number | null;
+  isSuperStar: boolean;
+};
+
+export type TAttendanceTarget =
+  { kind: "member"; profileId: string } | { kind: "guest"; guestId: string };

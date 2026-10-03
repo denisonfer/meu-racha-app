@@ -120,3 +120,98 @@ export const conductorName = (name: string) => `${name} está conduzindo.`;
 export const EVENT_NOT_ALLOWED = "Você não pode mais editar este evento.";
 export const CANCEL_EVENT_TITLE = "Cancelar este evento?";
 export const FINISH_EVENT_TITLE = "Encerrar este evento?";
+
+export const ATTENDANCE_EMPTY = "Ninguém confirmou ainda.";
+export const ATTENDANCE_WAITLISTED = (position: number) =>
+  `Você está na fila · posição ${position}.`;
+export const ATTENDANCE_SPOT_LIMIT = "Não há vaga.";
+export const ATTENDANCE_SPOT_LIMIT_BELOW_OCCUPANCY =
+  "O limite não pode ser menor que o número de participantes confirmados.";
+export const ATTENDANCE_EVENT_MONTH_LOCKED =
+  "Este evento já tem pagamento registrado. Cancele e crie outro para mudar de mês.";
+export const ATTENDANCE_WAITLISTED_UNPAID =
+  "O pagamento na fila estará disponível com o Crédito da lista de espera.";
+export const ATTENDANCE_MENSALISTA_PAID =
+  "Mensalista permanece como pago neste mês.";
+export const ATTENDANCE_MONTHLY_PRICE_REQUIRED =
+  "Configure o valor mensal na logística para marcar Mensalista.";
+export const ATTENDANCE_NOT_CONFIRMED =
+  "Só quem está confirmado pode marcar veio ou pagou.";
+export const ATTENDANCE_GUEST_AGE_NOTICE =
+  "A idade mínima do Racha não é verificada para Avulso.";
+export const ATTENDANCE_CONFIRM = "Confirmar presença";
+export const ATTENDANCE_CANCEL = "Cancelar presença";
+export const ATTENDANCE_LEAVE_QUEUE = "Sair da fila";
+export const ATTENDANCE_VIEW_LIST = "Ver lista";
+export const ATTENDANCE_MONTHLY_ACTION = "Mensalista";
+export const ATTENDANCE_ADD_GUEST = "Adicionar avulso";
+export const ATTENDANCE_REMOVE_GUEST = "Remover";
+export const ATTENDANCE_REMOVE_GUEST_TITLE = (name: string) =>
+  `Remover ${name}?`;
+export const ATTENDANCE_REMOVE_GUEST_MESSAGE =
+  "A vaga abre e quem estiver na fila pode entrar.";
+export const ATTENDANCE_REMOVE_GUEST_BUSY = "Removendo";
+export const ATTENDANCE_GUEST_GONE = "Esse avulso já não está na lista.";
+export const ATTENDANCE_EVENT_GONE_TITLE = "Sumiu";
+export const ATTENDANCE_EVENT_GONE_TEXT =
+  "Este evento não está mais na agenda. Volte para a home do racha.";
+export const ATTENDANCE_EVENT_GONE_ACTION = "Voltar ao racha";
+export const ATTENDANCE_QUEUE_PAY_NOTE =
+  "Pagamento de quem está na fila fica para a etapa de Caixa.";
+export const ATTENDANCE_MONTHLY_HINT =
+  "Cobertura do mês do Evento. Outubro não quita novembro.";
+export const ATTENDANCE_MONTHLY_SAVE = "Salvar";
+export const ATTENDANCE_GUEST_NAME_REQUIRED = "Como querem chamar o avulso?";
+export const ATTENDANCE_GUEST_STARS_REQUIRED = "Escolha as Estrelas";
+export const ATTENDANCE_GUEST_PRIMARY_REQUIRED = "Escolha a posição principal";
+export const ATTENDANCE_GUEST_SECONDARY_REQUIRED =
+  "Escolha uma secundária diferente da principal";
+
+/** Contagem clicável do cartão (telas 7 e 9). */
+export const ATTENDANCE_CONFIRMED_COUNT = (count: number) =>
+  count === 1 ? "1 confirmado" : `${count} confirmados`;
+
+/** Posição na fila no cartão — distinto do toast de entrada. */
+export const ATTENDANCE_QUEUE_HINT = (position: number) =>
+  `Fila · posição ${position}`;
+
+const YEAR_MONTH_NAMES = [
+  "janeiro",
+  "fevereiro",
+  "março",
+  "abril",
+  "maio",
+  "junho",
+  "julho",
+  "agosto",
+  "setembro",
+  "outubro",
+  "novembro",
+  "dezembro",
+] as const;
+
+/** `2026-11` → `novembro de 2026` */
+export const yearMonthLong = (yearMonth: string): string => {
+  const [year, month] = yearMonth.split("-");
+  const name = YEAR_MONTH_NAMES[Number(month) - 1];
+  if (!year || !name) return yearMonth;
+  return `${name} de ${year}`;
+};
+
+export const monthlyPassChipLabel = (yearMonth: string) =>
+  `Mensalista · ${yearMonthLong(yearMonth)}`;
+
+/** Ex.: `R$ 15 crédito + R$ 10` — valores em reais inteiros do fato. */
+export const attendancePaymentNote = (
+  creditApplied: number | null,
+  cashPaid: number | null
+): string | null => {
+  const parts: string[] = [];
+  if (creditApplied != null && creditApplied > 0) {
+    parts.push(`R$ ${creditApplied} crédito`);
+  }
+  if (cashPaid != null && cashPaid > 0) {
+    parts.push(`R$ ${cashPaid}`);
+  }
+  return parts.length > 0 ? parts.join(" + ") : null;
+};

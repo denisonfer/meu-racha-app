@@ -24,7 +24,10 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack screenOptions={{ headerShown: false }}>
+          {/* home autenticada: gesto não pode voltar ao login */}
+          <Stack.Screen name="(app)" options={{ gestureEnabled: false }} />
+        </Stack>
       </ToastProvider>
     </QueryClientProvider>
   );

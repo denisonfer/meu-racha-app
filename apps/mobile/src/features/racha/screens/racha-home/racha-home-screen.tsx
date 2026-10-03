@@ -71,6 +71,25 @@ export const RachaHomeScreen = () => {
             </Text>
           </View>
 
+          {racha.pendingRow ? (
+            <Pressable
+              onPress={openRequests}
+              accessibilityRole="button"
+              accessibilityLabel={racha.pendingRow.label}
+              style={({ pressed }) => [
+                styles.pendingRow,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Text style={styles.pendingCount}>{racha.pendingRow.count}</Text>
+              <View style={styles.grow}>
+                <Text style={styles.bold}>{racha.pendingRow.word}</Text>
+                <Text preset="small">Aprove ou recuse quem pediu.</Text>
+              </View>
+              <Icon name="chevron-right" />
+            </Pressable>
+          ) : null}
+
           {eventsMissing ? (
             <EmptyState
               title="Não deu pra abrir o evento"
@@ -115,25 +134,6 @@ export const RachaHomeScreen = () => {
 
           {racha.isOwner ? (
             <InviteCard code={racha.inviteCode} onShare={shareInvite} />
-          ) : null}
-
-          {racha.pendingRow ? (
-            <Pressable
-              onPress={openRequests}
-              accessibilityRole="button"
-              accessibilityLabel={racha.pendingRow.label}
-              style={({ pressed }) => [
-                styles.pendingRow,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={styles.pendingCount}>{racha.pendingRow.count}</Text>
-              <View style={styles.grow}>
-                <Text style={styles.bold}>{racha.pendingRow.word}</Text>
-                <Text preset="small">Aprove ou recuse quem pediu.</Text>
-              </View>
-              <Icon name="chevron-right" />
-            </Pressable>
           ) : null}
 
           <View style={styles.groupCard}>

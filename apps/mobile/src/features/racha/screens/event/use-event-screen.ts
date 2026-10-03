@@ -26,6 +26,8 @@ import { rachaApi } from "../../racha-api";
 import { TEventInput, TOpenEvent, TRacha } from "../../racha-types";
 import { isNoAccessError } from "../../utils/no-access";
 import {
+  ATTENDANCE_EVENT_MONTH_LOCKED,
+  ATTENDANCE_SPOT_LIMIT_BELOW_OCCUPANCY,
   DISCARD_CHANGES_TITLE,
   EVENT_NOT_ALLOWED,
   EVENT_START_PAST,
@@ -202,7 +204,10 @@ export function useEventForm(editor: TEventEditor) {
   );
   const [failedValues, setFailedValues] = useState<TEventForm | null>(null);
   const [saveFailureReason, setSaveFailureReason] = useState<
-    "generic" | "past_date"
+    | "generic"
+    | "past_date"
+    | "spot_limit_below_occupancy"
+    | "event_month_locked"
   >("generic");
   const [isSaving, setIsSaving] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -229,7 +234,11 @@ export function useEventForm(editor: TEventEditor) {
     failedValues !== null && !isSaving && isSameEvent(failedValues, values)
       ? saveFailureReason === "past_date"
         ? EVENT_START_PAST
-        : SAVE_RACHA_FAILED
+        : saveFailureReason === "spot_limit_below_occupancy"
+          ? ATTENDANCE_SPOT_LIMIT_BELOW_OCCUPANCY
+          : saveFailureReason === "event_month_locked"
+            ? ATTENDANCE_EVENT_MONTH_LOCKED
+            : SAVE_RACHA_FAILED
       : null;
 
   // só com a tela em foco, no mesmo desenho da tela 10: POP_TO (dismissTo)
@@ -325,6 +334,19 @@ export function useEventForm(editor: TEventEditor) {
       if (error instanceof Error && error.message === "past_date") {
         setNowCivil(brasiliaNow());
         setSaveFailureReason("past_date");
+        setFailedValues(values);
+        return;
+      }
+      if (
+        error instanceof Error &&
+        error.message === "spot_limit_below_occupancy"
+      ) {
+        setSaveFailureReason("spot_limit_below_occupancy");
+        setFailedValues(values);
+        return;
+      }
+      if (error instanceof Error && error.message === "event_month_locked") {
+        setSaveFailureReason("event_month_locked");
         setFailedValues(values);
         return;
       }

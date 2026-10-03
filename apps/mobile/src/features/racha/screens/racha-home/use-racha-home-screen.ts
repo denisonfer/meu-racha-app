@@ -73,6 +73,9 @@ export function useRachaHomeScreen() {
   const openFinish = (eventId: string) => {
     router.push(`/racha/${id}/event/${eventId}/finish`);
   };
+  const openAttendance = (eventId: string) => {
+    router.push(`/racha/${id}/event/${eventId}/attendance`);
+  };
 
   const actionsFor = (event: TOpenEvent): TEventCardAction[] => {
     if (!racha || racha.role === "PLAYER") return [];
@@ -149,6 +152,10 @@ export function useRachaHomeScreen() {
       spots:
         shownEvent.spotLimit === null ? null : spotsLabel(shownEvent.spotLimit),
       conductorLine: conductorLine(shownEvent),
+      confirmedCount: shownEvent.confirmedCount,
+      myStatus: shownEvent.myStatus,
+      myQueuePosition: shownEvent.myQueuePosition,
+      onOpenAttendance: () => openAttendance(shownEvent.id),
       actions: actionsFor(shownEvent),
       upcoming: hiddenUpcoming
         ? {

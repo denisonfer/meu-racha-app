@@ -1,8 +1,19 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { Button, Icon, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { EventAttendanceCta } from "../../components/event-attendance-cta";
 import { RoleChip } from "../../components/role-chip";
-import { TMemberRole } from "../../racha-types";
+import { TAttendanceStatus, TMemberRole } from "../../racha-types";
+
+type TRachaCardEvent = {
+  kicker: string;
+  when: string;
+  place: string;
+  confirmedCount: number;
+  myStatus: TAttendanceStatus | null;
+  myQueuePosition: number | null;
+  onOpenAttendance: () => void;
+};
 
 type TRachaCardProps = {
   name: string;
@@ -11,7 +22,7 @@ type TRachaCardProps = {
   pendingLabel: string | null;
   accessibilityLabel: string;
   canCreateEvent: boolean;
-  event: { kicker: string; when: string; place: string } | null;
+  event: TRachaCardEvent | null;
   onPress: () => void;
   onCreateEvent: () => void;
 };
@@ -55,13 +66,21 @@ export const RachaCard = ({
     <View style={styles.cardBottom}>
       {event ? (
         <View style={styles.cardEvent}>
-          <Text preset="small" color="muted" style={styles.bold}>
-            {event.kicker}
-          </Text>
-          <Text style={styles.bold}>{event.when}</Text>
-          <Text preset="small" color="muted">
-            {event.place}
-          </Text>
+          <View style={styles.eventMeta}>
+            <Text preset="small" color="muted" style={styles.bold}>
+              {event.kicker}
+            </Text>
+            <Text style={styles.bold}>{event.when}</Text>
+            <Text preset="small" color="muted">
+              {event.place}
+            </Text>
+          </View>
+          <EventAttendanceCta
+            confirmedCount={event.confirmedCount}
+            myStatus={event.myStatus}
+            myQueuePosition={event.myQueuePosition}
+            onOpenAttendance={event.onOpenAttendance}
+          />
         </View>
       ) : (
         <>
@@ -128,5 +147,6 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.divider,
   },
   cardNoEvent: { gap: 2 },
-  cardEvent: { gap: 4 },
+  cardEvent: { gap: 12 },
+  eventMeta: { gap: 4 },
 });

@@ -128,6 +128,149 @@ export type Database = {
           },
         ];
       };
+      event_attendance: {
+        Row: {
+          did_attend: boolean;
+          event_id: string;
+          profile_id: string;
+          status: Database["public"]["Enums"]["attendance_status"];
+          waitlisted_at: string | null;
+        };
+        Insert: {
+          did_attend?: boolean;
+          event_id: string;
+          profile_id: string;
+          status: Database["public"]["Enums"]["attendance_status"];
+          waitlisted_at?: string | null;
+        };
+        Update: {
+          did_attend?: boolean;
+          event_id?: string;
+          profile_id?: string;
+          status?: Database["public"]["Enums"]["attendance_status"];
+          waitlisted_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_attendance_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "event";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_attendance_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_guest: {
+        Row: {
+          did_attend: boolean;
+          display_name: string;
+          event_id: string;
+          id: string;
+          is_paid: boolean;
+          is_super_star: boolean;
+          plays_as: Database["public"]["Enums"]["plays_as"];
+          primary_position: Database["public"]["Enums"]["position"] | null;
+          secondary_position: Database["public"]["Enums"]["position"] | null;
+          stars: number | null;
+        };
+        Insert: {
+          did_attend?: boolean;
+          display_name: string;
+          event_id: string;
+          id?: string;
+          is_paid?: boolean;
+          is_super_star?: boolean;
+          plays_as: Database["public"]["Enums"]["plays_as"];
+          primary_position?: Database["public"]["Enums"]["position"] | null;
+          secondary_position?: Database["public"]["Enums"]["position"] | null;
+          stars?: number | null;
+        };
+        Update: {
+          did_attend?: boolean;
+          display_name?: string;
+          event_id?: string;
+          id?: string;
+          is_paid?: boolean;
+          is_super_star?: boolean;
+          plays_as?: Database["public"]["Enums"]["plays_as"];
+          primary_position?: Database["public"]["Enums"]["position"] | null;
+          secondary_position?: Database["public"]["Enums"]["position"] | null;
+          stars?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_guest_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "event";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_payment_fact: {
+        Row: {
+          cancelled_at: string | null;
+          cash_paid_amount: number;
+          credit_applied_amount: number;
+          daily_amount_snapshot: number;
+          did_attend: boolean;
+          event_id: string;
+          event_year_month: string;
+          monthly_coverage_month: string | null;
+          paid_marked_at: string | null;
+          profile_id: string;
+          racha_id: string;
+        };
+        Insert: {
+          cancelled_at?: string | null;
+          cash_paid_amount?: number;
+          credit_applied_amount?: number;
+          daily_amount_snapshot: number;
+          did_attend?: boolean;
+          event_id: string;
+          event_year_month: string;
+          monthly_coverage_month?: string | null;
+          paid_marked_at?: string | null;
+          profile_id: string;
+          racha_id: string;
+        };
+        Update: {
+          cancelled_at?: string | null;
+          cash_paid_amount?: number;
+          credit_applied_amount?: number;
+          daily_amount_snapshot?: number;
+          did_attend?: boolean;
+          event_id?: string;
+          event_year_month?: string;
+          monthly_coverage_month?: string | null;
+          paid_marked_at?: string | null;
+          profile_id?: string;
+          racha_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_payment_fact_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_payment_fact_racha_id_fkey";
+            columns: ["racha_id"];
+            isOneToOne: false;
+            referencedRelation: "racha";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       join_request: {
         Row: {
           created_at: string;
@@ -345,6 +488,100 @@ export type Database = {
         };
         Relationships: [];
       };
+      racha_credit_entry: {
+        Row: {
+          amount_delta: number;
+          created_at: string;
+          entry_kind: string;
+          expires_at: string | null;
+          id: string;
+          operation_key: string;
+          profile_id: string;
+          racha_id: string;
+          source_event_id: string;
+          source_grant_id: string | null;
+        };
+        Insert: {
+          amount_delta: number;
+          created_at?: string;
+          entry_kind: string;
+          expires_at?: string | null;
+          id?: string;
+          operation_key: string;
+          profile_id: string;
+          racha_id: string;
+          source_event_id: string;
+          source_grant_id?: string | null;
+        };
+        Update: {
+          amount_delta?: number;
+          created_at?: string;
+          entry_kind?: string;
+          expires_at?: string | null;
+          id?: string;
+          operation_key?: string;
+          profile_id?: string;
+          racha_id?: string;
+          source_event_id?: string;
+          source_grant_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "racha_credit_entry_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "racha_credit_entry_racha_id_fkey";
+            columns: ["racha_id"];
+            isOneToOne: false;
+            referencedRelation: "racha";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "racha_credit_entry_source_grant_id_fkey";
+            columns: ["source_grant_id"];
+            isOneToOne: false;
+            referencedRelation: "racha_credit_entry";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      racha_monthly_pass: {
+        Row: {
+          profile_id: string;
+          racha_id: string;
+          year_month: string;
+        };
+        Insert: {
+          profile_id: string;
+          racha_id: string;
+          year_month: string;
+        };
+        Update: {
+          profile_id?: string;
+          racha_id?: string;
+          year_month?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "racha_monthly_pass_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "racha_monthly_pass_racha_id_fkey";
+            columns: ["racha_id"];
+            isOneToOne: false;
+            referencedRelation: "racha";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       racha_notice: {
         Row: {
           created_at: string;
@@ -420,6 +657,18 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_guest: {
+        Args: {
+          p_display_name: string;
+          p_event_id: string;
+          p_is_super_star: boolean;
+          p_plays_as: Database["public"]["Enums"]["plays_as"];
+          p_primary_position: Database["public"]["Enums"]["position"];
+          p_secondary_position: Database["public"]["Enums"]["position"];
+          p_stars: number;
+        };
+        Returns: string;
+      };
       approve_join_request: {
         Args: { p_request_id: string; p_stars: number; p_super_star: boolean };
         Returns: undefined;
@@ -428,7 +677,9 @@ export type Database = {
         Args: { p_event_id: string };
         Returns: undefined;
       };
+      cancel_attendance: { Args: { p_event_id: string }; Returns: undefined };
       cancel_event: { Args: { p_event_id: string }; Returns: undefined };
+      confirm_attendance: { Args: { p_event_id: string }; Returns: undefined };
       create_event: {
         Args: {
           p_is_paid: boolean;
@@ -478,6 +729,29 @@ export type Database = {
       };
       is_racha_member: { Args: { p_racha_id: string }; Returns: boolean };
       leave_racha: { Args: { p_racha_id: string }; Returns: undefined };
+      list_event_attendance: {
+        Args: { p_event_id: string };
+        Returns: {
+          avatar_path: string;
+          cash_paid_amount: number;
+          credit_applied_amount: number;
+          did_attend: boolean;
+          display_name: string;
+          guest_id: string;
+          is_monthly_pass: boolean;
+          is_paid_effective: boolean;
+          is_super_star: boolean;
+          kind: string;
+          plays_as: Database["public"]["Enums"]["plays_as"];
+          primary_position: Database["public"]["Enums"]["position"];
+          profile_id: string;
+          queue_position: number;
+          role: Database["public"]["Enums"]["member_role"];
+          secondary_position: Database["public"]["Enums"]["position"];
+          stars: number;
+          status: Database["public"]["Enums"]["attendance_status"];
+        }[];
+      };
       list_join_requests: {
         Args: { p_racha_id: string };
         Returns: {
@@ -500,7 +774,10 @@ export type Database = {
       list_my_racha_events: {
         Args: never;
         Returns: {
+          confirmed_count: number;
           id: string;
+          my_queue_position: number;
+          my_status: string;
           place: string;
           racha_id: string;
           starts_at: string;
@@ -513,8 +790,11 @@ export type Database = {
         Returns: {
           conductor_id: string;
           conductor_name: string;
+          confirmed_count: number;
           id: string;
           is_paid: boolean;
+          my_queue_position: number;
+          my_status: string;
           outfield_per_team: number;
           place: string;
           price: number;
@@ -548,6 +828,42 @@ export type Database = {
       };
       refuse_join_request: {
         Args: { p_request_id: string };
+        Returns: undefined;
+      };
+      remove_guest: { Args: { p_guest_id: string }; Returns: undefined };
+      set_attendance_attended: {
+        Args: {
+          p_did_attend: boolean;
+          p_event_id: string;
+          p_guest_id: string;
+          p_profile_id: string;
+        };
+        Returns: undefined;
+      };
+      set_attendance_for_member: {
+        Args: {
+          p_event_id: string;
+          p_profile_id: string;
+          p_status: Database["public"]["Enums"]["attendance_status"];
+        };
+        Returns: undefined;
+      };
+      set_attendance_paid: {
+        Args: {
+          p_event_id: string;
+          p_guest_id: string;
+          p_paid: boolean;
+          p_profile_id: string;
+        };
+        Returns: undefined;
+      };
+      set_monthly_pass: {
+        Args: {
+          p_enabled: boolean;
+          p_profile_id: string;
+          p_racha_id: string;
+          p_year_month: string;
+        };
         Returns: undefined;
       };
       transfer_ownership: {
@@ -592,6 +908,7 @@ export type Database = {
       };
     };
     Enums: {
+      attendance_status: "confirmed" | "waitlisted" | "cancelled";
       event_status: "upcoming" | "active" | "finished";
       game_mode: "WINNER_STAYS" | "ROTATION" | "MAX_WINS";
       join_request_status: "PENDING" | "APPROVED" | "REJECTED";
@@ -731,6 +1048,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      attendance_status: ["confirmed", "waitlisted", "cancelled"],
       event_status: ["upcoming", "active", "finished"],
       game_mode: ["WINNER_STAYS", "ROTATION", "MAX_WINS"],
       join_request_status: ["PENDING", "APPROVED", "REJECTED"],

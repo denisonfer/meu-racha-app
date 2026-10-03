@@ -138,6 +138,11 @@ export function useRachasScreen() {
                   : "Evento agendado",
               when: formatEventWhen(event.startsOn, event.startsAt),
               place: event.place,
+              confirmedCount: event.confirmedCount,
+              myStatus: event.myStatus,
+              myQueuePosition: event.myQueuePosition,
+              onOpenAttendance: () =>
+                router.push(`/racha/${racha.id}/event/${event.id}/attendance`),
             }
           : null,
       };
