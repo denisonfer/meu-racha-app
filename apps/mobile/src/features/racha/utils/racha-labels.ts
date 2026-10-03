@@ -1,4 +1,5 @@
-import { TMemberRole } from "../racha-types";
+import { TEventStatus, TMemberRole } from "../racha-types";
+import { SORT_TEAMS_DEFINED } from "./racha-messages";
 
 export const ROLE_LABEL: Record<TMemberRole, string> = {
   OWNER: "DONO",
@@ -26,3 +27,11 @@ export const pendingBadgeLabel = (count: number) =>
 
 export const starsLabel = (count: number) =>
   count === 1 ? "1 Estrela" : `${count} Estrelas`;
+
+/** Evento active sem Sorteio é o legado: continua “em curso”. */
+export const eventKicker = (status: TEventStatus, sortConfirmed: boolean) =>
+  status === "active"
+    ? sortConfirmed
+      ? SORT_TEAMS_DEFINED
+      : "Evento em curso"
+    : "Evento agendado";

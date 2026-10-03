@@ -120,6 +120,22 @@ export const conductorName = (name: string) => `${name} está conduzindo.`;
 export const EVENT_NOT_ALLOWED = "Você não pode mais editar este evento.";
 export const CANCEL_EVENT_TITLE = "Cancelar este evento?";
 export const FINISH_EVENT_TITLE = "Encerrar este evento?";
+export const FINISH_EVENT_NOT_UNDONE = "Não dá para desfazer.";
+export const FINISH_EVENT_REVIEWED = "Conferi, encerrar evento";
+export const FINISH_EVENT_PAYMENTS_NOT_REVIEWED =
+  "Confira os pagamentos na lista de Presença antes de encerrar.";
+export const finishEventPaidSummary = (
+  attended: number,
+  paid: number,
+  target: number | null
+) =>
+  `${attended} vieram · ${paid} pagaram · ${target == null ? "Meta não definida" : `Meta ${target}`}`;
+
+/** Erro de encerrar evento → texto; só a conferência tem mensagem própria. */
+export const finishEventErrorMessage = (error: unknown): string =>
+  error instanceof Error && error.message === "payments_not_reviewed"
+    ? FINISH_EVENT_PAYMENTS_NOT_REVIEWED
+    : ACTION_FAILED;
 
 export const ATTENDANCE_EMPTY = "Ninguém confirmou ainda.";
 export const ATTENDANCE_WAITLISTED = (position: number) =>
@@ -179,6 +195,186 @@ export const ATTENDANCE_GUEST_STARS_REQUIRED = "Escolha as Estrelas";
 export const ATTENDANCE_GUEST_PRIMARY_REQUIRED = "Escolha a posição principal";
 export const ATTENDANCE_GUEST_SECONDARY_REQUIRED =
   "Escolha uma secundária diferente da principal";
+
+export const SORT_ROSTER_CHANGED = "A lista mudou. Sorteie novamente.";
+export const SORT_NOT_CONDUCTOR = "Só quem está conduzindo pode fazer isso.";
+export const SORT_NOT_MEMBER = "Você não faz mais parte deste racha.";
+export const SORT_ALREADY_CONFIRMED = "Os times já foram confirmados.";
+export const SORT_EVENT_NOT_UPCOMING =
+  "Este evento já começou. Não dá mais para sortear.";
+export const SORT_NOT_ENOUGH_PLAYERS =
+  "Faltam jogadores de linha para sortear.";
+export const SORT_NO_PROPOSAL =
+  "Ainda não há times sorteados. Sorteie primeiro.";
+export const SORT_GOALKEEPER_NOT_FOUND =
+  "Esse goleiro não está mais no sorteio. Sorteie novamente.";
+export const SORT_TEAM_FULL = "Esse time já está completo.";
+export const SORT_PRESENCE_LOCKED =
+  "Os times já foram sorteados. A presença não muda mais por aqui.";
+export const SORT_NOT_CONFIRMED = "Os times ainda não foram confirmados.";
+export const SORT_EVENT_NOT_ACTIVE = "Este evento não está em andamento.";
+export const SORT_NOT_PARTICIPATING = "Só quem está jogando pode sair.";
+export const SORT_ALREADY_PARTICIPATING = "Essa pessoa já está jogando.";
+export const SORT_USE_RETURN = "Essa pessoa saiu. Use Voltar para trazê-la.";
+export const SORT_NOT_LEFT = "Essa pessoa não saiu deste evento.";
+
+/** Código de erro das RPCs do Sorteio → pt-BR; desconhecido cai em ACTION_FAILED. */
+export function sortErrorMessage(code: string): string {
+  switch (code) {
+    case "roster_changed":
+    case "proposal_outdated":
+      return SORT_ROSTER_CHANGED;
+    case "not_conductor":
+      return SORT_NOT_CONDUCTOR;
+    case "not_member":
+      return SORT_NOT_MEMBER;
+    case "already_confirmed":
+      return SORT_ALREADY_CONFIRMED;
+    case "event_not_upcoming":
+      return SORT_EVENT_NOT_UPCOMING;
+    case "not_enough_players":
+      return SORT_NOT_ENOUGH_PLAYERS;
+    case "no_proposal":
+      return SORT_NO_PROPOSAL;
+    case "goalkeeper_not_found":
+      return SORT_GOALKEEPER_NOT_FOUND;
+    case "team_full":
+      return SORT_TEAM_FULL;
+    case "sort_confirmed":
+      return SORT_PRESENCE_LOCKED;
+    case "sort_not_confirmed":
+      return SORT_NOT_CONFIRMED;
+    case "event_not_active":
+      return SORT_EVENT_NOT_ACTIVE;
+    case "not_confirmed":
+      return SORT_NOT_PARTICIPATING;
+    case "already_participating":
+      return SORT_ALREADY_PARTICIPATING;
+    case "use_return":
+      return SORT_USE_RETURN;
+    case "not_left":
+      return SORT_NOT_LEFT;
+    case "spot_limit":
+      return ATTENDANCE_SPOT_LIMIT;
+    default:
+      return ACTION_FAILED;
+  }
+}
+
+// --- Telas do Sorteio ---
+export const SORT_TITLE = "Sorteio";
+export const SORT_TEAMS_TITLE = "Times";
+export const SORT_PREPARE = "Preparar sorteio";
+export const SORT_RUN = "Sortear times";
+export const SORT_RERUN = "Re-sortear";
+export const SORT_CONFIRM_TEAMS = "Confirmar times";
+export const SORT_VIEW_TEAMS = "Ver times";
+export const SORT_TEAMS_DEFINED = "Times definidos";
+export const SORT_NOT_PUBLISHED = "Ainda não publicado";
+export const SORT_CONFIRMED_TITLE = "Sorteio confirmado";
+export const SORT_PROPOSAL_TITLE = "Times sorteados";
+export const SORT_PROPOSAL_SUBTITLE = "Confira o resultado antes de confirmar.";
+export const SORT_PREPARE_HERO_TITLE = "Elenco de hoje";
+export const SORT_PREPARE_HERO_TEXT =
+  "O Sorteio considera só quem veio. Confira a Presença antes de formar os Times.";
+export const SORT_MARK_ATTENDED_HINT =
+  "Marque quem veio na lista de Presença antes de sortear.";
+export const sortAttendanceSummary = (confirmed: number, attended: number) =>
+  `${confirmed} confirmaram · ${attended} vieram`;
+export const SORT_PREPARE_RULES_TITLE = "Como serão os Times";
+export const SORT_PREPARE_HINT =
+  "Quem ficar no Time incompleto será escolhido ao acaso uma vez para este elenco. Re-sortear só muda os Times completos.";
+export const SORT_VIEW_ATTENDANCE = "Ver lista";
+export const SORT_RULE_OUTFIELD = "Linha por Time";
+export const SORT_RULE_BALANCE = "Equilíbrio";
+export const SORT_BALANCE_STARS = "Estrelas";
+export const SORT_BALANCE_STARS_POSITION = "Estrelas + Posição";
+export const SORT_BALANCE_PROPOSAL = "Equilíbrio dos Times completos";
+export const SORT_BALANCE_CONFIRMED = "Equilíbrio do Sorteio confirmado";
+export const SORT_CONFIRM_NOTE = "Depois de confirmar, não dá para re-sortear.";
+export const SORT_CONFIRM_SHEET_TITLE = "Publicar estes Times?";
+export const SORT_CONFIRM_SHEET_TEXT =
+  "Depois não será possível re-sortear. Todos os Membros passam a ver os Times.";
+export const SORT_BACK = "Voltar";
+export const SORT_SUPER_WARNING_TITLE = "Super Estrelas no mesmo Time";
+export const SORT_GOALKEEPERS_TITLE = "Goleiros";
+export const SORT_GOALKEEPERS_HINT =
+  "Toque em um goleiro e depois em outro para trocá-los de lugar.";
+export const SORT_GOALKEEPER_QUEUE = "Fila do gol";
+export const SORT_WAITING_TITLE = "Aguardando inclusão";
+export const SORT_LEFT_TITLE = "Saíram";
+export const SORT_LEFT_DETAIL = "Saiu do jogo";
+export const SORT_WAITING_NOT_ATTENDED = "Confirmou, não veio";
+export const SORT_INCLUDE = "Incluir";
+export const SORT_INCLUDE_PERSON = "Incluir pessoa";
+export const SORT_RETURN = "Volta";
+export const SORT_LEAVE_OTHER = "Marcar saída";
+export const SORT_LEAVE_SELF = "Minha saída";
+export const SORT_LEAVE_CONFIRM = "Registrar saída";
+export const SORT_LEAVE_BUSY = "Registrando";
+export const SORT_LEAVE_SELF_TITLE = "Registrar a sua saída?";
+export const SORT_LEAVE_SELF_TEXT =
+  "Você sai do Time. Só quem está conduzindo pode trazer você de volta.";
+export const SORT_LEAVE_OTHER_TEXT =
+  "A pessoa sai do Time. Só quem está conduzindo pode trazê-la de volta.";
+export const SORT_INCLUDE_TITLE = "Incluir pessoa";
+export const SORT_INCLUDE_MEMBERS = "Membros do racha";
+export const SORT_INCLUDE_NO_MEMBERS = "Nenhum Membro disponível para incluir.";
+export const SORT_INCLUDE_GUEST = "Adicionar avulso";
+export const SORT_INCLUDE_BACK_TO_LIST = "Voltar à lista";
+export const SORT_ASSUME_UPCOMING_TITLE = "Assumir a preparação?";
+export const SORT_ASSUME_UPCOMING_STAY = "Continuar aqui";
+export const SORT_NOT_READY_TITLE = "Os times ainda não foram sorteados";
+export const SORT_NOT_READY_TEXT =
+  "Quando quem conduz confirmar o sorteio, os times aparecem aqui.";
+export const SORT_LOAD_FAILED_TITLE = "Não deu pra abrir o sorteio";
+export const SORT_LOAD_FAILED_TEXT = "Confira a internet e tente de novo.";
+export const SORT_RETRY = "Tentar de novo";
+export const SORT_LOADING = "Carregando o sorteio";
+export const SORT_LEFT_ATTENDANCE_NOTE =
+  "Os times já foram definidos. Para sair do jogo, use a tela de Times.";
+
+export const sortConductingLine = (name: string) =>
+  `${name} está conduzindo o sorteio.`;
+export const sortAssumeUpcomingText = (name: string) =>
+  `${name} está conduzindo este evento. Quer assumir a preparação do Sorteio?`;
+export const sortMissingLinePlayers = (missing: number) =>
+  missing === 1
+    ? "Falta 1 jogador de linha que veio para sortear."
+    : `Faltam ${missing} jogadores de linha que vieram para sortear.`;
+export const sortOutfieldPerTeam = (count: number) => `${count} jogadores`;
+export const sortLineCountLabel = "na linha";
+export const sortGoalkeeperCountLabel = (count: number) =>
+  count === 1 ? "goleiro" : "goleiros";
+export const sortTeamTitle = (teamNumber: number) => `Time ${teamNumber}`;
+export const SORT_INCOMPLETE = "INCOMPLETO";
+export const sortMissingToComplete = (missing: number) =>
+  missing === 1
+    ? "Falta 1 jogador para completar este Time."
+    : `Faltam ${missing} jogadores para completar este Time.`;
+export const sortLeaveOtherTitle = (name: string) =>
+  `Registrar a saída de ${name}?`;
+export const sortLeaveOtherLabel = (name: string) => `Marcar saída de ${name}`;
+export const SORT_LEAVE_SELF_LABEL = "Registrar a minha saída";
+export const sortIncludeLabel = (name: string) => `Incluir ${name}`;
+export const sortReturnLabel = (name: string) => `Trazer ${name} de volta`;
+export const sortSuperWarningText = (names: string) =>
+  `Não foi possível separar ${names}.`;
+export const sortGoalkeeperQueuePosition = (position: number) =>
+  `Fila do gol · ${position}`;
+export const sortWaitingTitle = (count: number) =>
+  `${SORT_WAITING_TITLE} · ${count}`;
+export const sortLeftTitle = (count: number) => `${SORT_LEFT_TITLE} · ${count}`;
+export const sortScoreLabel = (score: number, label: string) =>
+  `${Math.round(score)}%, ${label}`;
+
+/** Erro de uma ação do Sorteio → texto; sem rede, o convite a tentar de novo. */
+export function sortFailureMessage(error: unknown): string {
+  const code = error instanceof Error ? error.message : "";
+  return code === "network_error"
+    ? SORT_LOAD_FAILED_TEXT
+    : sortErrorMessage(code);
+}
 
 /** Contagem clicável do cartão (telas 7 e 9). */
 export const ATTENDANCE_CONFIRMED_COUNT = (count: number) =>

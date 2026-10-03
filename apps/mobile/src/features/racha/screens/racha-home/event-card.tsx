@@ -1,16 +1,20 @@
 import { Pressable, StyleSheet, View } from "react-native";
-import { Button, Text } from "@/ui/components";
+import { Button, IconButton, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { TeamsDefinedTag } from "../../components/teams-defined-tag";
 import { EventAttendanceCta } from "../../components/event-attendance-cta";
 import { TAttendanceStatus } from "../../racha-types";
+import { SORT_PREPARE, SORT_VIEW_TEAMS } from "../../utils/racha-messages";
 
 export type TEventCardAction = {
-  kind: "assume" | "edit" | "cancel" | "finish";
+  kind: "assume" | "edit" | "cancel" | "finish" | "prepareSort" | "viewSort";
   onPress: () => void;
+  isLoading?: boolean;
 };
 
 type TEventCardProps = {
   kicker: string;
+  isTeamsDefined: boolean;
   when: string;
   place: string;
   isPaid: boolean;
@@ -31,11 +35,30 @@ type TEventCardProps = {
   } | null;
 };
 
+// Editar, Cancelar e Encerrar viram ícones no topo do cartão
+const ICON_ACTION_VIEW = {
+  edit: { icon: "edit", label: "Editar evento", color: "foreground" },
+  cancel: {
+    icon: "ban",
+    label: "Cancelar evento",
+    color: "errorText",
+    hint: "Abre a confirmação",
+  },
+  finish: {
+    icon: "flag",
+    label: "Encerrar evento",
+    color: "errorText",
+    hint: "Abre a confirmação",
+  },
+} as const;
+
+type TIconKind = keyof typeof ICON_ACTION_VIEW;
+
 const ACTION_VIEW: Record<
-  TEventCardAction["kind"],
+  Exclude<TEventCardAction["kind"], TIconKind>,
   {
     title: string;
-    preset: "primary" | "secondary" | "destructiveOutline";
+    preset: "primary" | "secondary";
     accessibilityHint?: string;
   }
 > = {
@@ -44,21 +67,19 @@ const ACTION_VIEW: Record<
     preset: "primary",
     accessibilityHint: "Abre a confirmação",
   },
-  edit: { title: "Editar", preset: "secondary" },
-  cancel: {
-    title: "Cancelar",
-    preset: "destructiveOutline",
-    accessibilityHint: "Abre a confirmação",
+  prepareSort: {
+    title: SORT_PREPARE,
+    preset: "secondary",
   },
-  finish: {
-    title: "Encerrar",
-    preset: "destructiveOutline",
-    accessibilityHint: "Abre a confirmação",
+  viewSort: {
+    title: SORT_VIEW_TEAMS,
+    preset: "secondary",
   },
 };
 
 export const EventCard = ({
   kicker,
+  isTeamsDefined,
   when,
   place,
   isPaid,
@@ -74,12 +95,37 @@ export const EventCard = ({
   upcoming,
 }: TEventCardProps) => (
   <View style={styles.card}>
-    <Text preset="small" color="muted" style={styles.bold}>
-      {kicker}
-    </Text>
-    <Text preset="stat" style={styles.when}>
-      {when}
-    </Text>
+    <View style={styles.header}>
+      <View style={styles.headerText}>
+        {isTeamsDefined ? (
+          <TeamsDefinedTag />
+        ) : (
+          <Text preset="small" color="muted" style={styles.bold}>
+            {kicker}
+          </Text>
+        )}
+        <Text preset="stat" style={styles.when}>
+          {when}
+        </Text>
+      </View>
+      <View style={styles.iconActions}>
+        {actions.map((action) => {
+          if (!(action.kind in ICON_ACTION_VIEW)) return null;
+          const view = ICON_ACTION_VIEW[action.kind as TIconKind];
+          return (
+            <IconButton
+              key={action.kind}
+              icon={view.icon}
+              color={view.color}
+              accessibilityLabel={view.label}
+              accessibilityHint={"hint" in view ? view.hint : undefined}
+              isLoading={action.isLoading}
+              onPress={action.onPress}
+            />
+          );
+        })}
+      </View>
+    </View>
     <Text style={styles.bold}>{place}</Text>
     {price || monthlyPrice ? (
       <View style={styles.facts}>
@@ -120,12 +166,14 @@ export const EventCard = ({
       onOpenAttendance={onOpenAttendance}
     />
     {actions.map((action) => {
-      const view = ACTION_VIEW[action.kind];
+      if (action.kind in ICON_ACTION_VIEW) return null;
+      const view = ACTION_VIEW[action.kind as keyof typeof ACTION_VIEW];
       return (
         <Button
           key={action.kind}
           title={view.title}
           preset={view.preset}
+          isLoading={action.isLoading}
           onPress={action.onPress}
           accessibilityLabel={view.title}
           accessibilityHint={view.accessibilityHint}
@@ -184,6 +232,10 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
   },
   bold: { fontFamily: "Manrope-Bold" },
+  header: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  headerText: { flex: 1, minWidth: 0, gap: 4 },
+  // o ícone de 44 px sobra do cartão em vez de empurrar o título para baixo
+  iconActions: { flexDirection: "row", margin: -8 },
   when: { fontSize: 32, lineHeight: 32 },
   facts: {
     flexDirection: "row",

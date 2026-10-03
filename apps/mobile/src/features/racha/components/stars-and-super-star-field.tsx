@@ -48,20 +48,13 @@ export const StarsAndSuperStarField = ({
               onChange={onStarsChange}
               isDisabled={isDisabled}
             />
-            <View accessibilityLiveRegion="polite" style={styles.starsStatus}>
-              {stars === null ? (
+            {stars === null && (
+              <View accessibilityLiveRegion="polite" style={styles.starsStatus}>
                 <Text preset="small" style={styles.bold}>
                   Escolha as Estrelas
                 </Text>
-              ) : (
-                <>
-                  <Text style={styles.starsNumber}>{stars}</Text>
-                  <Text preset="small" style={styles.bold}>
-                    {starsWord}
-                  </Text>
-                </>
-              )}
-            </View>
+              </View>
+            )}
           </View>
 
           <View style={styles.superStarRow}>

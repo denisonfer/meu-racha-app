@@ -3,3 +3,4 @@ export * from "./profile";
 export * from "./format";
 export * from "./card";
 export * from "./racha";
+export * from "./sorteio";

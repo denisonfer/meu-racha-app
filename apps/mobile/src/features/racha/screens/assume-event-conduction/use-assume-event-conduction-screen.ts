@@ -19,10 +19,9 @@ export function useAssumeEventConductionScreen() {
   const [failureMessage, setFailureMessage] = useState<string | null>(null);
 
   const isMissing = !eventId;
-  const eventStatus = eventsQuery.data?.find(
-    (event) => event.id === eventId
-  )?.status;
-  const canAssume = eventStatus === "active";
+  const event = eventsQuery.data?.find((item) => item.id === eventId);
+  const isUpcoming = event?.status === "upcoming";
+  const canAssume = event?.status === "active" || isUpcoming;
   useEffect(() => {
     if (isMissing || (eventsQuery.isFetched && !canAssume)) router.back();
   }, [isMissing, eventsQuery.isFetched, canAssume]);
@@ -34,6 +33,8 @@ export function useAssumeEventConductionScreen() {
     try {
       await assumeEventConduction(eventId);
       router.dismissTo(`/racha/${id}`);
+      // assumir a preparação do Sorteio leva direto a ele; o voltar cai na home
+      if (isUpcoming) router.push(`/racha/${id}/event/${eventId}/sort`);
     } catch {
       if (!navigation.isFocused()) {
         showToast(ACTION_FAILED);
@@ -47,6 +48,8 @@ export function useAssumeEventConductionScreen() {
   return {
     isMissing,
     canAssume,
+    isUpcoming,
+    conductorName: event?.conductorName ?? null,
     isAssuming,
     failureMessage,
     confirm: () => void confirm(),

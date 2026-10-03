@@ -1,11 +1,19 @@
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Avatar, Button, ChipGroup, ScreenFooter, Text } from "@/ui/components";
+import {
+  Button,
+  ChipGroup,
+  PlayerCard,
+  ScreenFooter,
+  Text,
+} from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { RoleChip } from "../../components/role-chip";
 import { StarsAndSuperStarField } from "../../components/stars-and-super-star-field";
 import { TMemberRole, TRachaMember } from "../../racha-types";
 import { ADMIN_LIMIT_HINT } from "../../utils/racha-messages";
 import { useEditMemberForm } from "./use-edit-member-screen";
+
+const CARD_WIDTH = 240;
 
 type TEditMemberFormProps = {
   rachaId: string;
@@ -20,7 +28,7 @@ export const EditMemberForm = (props: TEditMemberFormProps) => {
     permissions,
     hasCard,
     isGoalkeeper,
-    playsAsText,
+    card,
     stars,
     onStarsChange,
     isSuperStar,
@@ -44,22 +52,8 @@ export const EditMemberForm = (props: TEditMemberFormProps) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.identity}>
-          <Avatar
-            name={member.displayName}
-            photoUrl={member.photoUrl}
-            size={48}
-          />
-          <View style={styles.identityTexts}>
-            <Text style={styles.name}>{member.displayName}</Text>
-            <View style={styles.metaRow}>
-              {member.role !== "PLAYER" ? (
-                <RoleChip role={member.role} />
-              ) : null}
-              <Text preset="small" color="muted" style={styles.position}>
-                {playsAsText}
-              </Text>
-            </View>
-          </View>
+          <PlayerCard width={CARD_WIDTH} {...card} />
+          {member.role !== "PLAYER" ? <RoleChip role={member.role} /> : null}
         </View>
 
         {hasCard ? (
@@ -140,11 +134,7 @@ export const EditMemberForm = (props: TEditMemberFormProps) => {
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
   content: { gap: 24, paddingBottom: theme.space[24] },
-  identity: { flexDirection: "row", alignItems: "center", gap: 12 },
-  identityTexts: { flex: 1, minWidth: 0, gap: 4 },
-  name: { fontFamily: "Manrope-Bold", fontSize: 18, lineHeight: 24 },
-  metaRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  position: { fontFamily: "Manrope-Bold" },
+  identity: { alignItems: "center", gap: 12 },
   card: {
     gap: 16,
     padding: theme.space[16],

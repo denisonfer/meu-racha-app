@@ -133,7 +133,7 @@ begin
     if sqlerrm <> 'not_allowed' then raise; end if;
   end;
   perform set_config('request.jwt.claim.sub', v_owner::text, true);
-  perform public.finish_event(v_active);
+  perform public.finish_event(v_active, true);
   select * into strict v_next from public.event
   where racha_id = v_recurring and status = 'upcoming';
   if v_next.starts_on <> v_source_date + 7
@@ -145,7 +145,7 @@ begin
 
   v_active := pg_temp.make_proof_event(v_occupied, v_source_date, '19:00', 'Quadra', 'active', v_owner);
   v_upcoming := pg_temp.make_proof_event(v_occupied, v_source_date + 7, '19:00', 'Quadra');
-  perform public.finish_event(v_active);
+  perform public.finish_event(v_active, true);
   if not exists (
     select 1 from public.event where id = v_active and status = 'finished'
       and ended_by = v_owner and not ended_by_system and ended_at is not null

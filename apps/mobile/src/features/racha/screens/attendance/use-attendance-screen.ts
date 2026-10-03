@@ -24,6 +24,7 @@ import {
   TOpenEvent,
 } from "../../racha-types";
 import { attendanceCta } from "../../utils/attendance-cta";
+import { eventKicker } from "../../utils/racha-labels";
 import {
   ACTION_FAILED,
   ATTENDANCE_CANCEL,
@@ -40,6 +41,9 @@ import {
   ATTENDANCE_PRESENT_PAYERS,
   ATTENDANCE_QUEUE_PAY_NOTE,
   ATTENDANCE_WAITLISTED,
+  SORT_LEFT_ATTENDANCE_NOTE,
+  SORT_VIEW_TEAMS,
+  SORT_WAITING_TITLE,
 } from "../../utils/racha-messages";
 
 function attendanceErrorMessage(code: string): string {
@@ -86,7 +90,7 @@ function busyKeyOf(
   return `${kind}:${person.kind}:${id}`;
 }
 
-type TAttendanceSection = "confirmed" | "waitlisted" | "cancelled";
+type TAttendanceSection = "confirmed" | "waitlisted" | "cancelled" | "left";
 
 export function useAttendanceScreen() {
   const { id, eventId } = useLocalSearchParams<{
@@ -119,6 +123,8 @@ export function useAttendanceScreen() {
   const event = eventsQuery.data?.find((item) => item.id === eventId);
   const attendance = attendanceQuery.data;
   const isFinished = attendance?.eventStatus === "finished";
+  // com o Sorteio confirmado a Presença livre acabou: Saída e Inclusão vivem nos Times
+  const sortConfirmed = attendance?.sortConfirmed ?? false;
   // finished some da lista aberta; a RPC de presença ainda serve
   const isMissingEvent =
     eventsIdle &&
@@ -134,10 +140,12 @@ export function useAttendanceScreen() {
   const people = attendance?.people ?? [];
   const confirmed = people.filter(
     (person) =>
-      person.kind === "guest" ||
-      person.status === "confirmed" ||
-      (isAdmin && person.kind === "member" && person.status === null)
+      person.status !== "left" &&
+      (person.kind === "guest" ||
+        person.status === "confirmed" ||
+        (isAdmin && person.kind === "member" && person.status === null))
   );
+  const left = people.filter((person) => person.status === "left");
   const waitlisted = people
     .filter((person) => person.status === "waitlisted")
     .sort((a, b) => (a.queuePosition ?? 0) - (b.queuePosition ?? 0));
@@ -180,7 +188,13 @@ export function useAttendanceScreen() {
   ): TAttendanceRowAction[] => {
     const actions: TAttendanceRowAction[] = [];
 
-    if (isAdmin && !isFinished && person.kind === "guest" && person.guestId) {
+    if (
+      isAdmin &&
+      !isFinished &&
+      !sortConfirmed &&
+      person.kind === "guest" &&
+      person.guestId
+    ) {
       actions.push({
         label: ATTENDANCE_REMOVE_GUEST,
         accessibilityLabel: `Remover ${person.name}`,
@@ -194,6 +208,7 @@ export function useAttendanceScreen() {
     if (
       isAdmin &&
       !isFinished &&
+      !sortConfirmed &&
       person.kind === "member" &&
       person.profileId &&
       person.profileId !== userId
@@ -256,7 +271,8 @@ export function useAttendanceScreen() {
   };
 
   const toRow = (person: TAttendancePerson, section: TAttendanceSection) => {
-    const showChecks = isAdmin && section === "confirmed";
+    const showChecks =
+      isAdmin && (section === "confirmed" || section === "left");
     const showPaid = showChecks && !!event?.isPaid;
     const isPaidLocked = person.isMonthlyPass && person.isPaidEffective;
     const target = targetOf(person);
@@ -334,7 +350,8 @@ export function useAttendanceScreen() {
     }));
   };
 
-  const myCta = isFinished ? null : attendanceCta(event?.myStatus ?? null);
+  const myCta =
+    isFinished || sortConfirmed ? null : attendanceCta(event?.myStatus ?? null);
 
   const onMyAttendancePress = async () => {
     if (!myCta) return;
@@ -378,9 +395,7 @@ export function useAttendanceScreen() {
             top: `${racha.name} · ${
               isFinished
                 ? "Evento encerrado"
-                : event?.status === "active"
-                  ? "Evento em curso"
-                  : "Evento agendado"
+                : eventKicker(event?.status ?? "upcoming", sortConfirmed)
             }`,
             when: event
               ? formatEventWhen(event.startsOn, event.startsAt)
@@ -392,7 +407,7 @@ export function useAttendanceScreen() {
         : null,
     isAdmin,
     eventIsPaid: !!event?.isPaid || (isFinished && !!racha?.isPaid),
-    canAddGuest: isAdmin && !isFinished,
+    canAddGuest: isAdmin && !isFinished && !sortConfirmed,
     presentPayersText:
       isAdmin && (event?.isPaid || (isFinished && racha?.isPaid))
         ? ATTENDANCE_PRESENT_PAYERS(
@@ -412,6 +427,17 @@ export function useAttendanceScreen() {
           onPress: () => void onMyAttendancePress(),
         }
       : null,
+    sortNotice: sortConfirmed
+      ? {
+          text: SORT_LEFT_ATTENDANCE_NOTE,
+          actionLabel: SORT_VIEW_TEAMS,
+          onPress: () => router.push(`/racha/${id}/event/${eventId}/sort`),
+        }
+      : null,
+    waitlistedTitle: sortConfirmed ? SORT_WAITING_TITLE : "Lista de espera",
+    leftGroups: groupPeople(left, "left"),
+    leftCount: left.length,
+    showLeftGroupTitles: left.length > 1,
     confirmedCount: confirmed.length,
     confirmedGroups: groupPeople(confirmed, "confirmed"),
     showConfirmedGroupTitles: confirmed.length > 1,

@@ -13,6 +13,7 @@ export * from "./step-indicator";
 export * from "./text-link";
 export * from "./screen-footer";
 export * from "./icon";
+export * from "./icon-button/icon-button";
 export * from "./toast/toast";
 export * from "./player-card";
 export * from "./tab-bar";

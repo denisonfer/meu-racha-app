@@ -7,7 +7,13 @@ export function useFinishEvent(rachaId: string) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (eventId: string) => rachaApi.finishEvent(eventId),
+    mutationFn: ({
+      eventId,
+      paymentsReviewed,
+    }: {
+      eventId: string;
+      paymentsReviewed: boolean;
+    }) => rachaApi.finishEvent(eventId, paymentsReviewed),
     // aguarda a agenda só no sucesso: no erro, sem rede a recarga demora e prenderia o botão.
     onSettled: (_data, error) => {
       const refreshList = queryClient.invalidateQueries({

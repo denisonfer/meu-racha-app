@@ -121,6 +121,8 @@ export type TMyRachaEvent = {
   spotLimit: number | null;
   myStatus: TAttendanceStatus | null;
   myQueuePosition: number | null;
+  // Sorteio confirmado: a Presença livre acabou
+  sortConfirmed: boolean;
 };
 
 export type TOpenEvent = {
@@ -139,6 +141,7 @@ export type TOpenEvent = {
   confirmedCount: number;
   myStatus: TAttendanceStatus | null;
   myQueuePosition: number | null;
+  sortConfirmed: boolean;
 };
 
 export type TEventInput = {
@@ -161,7 +164,7 @@ export type TAttendancePerson = {
   initials: string;
   // Membro e Avulso: Overall do Card; fatia sem partidas → OVERALL_MIN (40)
   overall: number;
-  // Avulso: confirmed implícito → null
+  // Avulso: confirmed implícito → null (só Saída vem como left)
   status: TAttendanceStatus | null;
   queuePosition: number | null;
   didAttend: boolean;
@@ -183,6 +186,7 @@ export type TAttendanceList = {
   payerTarget: number | null;
   presentPayerCount: number;
   myCreditBalance: number;
+  sortConfirmed: boolean;
   people: TAttendancePerson[];
 };
 

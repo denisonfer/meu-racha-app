@@ -5,13 +5,20 @@ import {
   formatRulesSummary,
 } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { useSession } from "@/features/auth";
+import { useToast } from "@/ui/components";
+import { useAssumeEventConduction } from "../../hooks/use-assume-event-conduction";
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import { useRacha } from "../../hooks/use-racha";
 import { TOpenEvent } from "../../racha-types";
-import { pendingCountLabel, pendingWord } from "../../utils/racha-labels";
-import { conductorName } from "../../utils/racha-messages";
+import {
+  eventKicker,
+  pendingCountLabel,
+  pendingWord,
+} from "../../utils/racha-labels";
+import { ACTION_FAILED, conductorName } from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 import { TEventCardAction } from "./event-card";
 
@@ -27,6 +34,9 @@ export function useRachaHomeScreen() {
   } = useRacha(id);
   const eventsQuery = useOpenEvents(id);
   const { session } = useSession();
+  const { assumeEventConduction } = useAssumeEventConduction(id);
+  const showToast = useToast();
+  const [isPreparingSort, setIsPreparingSort] = useState(false);
   const isNoAccess = useLeaveOnNoAccess(error, fetchStatus, id);
 
   const userId = session?.userId ?? null;
@@ -74,16 +84,53 @@ export function useRachaHomeScreen() {
     router.push(`/racha/${id}/event/${eventId}/attendance`);
   };
 
+  const openSort = (eventId: string) => {
+    router.push(`/racha/${id}/event/${eventId}/sort`);
+  };
+
+  // Preparar o Sorteio é assumir a condução: outro Condutor pede confirmação antes
+  const prepareSort = async (event: TOpenEvent) => {
+    if (isPreparingSort) return;
+    if (event.conductorId && event.conductorId !== userId) {
+      openAssume(event.id);
+      return;
+    }
+    if (event.conductorId === null) {
+      setIsPreparingSort(true);
+      try {
+        await assumeEventConduction(event.id);
+      } catch {
+        showToast(ACTION_FAILED, "danger");
+        return;
+      } finally {
+        setIsPreparingSort(false);
+      }
+    }
+    openSort(event.id);
+  };
+
   const actionsFor = (event: TOpenEvent): TEventCardAction[] => {
-    if (!racha || racha.role === "PLAYER") return [];
+    if (!racha) return [];
+    // Times publicados valem para qualquer Membro; o resto é de Dono/Admin
+    const viewSort: TEventCardAction[] =
+      event.status === "active" && event.sortConfirmed
+        ? [{ kind: "viewSort", onPress: () => openSort(event.id) }]
+        : [];
+    if (racha.role === "PLAYER") return viewSort;
     if (event.status === "upcoming") {
       return [
+        {
+          kind: "prepareSort",
+          isLoading: isPreparingSort,
+          onPress: () => void prepareSort(event),
+        },
         { kind: "edit", onPress: () => openEdit(event.id) },
         { kind: "cancel", onPress: () => openCancel(event.id) },
       ];
     }
     if (event.status === "active") {
       return [
+        ...viewSort,
         ...(event.conductorId !== userId
           ? [{ kind: "assume" as const, onPress: () => openAssume(event.id) }]
           : [
@@ -136,8 +183,9 @@ export function useRachaHomeScreen() {
             ],
     },
     eventCard: shownEvent && {
-      kicker:
-        shownEvent.status === "active" ? "Evento em curso" : "Evento agendado",
+      kicker: eventKicker(shownEvent.status, shownEvent.sortConfirmed),
+      isTeamsDefined:
+        shownEvent.status === "active" && shownEvent.sortConfirmed,
       when: formatEventWhen(shownEvent.startsOn, shownEvent.startsAt),
       place: shownEvent.place,
       isPaid: shownEvent.isPaid,

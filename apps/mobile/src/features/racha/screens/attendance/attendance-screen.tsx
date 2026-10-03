@@ -9,6 +9,7 @@ import {
   ATTENDANCE_EVENT_GONE_TEXT,
   ATTENDANCE_EVENT_GONE_TITLE,
   ATTENDANCE_QUEUE_PAY_NOTE,
+  sortLeftTitle,
 } from "../../utils/racha-messages";
 import { useAttendanceScreen } from "./use-attendance-screen";
 
@@ -24,6 +25,11 @@ export const AttendanceScreen = () => {
     presentPayersText,
     myCreditText,
     myAttendance,
+    sortNotice,
+    waitlistedTitle,
+    leftGroups,
+    leftCount,
+    showLeftGroupTitles,
     confirmedCount,
     confirmedGroups,
     showConfirmedGroupTitles,
@@ -108,6 +114,20 @@ export const AttendanceScreen = () => {
             />
           ) : null}
 
+          {sortNotice ? (
+            <View style={styles.sortNotice}>
+              <Text preset="small" color="muted">
+                {sortNotice.text}
+              </Text>
+              <Button
+                title={sortNotice.actionLabel}
+                preset="secondary"
+                onPress={sortNotice.onPress}
+                accessibilityLabel={sortNotice.actionLabel}
+              />
+            </View>
+          ) : null}
+
           <View style={styles.sectionHead}>
             <Text preset="h3">Confirmados · {confirmedCount}</Text>
             {canAddGuest ? (
@@ -175,7 +195,7 @@ export const AttendanceScreen = () => {
             <>
               <View style={[styles.sectionHead, styles.sectionGap]}>
                 <Text preset="h3">
-                  Lista de espera · {waitlistedRows.length}
+                  {waitlistedTitle} · {waitlistedRows.length}
                 </Text>
               </View>
               <View style={styles.listCard}>
@@ -193,6 +213,37 @@ export const AttendanceScreen = () => {
                   {ATTENDANCE_QUEUE_PAY_NOTE}
                 </Text>
               ) : null}
+            </>
+          ) : null}
+
+          {leftCount > 0 ? (
+            <>
+              <View style={[styles.sectionHead, styles.sectionGap]}>
+                <Text preset="h3">{sortLeftTitle(leftCount)}</Text>
+              </View>
+              {leftGroups.map((group) => (
+                <View key={group.key} style={styles.group}>
+                  {showLeftGroupTitles ? (
+                    <Text
+                      preset="small"
+                      color="muted"
+                      style={styles.groupTitle}
+                    >
+                      {group.label} · {group.rows.length}
+                    </Text>
+                  ) : null}
+                  <View style={styles.listCard}>
+                    {group.rows.map(({ key, ...row }, index) => (
+                      <View
+                        key={key}
+                        style={index > 0 ? styles.rowDivider : undefined}
+                      >
+                        <AttendanceRow {...row} />
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ))}
             </>
           ) : null}
 
@@ -246,6 +297,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingBottom: theme.space[24],
   },
+  sortNotice: { gap: 8 },
   summary: {
     gap: 4,
     padding: theme.space[16],

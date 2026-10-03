@@ -2,16 +2,27 @@ import { ActivityIndicator } from "react-native";
 import { EmptyState, Screen } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { EditMemberForm } from "./edit-member-form";
+import { MemberCardView } from "./member-card-view";
 import { useEditMemberScreen } from "./use-edit-member-screen";
 
 export const EditMemberScreen = () => {
-  const { racha, member, adminCount, isLoading, isError, retry, isRetrying } =
-    useEditMemberScreen();
+  const {
+    racha,
+    member,
+    viewMember,
+    adminCount,
+    isLoading,
+    isError,
+    retry,
+    isRetrying,
+  } = useEditMemberScreen();
 
   return (
-    <Screen title="Editar membro" canGoBack>
+    <Screen title={viewMember ? "Membro" : "Editar membro"} canGoBack>
       {isLoading ? (
         <ActivityIndicator color={theme.colors.foreground} />
+      ) : viewMember ? (
+        <MemberCardView member={viewMember} />
       ) : isError || !racha || !member ? (
         <EmptyState
           title="Não deu pra abrir o membro"

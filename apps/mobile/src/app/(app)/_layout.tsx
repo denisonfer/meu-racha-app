@@ -65,6 +65,18 @@ export default function AppLayout() {
         name="racha/[id]/event/[eventId]/monthly-pass"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/sort-confirm"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/sort-leave"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/sort-include"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
     </Stack>
   );
 }

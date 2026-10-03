@@ -12,6 +12,7 @@ import { useRachaNotices } from "../../hooks/use-racha-notices";
 import { TRachaNotice } from "../../racha-types";
 import {
   ROLE_ACCESSIBILITY_LABEL,
+  eventKicker,
   memberCountLabel,
   pendingBadgeLabel,
   pendingCountLabel,
@@ -132,10 +133,8 @@ export function useRachasScreen() {
         canCreateEvent: isOwnerOrAdmin,
         event: event
           ? {
-              kicker:
-                event.status === "active"
-                  ? "Evento em curso"
-                  : "Evento agendado",
+              kicker: eventKicker(event.status, event.sortConfirmed),
+              isTeamsDefined: event.status === "active" && event.sortConfirmed,
               when: formatEventWhen(event.startsOn, event.startsAt),
               place: event.place,
               confirmedCount: event.confirmedCount,
@@ -144,6 +143,11 @@ export function useRachasScreen() {
               myQueuePosition: event.myQueuePosition,
               onOpenAttendance: () =>
                 router.push(`/racha/${racha.id}/event/${event.id}/attendance`),
+              onOpenSort:
+                event.status === "active" && event.sortConfirmed
+                  ? () =>
+                      router.push(`/racha/${racha.id}/event/${event.id}/sort`)
+                  : null,
             }
           : null,
       };

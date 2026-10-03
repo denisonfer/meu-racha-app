@@ -11,7 +11,10 @@ import {
   Clock,
   Eye,
   EyeOff,
+  Flag,
+  LogOut,
   Minus,
+  Pencil,
   Plus,
   Share,
   SlidersHorizontal,
@@ -53,6 +56,9 @@ export const iconMap = {
   star: Star,
   close: X,
   settings: SlidersHorizontal,
+  edit: Pencil,
+  flag: Flag,
+  leave: LogOut,
 } as const;
 
 export type TIconName = keyof typeof iconMap;

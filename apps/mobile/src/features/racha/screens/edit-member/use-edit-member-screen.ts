@@ -1,8 +1,4 @@
-import {
-  ADMIN_LIMIT_FREE,
-  formatPlaysAs,
-  memberPermissions,
-} from "@meu-racha/domain";
+import { ADMIN_LIMIT_FREE, memberPermissions } from "@meu-racha/domain";
 import {
   router,
   useIsFocused,
@@ -20,6 +16,7 @@ import { useRacha } from "../../hooks/use-racha";
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import { useUpdateMember } from "../../hooks/use-update-member";
 import { TMemberRole, TRachaMember } from "../../racha-types";
+import { memberCardProps } from "../../utils/member-card";
 import { isNoAccessError } from "../../utils/no-access";
 import {
   ADMIN_LIMIT_REACHED,
@@ -70,31 +67,27 @@ export function useEditMemberScreen() {
 
   const isReady = !isLoading && !isError && Boolean(racha);
   const isGone = isReady && !member;
-  const isBlocked = isReady && Boolean(member) && !canOpen && !opened;
-  // perdeu a permissão com a tela aberta: sai em vez de cair no erro
-  const isRevoked = isReady && Boolean(member) && !canOpen && Boolean(opened);
+  // quem não edita vê a carta do Membro, só leitura (Estrelas são públicas, 8.1);
+  // perder a permissão com a tela aberta apenas troca para essa visão
   const isOpen = isReady && Boolean(member) && canOpen && !isNoAccess;
+  const isViewOnly = isReady && Boolean(member) && !canOpen && !isNoAccess;
 
   useEffect(() => {
     if (isGone) {
       router.back();
       showToast(MEMBER_GONE);
-    } else if (isBlocked) {
-      router.back();
-    } else if (isRevoked) {
-      router.dismissTo(`/racha/${id}`);
-      showToast(MEMBER_NOT_ALLOWED);
     }
-  }, [isGone, isBlocked, isRevoked, id, showToast]);
+  }, [isGone, showToast]);
 
   if (isOpen && found && found !== opened) setOpened(found);
 
   return {
     racha: isOpen ? racha : undefined,
     member: isOpen ? member : undefined,
+    viewMember: isViewOnly ? member : undefined,
     adminCount: (membersQuery.data ?? []).filter((m) => m.role === "ADMIN")
       .length,
-    isLoading: isLoading || isNoAccess || isGone || isBlocked || isRevoked,
+    isLoading: isLoading || isNoAccess || isGone,
     isError: isError && !isNoAccess,
     retry: () => {
       void membersQuery.refetch();
@@ -226,11 +219,8 @@ export function useEditMemberForm({
     permissions,
     hasCard,
     isGoalkeeper,
-    playsAsText: formatPlaysAs(
-      member.playsAs,
-      member.primaryPosition,
-      member.secondaryPosition
-    ).replace(/^Linha · /, ""),
+    // a Super Estrela da carta acompanha o toggle, antes mesmo de salvar
+    card: memberCardProps(member, isSuperStar),
     stars,
     onStarsChange: change(setStars),
     isSuperStar,

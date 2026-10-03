@@ -1,19 +1,33 @@
 import { BottomSheet, Button, Text } from "@/ui/components";
+import {
+  SORT_ASSUME_UPCOMING_STAY,
+  SORT_ASSUME_UPCOMING_TITLE,
+  sortAssumeUpcomingText,
+} from "../../utils/racha-messages";
 import { useAssumeEventConductionScreen } from "./use-assume-event-conduction-screen";
 
 export const AssumeEventConductionScreen = () => {
-  const { isMissing, canAssume, isAssuming, failureMessage, confirm, cancel } =
-    useAssumeEventConductionScreen();
+  const {
+    isMissing,
+    canAssume,
+    isUpcoming,
+    conductorName,
+    isAssuming,
+    failureMessage,
+    confirm,
+    cancel,
+  } = useAssumeEventConductionScreen();
 
   if (isMissing || !canAssume) return null;
 
   return (
     <BottomSheet
-      title="Assumir condução?"
+      title={isUpcoming ? SORT_ASSUME_UPCOMING_TITLE : "Assumir condução?"}
       supporting={
         <Text>
-          Você assume a condução do evento em curso no lugar do Condutor atual.
-          Isso permite editar e encerrar o evento, sem iniciar uma partida.
+          {isUpcoming
+            ? sortAssumeUpcomingText(conductorName ?? "Outra pessoa")
+            : "Você assume a condução do evento em curso no lugar do Condutor atual. Isso permite editar e encerrar o evento, sem iniciar uma partida."}
         </Text>
       }
       hasCloseButton={false}
@@ -30,7 +44,7 @@ export const AssumeEventConductionScreen = () => {
         onPress={confirm}
       />
       <Button
-        title="Voltar"
+        title={isUpcoming ? SORT_ASSUME_UPCOMING_STAY : "Voltar"}
         preset="outline"
         isDisabled={isAssuming}
         onPress={cancel}

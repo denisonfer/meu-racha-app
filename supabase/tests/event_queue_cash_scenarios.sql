@@ -150,7 +150,7 @@ begin
   perform public.set_attendance_paid(v_event, null, v_guest, true);
   perform public.set_attendance_attended(v_event, null, v_guest, true);
   if private.count_present_payers(v_event) <> 2 then raise exception 'daily_target'; end if;
-  perform public.finish_event(v_event);
+  perform public.finish_event(v_event, true);
   select entry_kind, amount_delta into v_kind, v_amount
   from public.racha_credit_entry where source_event_id = v_event and profile_id = v_daily
     and entry_kind in ('absence_daily', 'waitlist_daily');
@@ -167,7 +167,7 @@ begin
   v_event := pg_temp.scenario_event(v_racha, v_day + 7);
   perform public.confirm_attendance(v_event);
   perform public.set_attendance_paid(v_event, v_owner, null, true);
-  perform public.finish_event(v_event);
+  perform public.finish_event(v_event, true);
   if exists (select 1 from public.racha_credit_entry
       where source_event_id = v_event and profile_id = v_owner
         and entry_kind = 'absence_daily') then
@@ -225,7 +225,7 @@ begin
   perform public.set_attendance_attended(v_event, v_owner, null, true);
   perform public.set_attendance_attended(v_event, v_monthly, null, true);
   if private.count_present_payers(v_event) <> 2 then raise exception 'monthly_target'; end if;
-  perform public.finish_event(v_event);
+  perform public.finish_event(v_event, true);
   if not exists (select 1 from public.event_payment_fact
       where event_id = v_event and profile_id = v_monthly
         and monthly_coverage_month = v_month and paid_marked_at is null

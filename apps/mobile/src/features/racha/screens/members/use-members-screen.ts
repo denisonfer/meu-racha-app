@@ -1,6 +1,5 @@
 import {
   formatPlaysAs,
-  memberPermissions,
   groupMembersByPosition,
   initialsOf,
   LEVEL_NAME,
@@ -59,14 +58,6 @@ export function useMembersScreen() {
     label: group.label,
     members: group.members.map((member) => {
       const isMe = member.profileId === session?.userId;
-      const canOpen = racha
-        ? memberPermissions(
-            racha.role,
-            member.role,
-            isMe,
-            member.playsAs === "GOALKEEPER"
-          ).canOpen
-        : false;
       return {
         profileId: member.profileId,
         name: member.displayName,
@@ -80,9 +71,7 @@ export function useMembersScreen() {
         stars: member.stars,
         isSuperStar: member.isSuperStar,
         accessibilityLabel: accessibilityLabelFor(member, isMe),
-        onPress: canOpen
-          ? () => router.push(`/racha/${id}/member/${member.profileId}`)
-          : undefined,
+        onPress: () => router.push(`/racha/${id}/member/${member.profileId}`),
       };
     }),
   }));

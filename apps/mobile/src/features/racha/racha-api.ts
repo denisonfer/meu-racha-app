@@ -3,7 +3,11 @@ import {
   initialsOf,
   normalizeInviteCode,
   OVERALL_MIN,
+  parsePublishedSort,
+  parseSortProposal,
+  type TPublishedSort,
   type TRachaRules,
+  type TSortProposal,
 } from "@meu-racha/domain";
 import { supabase } from "@/lib/supabase";
 import { AVATAR_BUCKET } from "@/lib/storage-buckets";
@@ -54,6 +58,22 @@ const RAISE_EXCEPTION_CODES = [
   "payer_target_required",
   "payer_target_invalid",
   "credit_already_used",
+  "not_conductor",
+  "already_confirmed",
+  "event_not_upcoming",
+  "not_enough_players",
+  "no_proposal",
+  "roster_changed",
+  "proposal_outdated",
+  "goalkeeper_not_found",
+  "team_full",
+  "sort_confirmed",
+  "sort_not_confirmed",
+  "event_not_active",
+  "already_participating",
+  "use_return",
+  "not_left",
+  "payments_not_reviewed",
 ];
 
 // status 0 = o pedido nem chegou ao servidor; o resto vira o código do banco
@@ -78,7 +98,8 @@ function toInviteStatus(value: string | null): TInviteStatus | null {
 function toAttendanceStatus(value: string | null): TAttendanceStatus | null {
   return value === "confirmed" ||
     value === "waitlisted" ||
-    value === "cancelled"
+    value === "cancelled" ||
+    value === "left"
     ? value
     : null;
 }
@@ -421,6 +442,7 @@ async function listOpenEvents(rachaId: string): Promise<TOpenEvent[]> {
     // o tipo gerado diz string; sem linha de presença vem null
     myStatus: toAttendanceStatus(row.my_status ?? null),
     myQueuePosition: row.my_queue_position ?? null,
+    sortConfirmed: row.sort_confirmed,
   }));
 }
 
@@ -440,6 +462,7 @@ async function listMyRachaEvents(): Promise<TMyRachaEvent[]> {
     // o tipo gerado diz string; sem linha de presença vem null
     myStatus: toAttendanceStatus(row.my_status ?? null),
     myQueuePosition: row.my_queue_position ?? null,
+    sortConfirmed: row.sort_confirmed,
   }));
 }
 
@@ -506,9 +529,13 @@ async function assumeEventConduction(eventId: string): Promise<void> {
   if (error) throw toCodedError(error, status);
 }
 
-async function finishEvent(eventId: string): Promise<void> {
+async function finishEvent(
+  eventId: string,
+  paymentsReviewed: boolean
+): Promise<void> {
   const { error, status } = await supabase.rpc("finish_event", {
     p_event_id: eventId,
+    p_payments_reviewed: paymentsReviewed,
   });
   if (error) throw toCodedError(error, status);
 }
@@ -530,8 +557,9 @@ async function listEventAttendance(eventId: string): Promise<TAttendanceList> {
       photoUrl: toPhotoUrl(row.avatar_path),
       initials: initialsOf(row.display_name),
       overall: OVERALL_MIN,
-      // Avulso: confirmed implícito — a UI usa o chip Avulso, não o status
-      status: kind === "guest" ? null : row.status,
+      // Avulso: confirmed implícito — a UI usa o chip Avulso, não o status;
+      // só a Saída (left) precisa chegar
+      status: kind === "guest" && row.status !== "left" ? null : row.status,
       queuePosition: row.queue_position ?? null,
       didAttend: row.did_attend,
       isPaidEffective: row.is_paid_effective,
@@ -555,6 +583,7 @@ async function listEventAttendance(eventId: string): Promise<TAttendanceList> {
     payerTarget: head?.payer_target ?? null,
     presentPayerCount: head?.present_payer_count ?? 0,
     myCreditBalance: head?.my_credit_balance ?? 0,
+    sortConfirmed: head?.sort_confirmed ?? false,
     people,
   };
 }
@@ -735,6 +764,135 @@ async function dismissRachaNotice(id: string): Promise<void> {
   if (error) throw toCodedError(error, status);
 }
 
+// --- Sorteio: a regra mora no banco; aqui só chamar e traduzir o jsonb ---
+
+async function prepareEventSort(eventId: string): Promise<TSortProposal> {
+  const { data, error, status } = await supabase.rpc("prepare_event_sort", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseSortProposal(data, toPhotoUrl);
+}
+
+async function swapEventSortGoalkeepers(
+  eventId: string,
+  version: number,
+  goalkeeperA: string,
+  goalkeeperB: string
+): Promise<TSortProposal> {
+  const { data, error, status } = await supabase.rpc(
+    "swap_event_sort_goalkeepers",
+    {
+      p_event_id: eventId,
+      p_version: version,
+      p_goalkeeper_a: goalkeeperA,
+      p_goalkeeper_b: goalkeeperB,
+    }
+  );
+  if (error) throw toCodedError(error, status);
+  return parseSortProposal(data, toPhotoUrl);
+}
+
+async function confirmEventSort(
+  eventId: string,
+  version: number
+): Promise<TPublishedSort> {
+  const { data, error, status } = await supabase.rpc("confirm_event_sort", {
+    p_event_id: eventId,
+    p_version: version,
+  });
+  if (error) throw toCodedError(error, status);
+  return parsePublishedSort(data, toPhotoUrl);
+}
+
+async function getEventSortProposal(eventId: string): Promise<TSortProposal> {
+  const { data, error, status } = await supabase.rpc(
+    "get_event_sort_proposal",
+    { p_event_id: eventId }
+  );
+  if (error) throw toCodedError(error, status);
+  return parseSortProposal(data, toPhotoUrl);
+}
+
+async function getEventSort(eventId: string): Promise<TPublishedSort> {
+  const { data, error, status } = await supabase.rpc("get_event_sort", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parsePublishedSort(data, toPhotoUrl);
+}
+
+// os parâmetros opcionais ficam de fora quando não se aplicam; o banco assume null
+function sortTargetArgs(target: TAttendanceTarget): {
+  p_profile_id?: string;
+  p_guest_id?: string;
+} {
+  return target.kind === "member"
+    ? { p_profile_id: target.profileId }
+    : { p_guest_id: target.guestId };
+}
+
+async function leaveEventSort(
+  eventId: string,
+  target: TAttendanceTarget
+): Promise<TPublishedSort> {
+  const { data, error, status } = await supabase.rpc("leave_event_sort", {
+    p_event_id: eventId,
+    ...sortTargetArgs(target),
+  });
+  if (error) throw toCodedError(error, status);
+  return parsePublishedSort(data, toPhotoUrl);
+}
+
+async function returnEventSortPlayer(
+  eventId: string,
+  target: TAttendanceTarget
+): Promise<TPublishedSort> {
+  const { data, error, status } = await supabase.rpc(
+    "return_event_sort_player",
+    { p_event_id: eventId, ...sortTargetArgs(target) }
+  );
+  if (error) throw toCodedError(error, status);
+  return parsePublishedSort(data, toPhotoUrl);
+}
+
+async function includeEventSortMember(
+  eventId: string,
+  profileId: string
+): Promise<TPublishedSort> {
+  const { data, error, status } = await supabase.rpc(
+    "include_event_sort_member",
+    { p_event_id: eventId, p_profile_id: profileId }
+  );
+  if (error) throw toCodedError(error, status);
+  return parsePublishedSort(data, toPhotoUrl);
+}
+
+async function includeEventSortGuest(
+  eventId: string,
+  input: TGuestInput
+): Promise<TPublishedSort> {
+  const { data, error, status } = await supabase.rpc(
+    "include_event_sort_guest",
+    {
+      p_event_id: eventId,
+      p_display_name: input.displayName,
+      p_plays_as: input.playsAs,
+      // null pro Goleiro; o tipo gerado diz obrigatório
+      p_primary_position: input.primaryPosition as NonNullable<
+        typeof input.primaryPosition
+      >,
+      p_secondary_position: input.secondaryPosition as NonNullable<
+        typeof input.secondaryPosition
+      >,
+      p_stars: input.stars as number,
+      p_is_super_star: input.isSuperStar,
+    }
+  );
+  if (error) throw toCodedError(error, status);
+  return parsePublishedSort(data, toPhotoUrl);
+}
+
 export const rachaApi = {
   createRacha,
   listMyRachas,
@@ -772,4 +930,13 @@ export const rachaApi = {
   addGuest,
   removeGuest,
   setMonthlyPass,
+  prepareEventSort,
+  swapEventSortGoalkeepers,
+  confirmEventSort,
+  getEventSortProposal,
+  getEventSort,
+  leaveEventSort,
+  returnEventSortPlayer,
+  includeEventSortMember,
+  includeEventSortGuest,
 };

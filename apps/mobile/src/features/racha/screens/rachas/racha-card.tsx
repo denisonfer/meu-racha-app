@@ -2,11 +2,14 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { Button, Icon, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { EventAttendanceCta } from "../../components/event-attendance-cta";
+import { TeamsDefinedTag } from "../../components/teams-defined-tag";
 import { RoleChip } from "../../components/role-chip";
 import { TAttendanceStatus, TMemberRole } from "../../racha-types";
+import { SORT_VIEW_TEAMS } from "../../utils/racha-messages";
 
 type TRachaCardEvent = {
   kicker: string;
+  isTeamsDefined: boolean;
   when: string;
   place: string;
   confirmedCount: number;
@@ -14,6 +17,8 @@ type TRachaCardEvent = {
   myStatus: TAttendanceStatus | null;
   myQueuePosition: number | null;
   onOpenAttendance: () => void;
+  // Times publicados: só existe com Sorteio confirmado
+  onOpenSort: (() => void) | null;
 };
 
 type TRachaCardProps = {
@@ -68,9 +73,13 @@ export const RachaCard = ({
       {event ? (
         <View style={styles.cardEvent}>
           <View style={styles.eventMeta}>
-            <Text preset="small" color="muted" style={styles.bold}>
-              {event.kicker}
-            </Text>
+            {event.isTeamsDefined ? (
+              <TeamsDefinedTag />
+            ) : (
+              <Text preset="small" color="muted" style={styles.bold}>
+                {event.kicker}
+              </Text>
+            )}
             <Text style={styles.bold}>{event.when}</Text>
             <Text preset="small" color="muted">
               {event.place}
@@ -83,6 +92,15 @@ export const RachaCard = ({
             myQueuePosition={event.myQueuePosition}
             onOpenAttendance={event.onOpenAttendance}
           />
+          {event.onOpenSort ? (
+            <Button
+              title={SORT_VIEW_TEAMS}
+              preset="secondary"
+              onPress={event.onOpenSort}
+              accessibilityLabel={SORT_VIEW_TEAMS}
+              accessibilityHint="Abre os times do sorteio"
+            />
+          ) : null}
         </View>
       ) : (
         <>
