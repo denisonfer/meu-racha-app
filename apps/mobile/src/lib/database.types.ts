@@ -181,7 +181,11 @@ export type Database = {
           left_at: string | null;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position: Database["public"]["Enums"]["position"] | null;
+          primary_position_detail:
+            Database["public"]["Enums"]["position_detail"] | null;
           secondary_position: Database["public"]["Enums"]["position"] | null;
+          secondary_position_detail:
+            Database["public"]["Enums"]["position_detail"] | null;
           stars: number | null;
         };
         Insert: {
@@ -194,7 +198,11 @@ export type Database = {
           left_at?: string | null;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
+          primary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           secondary_position?: Database["public"]["Enums"]["position"] | null;
+          secondary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           stars?: number | null;
         };
         Update: {
@@ -207,7 +215,11 @@ export type Database = {
           left_at?: string | null;
           plays_as?: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
+          primary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           secondary_position?: Database["public"]["Enums"]["position"] | null;
+          secondary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           stars?: number | null;
         };
         Relationships: [
@@ -452,8 +464,12 @@ export type Database = {
           is_super_star_snapshot: boolean;
           left_at: string | null;
           person_id: string | null;
+          primary_position_detail_snapshot:
+            Database["public"]["Enums"]["position_detail"] | null;
           primary_position_snapshot: Database["public"]["Enums"]["position"];
           profile_id: string | null;
+          secondary_position_detail_snapshot:
+            Database["public"]["Enums"]["position_detail"] | null;
           secondary_position_snapshot:
             Database["public"]["Enums"]["position"] | null;
           stars_snapshot: number;
@@ -467,8 +483,12 @@ export type Database = {
           is_super_star_snapshot: boolean;
           left_at?: string | null;
           person_id?: string | null;
+          primary_position_detail_snapshot?:
+            Database["public"]["Enums"]["position_detail"] | null;
           primary_position_snapshot: Database["public"]["Enums"]["position"];
           profile_id?: string | null;
+          secondary_position_detail_snapshot?:
+            Database["public"]["Enums"]["position_detail"] | null;
           secondary_position_snapshot?:
             Database["public"]["Enums"]["position"] | null;
           stars_snapshot: number;
@@ -482,8 +502,12 @@ export type Database = {
           is_super_star_snapshot?: boolean;
           left_at?: string | null;
           person_id?: string | null;
+          primary_position_detail_snapshot?:
+            Database["public"]["Enums"]["position_detail"] | null;
           primary_position_snapshot?: Database["public"]["Enums"]["position"];
           profile_id?: string | null;
+          secondary_position_detail_snapshot?:
+            Database["public"]["Enums"]["position_detail"] | null;
           secondary_position_snapshot?:
             Database["public"]["Enums"]["position"] | null;
           stars_snapshot?: number;
@@ -517,28 +541,40 @@ export type Database = {
         Row: {
           created_at: string;
           id: string;
+          primary_position_detail:
+            Database["public"]["Enums"]["position_detail"] | null;
           profile_id: string;
           racha_id: string;
           reviewed_at: string | null;
           reviewed_by: string | null;
+          secondary_position_detail:
+            Database["public"]["Enums"]["position_detail"] | null;
           status: Database["public"]["Enums"]["join_request_status"];
         };
         Insert: {
           created_at?: string;
           id?: string;
+          primary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           profile_id?: string;
           racha_id: string;
           reviewed_at?: string | null;
           reviewed_by?: string | null;
+          secondary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           status?: Database["public"]["Enums"]["join_request_status"];
         };
         Update: {
           created_at?: string;
           id?: string;
+          primary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           profile_id?: string;
           racha_id?: string;
           reviewed_at?: string | null;
           reviewed_by?: string | null;
+          secondary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           status?: Database["public"]["Enums"]["join_request_status"];
         };
         Relationships: [
@@ -573,10 +609,14 @@ export type Database = {
           joined_at: string;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position: Database["public"]["Enums"]["position"] | null;
+          primary_position_detail:
+            Database["public"]["Enums"]["position_detail"] | null;
           profile_id: string;
           racha_id: string;
           role: Database["public"]["Enums"]["member_role"];
           secondary_position: Database["public"]["Enums"]["position"] | null;
+          secondary_position_detail:
+            Database["public"]["Enums"]["position_detail"] | null;
           stars: number | null;
         };
         Insert: {
@@ -586,10 +626,14 @@ export type Database = {
           joined_at?: string;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
+          primary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           profile_id: string;
           racha_id: string;
           role: Database["public"]["Enums"]["member_role"];
           secondary_position?: Database["public"]["Enums"]["position"] | null;
+          secondary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           stars?: number | null;
         };
         Update: {
@@ -599,10 +643,14 @@ export type Database = {
           joined_at?: string;
           plays_as?: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
+          primary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           profile_id?: string;
           racha_id?: string;
           role?: Database["public"]["Enums"]["member_role"];
           secondary_position?: Database["public"]["Enums"]["position"] | null;
+          secondary_position_detail?:
+            Database["public"]["Enums"]["position_detail"] | null;
           stars?: number | null;
         };
         Relationships: [
@@ -909,7 +957,9 @@ export type Database = {
           p_is_super_star: boolean;
           p_plays_as: Database["public"]["Enums"]["plays_as"];
           p_primary_position: Database["public"]["Enums"]["position"];
+          p_primary_position_detail?: Database["public"]["Enums"]["position_detail"];
           p_secondary_position: Database["public"]["Enums"]["position"];
+          p_secondary_position_detail?: Database["public"]["Enums"]["position_detail"];
           p_stars: number;
         };
         Returns: string;
@@ -978,6 +1028,7 @@ export type Database = {
           min_age: number;
           my_status: string;
           name: string;
+          outfield_per_team: number;
           owner_name: string;
           racha_id: string;
         }[];
@@ -989,7 +1040,9 @@ export type Database = {
           p_is_super_star: boolean;
           p_plays_as: Database["public"]["Enums"]["plays_as"];
           p_primary_position: Database["public"]["Enums"]["position"];
+          p_primary_position_detail?: Database["public"]["Enums"]["position_detail"];
           p_secondary_position: Database["public"]["Enums"]["position"];
+          p_secondary_position_detail?: Database["public"]["Enums"]["position_detail"];
           p_stars: number;
         };
         Returns: Json;
@@ -1027,6 +1080,7 @@ export type Database = {
           payer_target: number;
           plays_as: Database["public"]["Enums"]["plays_as"];
           present_payer_count: number;
+          primary_layer: string | null;
           primary_position: Database["public"]["Enums"]["position"];
           profile_id: string;
           queue_position: number;
@@ -1101,9 +1155,11 @@ export type Database = {
           is_super_star: boolean;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position: Database["public"]["Enums"]["position"];
+          primary_position_detail: Database["public"]["Enums"]["position_detail"];
           profile_id: string;
           role: Database["public"]["Enums"]["member_role"];
           secondary_position: Database["public"]["Enums"]["position"];
+          secondary_position_detail: Database["public"]["Enums"]["position_detail"];
           stars: number;
         }[];
       };
@@ -1152,6 +1208,15 @@ export type Database = {
           p_guest_id: string;
           p_paid: boolean;
           p_profile_id: string;
+        };
+        Returns: undefined;
+      };
+      set_member_position_details: {
+        Args: {
+          p_primary: Database["public"]["Enums"]["position_detail"];
+          p_profile_id: string;
+          p_racha_id: string;
+          p_secondary: Database["public"]["Enums"]["position_detail"];
         };
         Returns: undefined;
       };
@@ -1225,6 +1290,8 @@ export type Database = {
       member_role: "OWNER" | "ADMIN" | "PLAYER";
       plays_as: "OUTFIELD" | "GOALKEEPER";
       position: "ANY" | "DEFENDER" | "MIDFIELDER" | "FORWARD";
+      position_detail:
+        "CENTER_BACK" | "FULL_BACK" | "DEFENSIVE_MID" | "ATTACKING_MID";
       racha_notice_kind: "RACHA_DELETED" | "REMOVED" | "OWNERSHIP_RECEIVED";
       tie_return_order: "RANDOM" | "TEAM_ORDER";
       tie_rule: "BOTH_OUT" | "BOTH_STAY" | "PENALTIES" | "CHALLENGER_WINS";
@@ -1366,6 +1433,12 @@ export const Constants = {
       member_role: ["OWNER", "ADMIN", "PLAYER"],
       plays_as: ["OUTFIELD", "GOALKEEPER"],
       position: ["ANY", "DEFENDER", "MIDFIELDER", "FORWARD"],
+      position_detail: [
+        "CENTER_BACK",
+        "FULL_BACK",
+        "DEFENSIVE_MID",
+        "ATTACKING_MID",
+      ],
       racha_notice_kind: ["RACHA_DELETED", "REMOVED", "OWNERSHIP_RECEIVED"],
       tie_return_order: ["RANDOM", "TEAM_ORDER"],
       tie_rule: ["BOTH_OUT", "BOTH_STAY", "PENALTIES", "CHALLENGER_WINS"],

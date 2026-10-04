@@ -1,5 +1,12 @@
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
-import { Button, EmptyState, Icon, Screen, Text } from "@/ui/components";
+import {
+  Button,
+  EmptyState,
+  Icon,
+  NoticeBanner,
+  Screen,
+  Text,
+} from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { RulesSummary } from "../../components/rules-summary";
 import {
@@ -23,6 +30,7 @@ export const RachaHomeScreen = () => {
     openSettings,
     openLogistics,
     eventCard,
+    selfPositionNotice,
     showEmptyEvent,
     showCreateEvent,
     eventsMissing,
@@ -100,6 +108,9 @@ export const RachaHomeScreen = () => {
             />
           ) : eventCard ? (
             <View style={styles.eventBlock}>
+              {selfPositionNotice ? (
+                <NoticeBanner tone="warning" isAlert {...selfPositionNotice} />
+              ) : null}
               <EventCard {...eventCard} />
               {showCreateEvent ? (
                 <Button

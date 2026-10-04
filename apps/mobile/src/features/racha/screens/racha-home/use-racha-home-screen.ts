@@ -1,14 +1,17 @@
 import {
   applyBrlMask,
+  asksPositionDetail,
   canLeaveRacha,
   formatEventWhen,
   formatRulesSummary,
+  isLayerPending,
 } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useSession } from "@/features/auth";
 import { useToast } from "@/ui/components";
 import { useAssumeEventConduction } from "../../hooks/use-assume-event-conduction";
+import { useEventAttendance } from "../../hooks/use-event-attendance";
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import { useRacha } from "../../hooks/use-racha";
@@ -18,7 +21,13 @@ import {
   pendingCountLabel,
   pendingWord,
 } from "../../utils/racha-labels";
-import { ACTION_FAILED, conductorName } from "../../utils/racha-messages";
+import {
+  ACTION_FAILED,
+  conductorName,
+  POSITION_DETAIL_COMPLETE,
+  POSITION_DETAIL_SELF_TITLE,
+  positionDetailSelfText,
+} from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 import { TEventCardAction } from "./event-card";
 
@@ -49,6 +58,27 @@ export function useRachaHomeScreen() {
   // Com os dois, o evento em curso ocupa o cartão até ser encerrado.
   const shownEvent = activeEvent ?? upcomingEvent;
   const hiddenUpcoming = activeEvent ? upcomingEvent : null;
+
+  // a camada pendente vem da Presença: só Evento 8+ pergunta, os outros nem buscam
+  const asksDetail =
+    shownEvent !== null && asksPositionDetail(shownEvent.outfieldPerTeam);
+  const attendanceQuery = useEventAttendance(
+    id,
+    shownEvent?.id ?? "",
+    asksDetail
+  );
+  const me = attendanceQuery.data?.people.find(
+    (person) => person.kind === "member" && person.profileId === userId
+  );
+  const selfPositionNotice =
+    asksDetail && shownEvent && me && isLayerPending(me)
+      ? {
+          title: POSITION_DETAIL_SELF_TITLE,
+          text: positionDetailSelfText(shownEvent.outfieldPerTeam),
+          actionLabel: POSITION_DETAIL_COMPLETE,
+          onAction: () => router.push(`/racha/${id}/position-detail`),
+        }
+      : null;
 
   const isOwnerOrAdmin = racha
     ? racha.role === "OWNER" || racha.role === "ADMIN"
@@ -217,6 +247,7 @@ export function useRachaHomeScreen() {
           }
         : null,
     },
+    selfPositionNotice,
     showEmptyEvent: Boolean(racha && hasEventsData && !shownEvent),
     showCreateEvent,
     eventsMissing: eventsQuery.isError && events === undefined,

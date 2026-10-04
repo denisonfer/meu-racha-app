@@ -1,4 +1,5 @@
 import type { TPlaysAs, TPosition } from "../profile";
+import { POSITION_LAYERS, type TPositionLayer } from "../racha/position-detail";
 import type {
   TPublishedSort,
   TSortAttendanceStatus,
@@ -104,6 +105,10 @@ function position(value: unknown): TPosition | null {
   return value == null ? null : oneOf(value, POSITIONS);
 }
 
+function layer(value: unknown): TPositionLayer | null {
+  return value == null ? null : oneOf(value, POSITION_LAYERS);
+}
+
 function person(raw: TObject, photo: TPhotoResolver): TSortPerson {
   return {
     kind: oneOf(raw.kind, KINDS),
@@ -122,6 +127,7 @@ function player(value: unknown, photo: TPhotoResolver): TSortPlayer {
     isSuperStar: bool(raw.is_super_star),
     primaryPosition: position(raw.primary_position),
     secondaryPosition: position(raw.secondary_position),
+    primaryLayer: layer(raw.primary_layer),
     enteredAt: str(raw.entered_at),
   };
 }

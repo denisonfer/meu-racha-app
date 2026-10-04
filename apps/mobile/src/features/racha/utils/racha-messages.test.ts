@@ -6,8 +6,11 @@ import {
   SORT_ROSTER_CHANGED,
   finishEventErrorMessage,
   finishEventPaidSummary,
+  positionDetailChoose,
+  positionDetailPendingMessage,
   sortAttendanceSummary,
   sortErrorMessage,
+  sortFailureMessage,
   sortMissingLinePlayers,
 } from "./racha-messages";
 
@@ -31,6 +34,9 @@ const SORT_ERROR_CODES = [
   "use_return",
   "not_left",
   "spot_limit",
+  "position_detail_required",
+  "position_detail_mismatch",
+  "position_detail_pending",
 ];
 
 describe("sortErrorMessage", () => {
@@ -72,6 +78,32 @@ describe("encerrar evento pago", () => {
     );
     expect(finishEventPaidSummary(12, 9, null)).toBe(
       "12 vieram · 9 pagaram · Meta não definida"
+    );
+  });
+});
+
+describe("posição pendente", () => {
+  const pendingError = (pendingNames: string[]) =>
+    Object.assign(new Error("position_detail_pending"), { pendingNames });
+
+  test("lista os nomes que o banco mandou", () => {
+    expect(sortFailureMessage(pendingError(["Rita"]))).toBe(
+      "Rita está com a posição pendente. Complete antes de sortear."
+    );
+    expect(sortFailureMessage(pendingError(["Caio", "Rita", "Zé"]))).toBe(
+      "Caio, Rita e Zé estão com a posição pendente. Complete antes de sortear."
+    );
+  });
+
+  test("sem nomes legíveis, a frase genérica", () => {
+    expect(sortFailureMessage(new Error("position_detail_pending"))).toBe(
+      positionDetailPendingMessage([])
+    );
+  });
+
+  test("erro do seletor traz as duas opções da zona", () => {
+    expect(positionDetailChoose(["Zagueiro", "Lateral"])).toBe(
+      "Escolha Zagueiro ou Lateral para continuar."
     );
   });
 });

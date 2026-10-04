@@ -19,6 +19,7 @@ import {
 } from "../utils/racha-messages";
 import { SortFailure } from "./sort-failure";
 import { SortPage } from "./sort-page";
+import { SortPersonList, type TSortPersonListRow } from "./sort-person-list";
 
 type TSortPrepareViewProps = {
   kicker: string;
@@ -37,6 +38,13 @@ type TSortPrepareViewProps = {
   // a proposta anterior caiu porque a lista mudou
   staleText: string | null;
   failureMessage: string | null;
+  // Evento 8+: quem veio sem subdivisão trava o Sorteio
+  pendingNotice: {
+    title: string;
+    text: string;
+    listTitle: string;
+    rows: TSortPersonListRow[];
+  } | null;
   isSorting: boolean;
   onSort: () => void;
   onOpenAttendance: () => void;
@@ -74,6 +82,7 @@ export const SortPrepareView = ({
   blockedText,
   staleText,
   failureMessage,
+  pendingNotice,
   isSorting,
   onSort,
   onOpenAttendance,
@@ -108,6 +117,23 @@ export const SortPrepareView = ({
     </View>
 
     {staleText ? <NoticeBanner tone="warning" text={staleText} /> : null}
+
+    {pendingNotice ? (
+      <>
+        <NoticeBanner
+          tone="warning"
+          isAlert
+          title={pendingNotice.title}
+          text={pendingNotice.text}
+        />
+        {pendingNotice.rows.length > 0 ? (
+          <SortPersonList
+            title={pendingNotice.listTitle}
+            rows={pendingNotice.rows}
+          />
+        ) : null}
+      </>
+    ) : null}
 
     <View style={styles.hero}>
       <Text preset="h3">{SORT_PREPARE_HERO_TITLE}</Text>

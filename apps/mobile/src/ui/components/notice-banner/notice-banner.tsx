@@ -10,6 +10,8 @@ export type TNoticeBannerProps = {
   title?: string;
   actionLabel?: string;
   onAction?: () => void;
+  // aviso com título que bloqueia uma ação: o leitor de tela anuncia sem foco
+  isAlert?: boolean;
 };
 
 export const NoticeBanner = ({
@@ -17,6 +19,7 @@ export const NoticeBanner = ({
   title,
   actionLabel,
   onAction,
+  isAlert = false,
 }: TNoticeBannerProps) => {
   if (!title) {
     return (
@@ -37,7 +40,7 @@ export const NoticeBanner = ({
         <View
           style={styles.texts}
           accessible
-          accessibilityRole="summary"
+          accessibilityRole={isAlert ? "alert" : "summary"}
           accessibilityLabel={`Aviso: ${title}. ${text}`}
         >
           <Text style={styles.title}>{title}</Text>

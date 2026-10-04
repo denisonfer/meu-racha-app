@@ -1,4 +1,9 @@
-import { ADMIN_LIMIT_FREE, memberPermissions } from "@meu-racha/domain";
+import {
+  ADMIN_LIMIT_FREE,
+  asksPositionDetail,
+  memberPermissions,
+  type TPositionDetail,
+} from "@meu-racha/domain";
 import {
   router,
   useIsFocused,
@@ -14,16 +19,23 @@ import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaMembers } from "../../hooks/use-racha-members";
+import { useSetMemberPositionDetails } from "../../hooks/use-set-member-position-details";
 import { useUpdateMember } from "../../hooks/use-update-member";
 import { TMemberRole, TRachaMember } from "../../racha-types";
 import { memberCardProps } from "../../utils/member-card";
 import { isNoAccessError } from "../../utils/no-access";
+import {
+  hasDetailChoice,
+  positionDetailSlots,
+} from "../../utils/position-detail-view";
+import type { TPositionSlot } from "../../utils/racha-labels";
 import {
   ADMIN_LIMIT_REACHED,
   DISCARD_CHANGES_TITLE,
   MEMBER_GONE,
   MEMBER_NOT_ALLOWED,
   MEMBER_SAVED,
+  POSITION_DETAIL_MISMATCH,
   SAVE_MEMBER_FAILED,
 } from "../../utils/racha-messages";
 
@@ -102,6 +114,7 @@ type TEditMemberFormArgs = {
   viewerRole: TMemberRole;
   member: TRachaMember;
   adminCount: number;
+  outfieldPerTeam: number;
 };
 
 export function useEditMemberForm({
@@ -109,12 +122,14 @@ export function useEditMemberForm({
   viewerRole,
   member,
   adminCount,
+  outfieldPerTeam,
 }: TEditMemberFormArgs) {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const showToast = useToast();
   const { session } = useSession();
   const { updateMember } = useUpdateMember(rachaId);
+  const { setMemberPositionDetails } = useSetMemberPositionDetails(rachaId);
   const hasRachaAccess = useHasRachaAccess(rachaId);
 
   const isGoalkeeper = member.playsAs === "GOALKEEPER";
@@ -130,18 +145,36 @@ export function useEditMemberForm({
     stars: member.stars,
     isSuperStar: member.isSuperStar,
     role: member.role,
+    details: {
+      primary: member.primaryPositionDetail,
+      secondary: member.secondaryPositionDetail,
+    } as Record<TPositionSlot, TPositionDetail | null>,
   }));
   const [stars, setStars] = useState(initial.stars);
   const [isSuperStar, setIsSuperStar] = useState(initial.isSuperStar);
   const [role, setRole] = useState(initial.role);
+  const [details, setDetails] = useState(initial.details);
   const [failure, setFailure] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
 
-  const isDirty =
+  // Racha 8+ divide defesa e meio-campo; Goleiro e ATA/TODAS não têm o que escolher
+  const detailSlots = asksPositionDetail(outfieldPerTeam)
+    ? positionDetailSlots(member)
+    : [];
+  const hasDetailSection = hasDetailChoice(detailSlots);
+  const isDetailPending = detailSlots.some(
+    (slot) => slot.options.length > 0 && initial.details[slot.slot] === null
+  );
+
+  const isStarsOrRoleDirty =
     stars !== initial.stars ||
     isSuperStar !== initial.isSuperStar ||
     role !== initial.role;
+  const isDetailDirty =
+    details.primary !== initial.details.primary ||
+    details.secondary !== initial.details.secondary;
+  const isDirty = isStarsOrRoleDirty || isDetailDirty;
 
   const hasCard =
     permissions.canEditStars ||
@@ -185,17 +218,27 @@ export function useEditMemberForm({
   };
 
   const save = async () => {
+    if (isSaving) return;
     setFailure(null);
     setIsSaving(true);
     try {
-      await updateMember(member.profileId, {
-        stars: isGoalkeeper ? null : stars,
-        isSuperStar: isGoalkeeper ? false : isSuperStar,
-        role: role !== initial.role ? role : null,
-      });
+      // dois RPCs, cada um só quando o seu campo mudou: a subdivisão não passa
+      // pela permissão de Estrelas/Cargo e vice-versa
+      if (isStarsOrRoleDirty) {
+        await updateMember(member.profileId, {
+          stars: isGoalkeeper ? null : stars,
+          isSuperStar: isGoalkeeper ? false : isSuperStar,
+          role: role !== initial.role ? role : null,
+        });
+      }
+      if (isDetailDirty) {
+        await setMemberPositionDetails(member.profileId, details);
+      }
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
-      if (code === "admin_limit") {
+      if (code === "position_detail_mismatch") {
+        setFailure(POSITION_DETAIL_MISMATCH);
+      } else if (code === "admin_limit") {
         setRole(initial.role);
         setFailure(ADMIN_LIMIT_REACHED);
       } else if (code === "not_member") {
@@ -227,6 +270,17 @@ export function useEditMemberForm({
     onSuperStarChange: change(setIsSuperStar),
     role,
     onRoleChange: change(setRole),
+    detailSection: hasDetailSection
+      ? {
+          slots: detailSlots,
+          values: details,
+          isPending: isDetailPending,
+          onChange: (slot: TPositionSlot, value: TPositionDetail) => {
+            setFailure(null);
+            setDetails((current) => ({ ...current, [slot]: value }));
+          },
+        }
+      : null,
     isAdminCapped,
     isSaving,
     isDirty,

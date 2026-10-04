@@ -7,6 +7,7 @@ export const GuestScreen = () => {
     isMissing,
     values,
     errors,
+    asksPositionDetail,
     failureMessage,
     isSaving,
     canSubmit,
@@ -21,6 +22,7 @@ export const GuestScreen = () => {
       <GuestForm
         values={values}
         errors={errors}
+        asksPositionDetail={asksPositionDetail}
         failureMessage={failureMessage}
         isSaving={isSaving}
         canSubmit={canSubmit}

@@ -1,5 +1,11 @@
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
-import { Button, EmptyState, Screen, Text } from "@/ui/components";
+import {
+  Button,
+  EmptyState,
+  NoticeBanner,
+  Screen,
+  Text,
+} from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { AttendanceRow } from "../../components/attendance-row";
 import {
@@ -25,6 +31,8 @@ export const AttendanceScreen = () => {
     presentPayersText,
     myCreditText,
     myAttendance,
+    selfPositionNotice,
+    pendingNotice,
     sortNotice,
     waitlistedTitle,
     leftGroups,
@@ -114,6 +122,25 @@ export const AttendanceScreen = () => {
             />
           ) : null}
 
+          {selfPositionNotice ? (
+            <NoticeBanner
+              tone="warning"
+              isAlert
+              title={selfPositionNotice.title}
+              text={selfPositionNotice.text}
+              actionLabel={selfPositionNotice.actionLabel}
+              onAction={selfPositionNotice.onPress}
+            />
+          ) : null}
+          {pendingNotice ? (
+            <NoticeBanner
+              tone="warning"
+              isAlert
+              title={pendingNotice.title}
+              text={pendingNotice.text}
+            />
+          ) : null}
+
           {sortNotice ? (
             <View style={styles.sortNotice}>
               <Text preset="small" color="muted">
@@ -170,7 +197,7 @@ export const AttendanceScreen = () => {
                   {showConfirmedGroupTitles ? (
                     <Text
                       preset="small"
-                      color="muted"
+                      color={group.isPending ? "warning" : "muted"}
                       style={styles.groupTitle}
                     >
                       {group.label} · {group.rows.length}
@@ -226,7 +253,7 @@ export const AttendanceScreen = () => {
                   {showLeftGroupTitles ? (
                     <Text
                       preset="small"
-                      color="muted"
+                      color={group.isPending ? "warning" : "muted"}
                       style={styles.groupTitle}
                     >
                       {group.label} · {group.rows.length}
@@ -265,7 +292,7 @@ export const AttendanceScreen = () => {
                       {showCancelledGroupTitles ? (
                         <Text
                           preset="small"
-                          color="muted"
+                          color={group.isPending ? "warning" : "muted"}
                           style={styles.groupTitle}
                         >
                           {group.label} · {group.rows.length}

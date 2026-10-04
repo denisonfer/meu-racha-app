@@ -5,6 +5,8 @@ import {
   OVERALL_MIN,
   parsePublishedSort,
   parseSortProposal,
+  toPositionLayer,
+  type TPositionDetail,
   type TPublishedSort,
   type TRachaRules,
   type TSortProposal,
@@ -23,11 +25,14 @@ import {
   TInviteStatus,
   TJoinRequest,
   TMyJoinRequest,
+  TMyPositions,
   TMemberRole,
   TMemberUpdate,
   TMyRacha,
   TMyRachaEvent,
   TOpenEvent,
+  TPositionDetailPendingError,
+  TPositionDetails,
   TRacha,
   TRachaMember,
   TRachaLogistics,
@@ -74,14 +79,49 @@ const RAISE_EXCEPTION_CODES = [
   "use_return",
   "not_left",
   "payments_not_reviewed",
+  "position_detail_required",
+  "position_detail_mismatch",
 ];
+
+// o detail é texto com um array JSON de nomes; formato estranho não derruba a mensagem
+function pendingNamesOf(details: string | null | undefined): string[] {
+  try {
+    const parsed: unknown = JSON.parse(details ?? "");
+    return Array.isArray(parsed)
+      ? parsed.filter((name): name is string => typeof name === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
 
 // status 0 = o pedido nem chegou ao servidor; o resto vira o código do banco
 function toCodedError(error: PostgrestError, status: number): Error {
   if (status === 0) return new Error("network_error");
+  if (error.message === "position_detail_pending") {
+    const pending: TPositionDetailPendingError = Object.assign(
+      new Error(error.message),
+      { pendingNames: pendingNamesOf(error.details) }
+    );
+    return pending;
+  }
   if (RAISE_EXCEPTION_CODES.includes(error.message))
     return new Error(error.message);
   return new Error(error.code || error.message);
+}
+
+// os parâmetros de subdivisão têm default null no banco: ausentes quando não há
+function positionDetailArgs(
+  primary: TPositionDetail | null,
+  secondary: TPositionDetail | null
+): {
+  p_primary_position_detail?: TPositionDetail;
+  p_secondary_position_detail?: TPositionDetail;
+} {
+  return {
+    ...(primary ? { p_primary_position_detail: primary } : {}),
+    ...(secondary ? { p_secondary_position_detail: secondary } : {}),
+  };
 }
 
 function toPhotoUrl(avatarPath: string | null): string | null {
@@ -261,13 +301,35 @@ async function getInvite(code: string): Promise<TInvite | null> {
     // o tipo gerado diz not-null, mas min_age e my_status vêm null
     minAge: row.min_age ?? null,
     myStatus: toInviteStatus(row.my_status),
+    outfieldPerTeam: row.outfield_per_team,
   };
 }
 
-async function requestJoin(rachaId: string): Promise<void> {
-  const { error, status } = await supabase
-    .from("join_request")
-    .insert({ racha_id: rachaId });
+// as zonas que a Solicitação copia do Perfil; a subdivisão é escolhida em cima delas
+async function getMyPositions(userId: string): Promise<TMyPositions> {
+  const { data, error, status } = await supabase
+    .from("profile")
+    .select("plays_as, primary_position, secondary_position")
+    .eq("id", userId)
+    .single();
+  if (error) throw toCodedError(error, status);
+  return {
+    playsAs: data.plays_as,
+    primaryPosition: data.primary_position,
+    secondaryPosition: data.secondary_position,
+  };
+}
+
+// o gatilho do banco decide se o Racha pede subdivisão e se ela combina com o Perfil
+async function requestJoin(
+  rachaId: string,
+  details: TPositionDetails = { primary: null, secondary: null }
+): Promise<void> {
+  const { error, status } = await supabase.from("join_request").insert({
+    racha_id: rachaId,
+    primary_position_detail: details.primary,
+    secondary_position_detail: details.secondary,
+  });
   if (error) {
     if (error.code === "23505") throw new Error("already_requested");
     throw toCodedError(error, status);
@@ -351,7 +413,25 @@ async function listRachaMembers(rachaId: string): Promise<TRachaMember[]> {
     secondaryPosition: row.secondary_position,
     stars: row.stars,
     isSuperStar: row.is_super_star,
+    // o tipo gerado diz not-null; sem subdivisão vem null
+    primaryPositionDetail: row.primary_position_detail ?? null,
+    secondaryPositionDetail: row.secondary_position_detail ?? null,
   }));
+}
+
+async function setMemberPositionDetails(
+  rachaId: string,
+  profileId: string,
+  details: TPositionDetails
+): Promise<void> {
+  const { error, status } = await supabase.rpc("set_member_position_details", {
+    p_racha_id: rachaId,
+    p_profile_id: profileId,
+    // null apaga a subdivisão daquela zona; o tipo gerado diz obrigatório
+    p_primary: details.primary as TPositionDetail,
+    p_secondary: details.secondary as TPositionDetail,
+  });
+  if (error) throw toCodedError(error, status);
 }
 
 async function updateRacha(
@@ -567,6 +647,7 @@ async function listEventAttendance(eventId: string): Promise<TAttendanceList> {
       playsAs: row.plays_as,
       primaryPosition: row.primary_position ?? null,
       secondaryPosition: row.secondary_position ?? null,
+      primaryLayer: toPositionLayer(row.primary_layer),
       role: row.role ?? null,
       stars: row.stars ?? null,
       isSuperStar: row.is_super_star,
@@ -672,6 +753,10 @@ async function addGuest(eventId: string, input: TGuestInput): Promise<string> {
     >,
     p_stars: input.stars as number,
     p_is_super_star: input.isSuperStar,
+    ...positionDetailArgs(
+      input.primaryPositionDetail,
+      input.secondaryPositionDetail
+    ),
   });
   if (error) throw toCodedError(error, status);
   if (!data) throw new Error("add_guest_empty");
@@ -887,6 +972,10 @@ async function includeEventSortGuest(
       >,
       p_stars: input.stars as number,
       p_is_super_star: input.isSuperStar,
+      ...positionDetailArgs(
+        input.primaryPositionDetail,
+        input.secondaryPositionDetail
+      ),
     }
   );
   if (error) throw toCodedError(error, status);
@@ -898,6 +987,7 @@ export const rachaApi = {
   listMyRachas,
   getRacha,
   getInvite,
+  getMyPositions,
   requestJoin,
   cancelJoinRequest,
   listMyJoinRequests,
@@ -905,6 +995,7 @@ export const rachaApi = {
   approveJoinRequest,
   refuseJoinRequest,
   listRachaMembers,
+  setMemberPositionDetails,
   updateMember,
   expelMember,
   transferOwnership,

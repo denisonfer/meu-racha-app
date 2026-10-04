@@ -14,6 +14,7 @@ export function ChipGroup<V extends string>({
   isFullWidth = false,
   labelSuffix,
   hint,
+  accessibilityLabel,
 }: TChipGroupProps<V>) {
   return (
     <FieldWrapper
@@ -22,7 +23,11 @@ export function ChipGroup<V extends string>({
       hint={hint}
       error={error}
     >
-      <View style={styles.group} accessibilityRole="radiogroup">
+      <View
+        style={styles.group}
+        accessibilityRole="radiogroup"
+        accessibilityLabel={accessibilityLabel}
+      >
         {options.map((option) => (
           <Chip
             key={option.value}

@@ -1,4 +1,5 @@
 import type { TPlaysAs, TPosition } from "../profile";
+import type { TPositionLayer } from "../racha/position-detail";
 
 export type TSortMode = "normal" | "split";
 
@@ -23,6 +24,8 @@ export type TSortPlayer = TSortPerson & {
   isSuperStar: boolean;
   primaryPosition: TPosition | null;
   secondaryPosition: TPosition | null;
+  // camada da principal pelo tamanho de Time do Evento; nula = pendente
+  primaryLayer: TPositionLayer | null;
   enteredAt: string;
 };
 

@@ -21,6 +21,7 @@ export * from "./screens/sort/confirm-sort-screen";
 export * from "./screens/sort/leave-sort-screen";
 export * from "./screens/sort/include-sort-screen";
 export * from "./screens/edit-member/edit-member-screen";
+export * from "./screens/position-detail/position-detail-screen";
 export * from "./screens/delete-racha/delete-racha-screen";
 export * from "./screens/expel-member/expel-member-screen";
 export * from "./screens/transfer-ownership/transfer-ownership-screen";

@@ -25,10 +25,15 @@ function invalidateAttendanceQueries(
   ]);
 }
 
-export function useEventAttendance(rachaId: string, eventId: string) {
+export function useEventAttendance(
+  rachaId: string,
+  eventId: string,
+  enabled = true
+) {
   return useQuery({
     queryKey: eventAttendanceKey(rachaId, eventId),
     queryFn: () => rachaApi.listEventAttendance(eventId),
+    enabled,
   });
 }
 

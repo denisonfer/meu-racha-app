@@ -1,7 +1,11 @@
 import {
+  asksPositionDetail,
   formatEventWhen,
   formatPlaysAs,
   groupMembersByPosition,
+  isLayerPending,
+  LAYER_GROUPS,
+  layerGroupKey,
   memberPermissions,
 } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
@@ -41,6 +45,11 @@ import {
   ATTENDANCE_PRESENT_PAYERS,
   ATTENDANCE_QUEUE_PAY_NOTE,
   ATTENDANCE_WAITLISTED,
+  POSITION_DETAIL_COMPLETE,
+  POSITION_DETAIL_PRESENCE_TEXT,
+  POSITION_DETAIL_SELF_TITLE,
+  positionDetailPendingTitle,
+  positionDetailSelfText,
   SORT_LEFT_ATTENDANCE_NOTE,
   SORT_VIEW_TEAMS,
   SORT_WAITING_TITLE,
@@ -136,6 +145,12 @@ export function useAttendanceScreen() {
   const isAdmin =
     racha != null && (racha.role === "OWNER" || racha.role === "ADMIN");
   const canMonthlyPass = isAdmin && racha?.monthlyPrice != null && !isFinished;
+
+  // o Evento encerrado some da lista aberta; a regra do Racha é a melhor pista
+  const outfieldPerTeam =
+    event?.outfieldPerTeam ?? racha?.rules.outfieldPerTeam ?? null;
+  const isLayered =
+    outfieldPerTeam !== null && asksPositionDetail(outfieldPerTeam);
 
   const people = attendance?.people ?? [];
   const confirmed = people.filter(
@@ -343,12 +358,30 @@ export function useAttendanceScreen() {
       ...person,
       displayName: person.name,
     }));
-    return groupMembersByPosition(forGroup).map((group) => ({
+    const groups: {
+      key: string;
+      label: string;
+      members: typeof forGroup;
+    }[] = isLayered
+      ? groupMembersByPosition(forGroup, LAYER_GROUPS, layerGroupKey)
+      : groupMembersByPosition(forGroup);
+    return groups.map((group) => ({
       key: group.key,
       label: group.label,
+      isPending: group.key === "PENDING",
       rows: group.members.map((person) => toRow(person, section)),
     }));
   };
+
+  // pendente só existe em Evento 8+; quem saiu ou cancelou não vai ao Sorteio
+  const pendingCount = isLayered ? confirmed.filter(isLayerPending).length : 0;
+  const me = people.find(
+    (person) => person.kind === "member" && person.profileId === userId
+  );
+  const isMePending =
+    isLayered && !isFinished && me !== undefined && isLayerPending(me);
+  const isMeCountedPending =
+    isMePending && me !== undefined && confirmed.includes(me);
 
   const myCta =
     isFinished || sortConfirmed ? null : attendanceCta(event?.myStatus ?? null);
@@ -434,16 +467,34 @@ export function useAttendanceScreen() {
           onPress: () => router.push(`/racha/${id}/event/${eventId}/sort`),
         }
       : null,
+    selfPositionNotice:
+      isMePending && outfieldPerTeam !== null
+        ? {
+            title: POSITION_DETAIL_SELF_TITLE,
+            text: positionDetailSelfText(outfieldPerTeam),
+            actionLabel: POSITION_DETAIL_COMPLETE,
+            onPress: () => router.push(`/racha/${id}/position-detail`),
+          }
+        : null,
+    // se o único pendente é quem olha, o aviso dele já diz tudo
+    pendingNotice:
+      isAdmin && pendingCount > (isMeCountedPending ? 1 : 0)
+        ? {
+            title: positionDetailPendingTitle(pendingCount),
+            text: POSITION_DETAIL_PRESENCE_TEXT,
+          }
+        : null,
     waitlistedTitle: sortConfirmed ? SORT_WAITING_TITLE : "Lista de espera",
     leftGroups: groupPeople(left, "left"),
     leftCount: left.length,
-    showLeftGroupTitles: left.length > 1,
+    // em Evento 8+ o grupo "Posição pendente" precisa aparecer mesmo sozinho
+    showLeftGroupTitles: isLayered || left.length > 1,
     confirmedCount: confirmed.length,
     confirmedGroups: groupPeople(confirmed, "confirmed"),
-    showConfirmedGroupTitles: confirmed.length > 1,
+    showConfirmedGroupTitles: isLayered || confirmed.length > 1,
     waitlistedRows: waitlisted.map((person) => toRow(person, "waitlisted")),
     cancelledGroups: groupPeople(cancelled, "cancelled"),
-    showCancelledGroupTitles: cancelled.length > 1,
+    showCancelledGroupTitles: isLayered || cancelled.length > 1,
     cancelledCount: cancelled.length,
     isCancelledOpen,
     toggleCancelled: () => setIsCancelledOpen((open) => !open),

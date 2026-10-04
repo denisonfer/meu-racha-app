@@ -1,4 +1,9 @@
-import { formatEventWhen, OVERALL_MIN } from "@meu-racha/domain";
+import {
+  asksPositionDetail,
+  formatEventWhen,
+  formatPlaysAs,
+  OVERALL_MIN,
+} from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { useSession } from "@/features/auth";
@@ -6,6 +11,7 @@ import { useToast } from "@/ui/components";
 import type { TSortPersonListRow } from "../../components/sort-person-list";
 import type { TSortPublishedSection } from "../../components/sort-published-view";
 import type { TSortRowAction } from "../../components/sort-team-card";
+import { useEventAttendance } from "../../hooks/use-event-attendance";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import {
   useEventSortDraft,
@@ -19,6 +25,12 @@ import { useRacha } from "../../hooks/use-racha";
 import type { TAttendanceTarget } from "../../racha-types";
 import {
   ATTENDANCE_QUEUE_HINT,
+  POSITION_DETAIL_BLOCKED,
+  POSITION_DETAIL_COMPLETE,
+  POSITION_DETAIL_PENDING_GROUP,
+  POSITION_DETAIL_SORT_TEXT,
+  positionDetailCompleteLabel,
+  positionDetailPendingTitle,
   SORT_BALANCE_CONFIRMED,
   SORT_MARK_ATTENDED_HINT,
   SORT_WAITING_NOT_ATTENDED,
@@ -51,6 +63,7 @@ import { eventKicker } from "../../utils/racha-labels";
 import {
   joinNames,
   sortGoalkeeperEntries,
+  sortPendingPeople,
   sortPersonId,
   superWarningNames,
 } from "../../utils/sort-view";
@@ -142,6 +155,26 @@ export function useSortScreen() {
     event?.outfieldPerTeam ??
     racha?.rules.outfieldPerTeam ??
     null;
+  // a proposta só traz contagens; quem está pendente sai da Presença, com a camada do banco
+  const asksDetail =
+    outfieldPerTeam !== null && asksPositionDetail(outfieldPerTeam);
+  const attendanceQuery = useEventAttendance(
+    id,
+    eventId,
+    isProposalEnabled && asksDetail
+  );
+
+  const isPendingWatched = isProposalEnabled && asksDetail;
+  const { refetch: refetchAttendance } = attendanceQuery;
+  // completar em outro aparelho também destrava: relê junto com a proposta
+  useEffect(() => {
+    if (!isPendingWatched) return;
+    const timer = setInterval(() => void refetchAttendance(), REFRESH_MS);
+    return () => clearInterval(timer);
+  }, [refetchAttendance, isPendingWatched]);
+  const pendingPeople = isPendingWatched
+    ? sortPendingPeople(attendanceQuery.data?.people ?? [])
+    : [];
   const when = event ? formatEventWhen(event.startsOn, event.startsAt) : "";
   const place = event?.place ?? racha?.place ?? "";
 
@@ -158,6 +191,8 @@ export function useSortScreen() {
       }
       // o rascunho caiu e a tela já mostra “A lista mudou”
       if (code === "roster_changed" || code === "proposal_outdated") return;
+      // a Presença daqui pode estar velha: relê para o aviso mostrar os mesmos nomes
+      if (code === "position_detail_pending") void attendanceQuery.refetch();
       setFailureMessage(sortFailureMessage(error));
     }
   };
@@ -231,6 +266,36 @@ export function useSortScreen() {
 
   const noLeaveAction: TSortLeaveActionFor = () => null;
 
+  const pendingRows: TSortPersonListRow[] = pendingPeople.map((person) => {
+    const detail = formatPlaysAs(
+      person.playsAs,
+      person.primaryPosition,
+      person.secondaryPosition
+    ).replace(/^Linha · /, "");
+    return {
+      key: `pending:${person.profileId ?? person.guestId}`,
+      name: person.name,
+      photoUrl: person.photoUrl,
+      overall: person.overall,
+      detail,
+      accessibilityLabel: `${person.name}, ${detail}`,
+      isSelected: false,
+      onPress: null,
+      // Avulso não tem onde completar: a subdivisão dele nasce no cadastro do Evento
+      action: person.profileId
+        ? {
+            label: POSITION_DETAIL_COMPLETE,
+            accessibilityLabel: positionDetailCompleteLabel(person.name),
+            isDisabled: pending !== null,
+            onPress: () =>
+              router.push(
+                `/racha/${id}/position-detail?profileId=${person.profileId}`
+              ),
+          }
+        : null,
+    };
+  });
+
   const buildPrepare = () => {
     if (!proposal || proposal.state === "ready") return null;
     const missing = Math.max(0, proposal.minLinePlayers - proposal.lineCount);
@@ -249,9 +314,22 @@ export function useSortScreen() {
       // sem "veio" o confirmado não entra; vale avisar mesmo quando já dá para sortear
       markAttendedText:
         proposal.notAttendedCount > 0 ? SORT_MARK_ATTENDED_HINT : null,
-      blockedText: proposal.canSort ? null : sortMissingLinePlayers(missing),
+      blockedText: !proposal.canSort
+        ? sortMissingLinePlayers(missing)
+        : pendingRows.length > 0
+          ? POSITION_DETAIL_BLOCKED
+          : null,
       staleText: proposal.state === "stale" ? SORT_ROSTER_CHANGED : null,
       failureMessage,
+      pendingNotice:
+        pendingRows.length > 0
+          ? {
+              title: positionDetailPendingTitle(pendingRows.length),
+              text: POSITION_DETAIL_SORT_TEXT,
+              listTitle: POSITION_DETAIL_PENDING_GROUP,
+              rows: pendingRows,
+            }
+          : null,
       isSorting: pending === "sort",
       onSort: () => void sort(),
       onOpenAttendance: () =>

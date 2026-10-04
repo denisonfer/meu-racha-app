@@ -1,3 +1,4 @@
+import { asksPositionDetail } from "@meu-racha/domain";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { useBottomSheetClose, useToast } from "@/ui/components";
@@ -8,10 +9,13 @@ import { useRacha } from "../../hooks/use-racha";
 import {
   ACTION_FAILED,
   ATTENDANCE_SPOT_LIMIT,
+  POSITION_DETAIL_MISMATCH,
+  POSITION_DETAIL_REQUIRED,
 } from "../../utils/racha-messages";
 import {
+  buildGuestFormSchema,
   emptyGuestForm,
-  guestFormSchema,
+  guestPositionDetail,
   TGuestFormValues,
 } from "./guest-schema";
 
@@ -46,6 +50,9 @@ export function useGuestScreen() {
     if (navigation.isFocused()) router.back();
   }, [isMissing, navigation]);
 
+  const asksDetail =
+    event !== undefined && asksPositionDetail(event.outfieldPerTeam);
+  const guestFormSchema = buildGuestFormSchema(asksDetail);
   const parsed = guestFormSchema.safeParse(values);
   const issues = parsed.success ? [] : parsed.error.issues;
   const errors = triedSubmit
@@ -55,6 +62,12 @@ export function useGuestScreen() {
           ?.message,
         secondaryPosition: issues.find((i) => i.path[0] === "secondaryPosition")
           ?.message,
+        primaryPositionDetail: issues.find(
+          (i) => i.path[0] === "primaryPositionDetail"
+        )?.message,
+        secondaryPositionDetail: issues.find(
+          (i) => i.path[0] === "secondaryPositionDetail"
+        )?.message,
         stars: issues.find((i) => i.path[0] === "stars")?.message,
       }
     : {};
@@ -73,13 +86,26 @@ export function useGuestScreen() {
     setIsSaving(true);
     try {
       const data = result.data;
+      const isGoalkeeper = data.playsAs === "GOALKEEPER";
       await addGuest({
         displayName: data.displayName,
         playsAs: data.playsAs,
-        primaryPosition:
-          data.playsAs === "GOALKEEPER" ? null : data.primaryPosition,
-        secondaryPosition:
-          data.playsAs === "GOALKEEPER" ? null : data.secondaryPosition,
+        primaryPosition: isGoalkeeper ? null : data.primaryPosition,
+        secondaryPosition: isGoalkeeper ? null : data.secondaryPosition,
+        primaryPositionDetail: isGoalkeeper
+          ? null
+          : guestPositionDetail(
+              asksDetail,
+              data.primaryPosition,
+              data.primaryPositionDetail
+            ),
+        secondaryPositionDetail: isGoalkeeper
+          ? null
+          : guestPositionDetail(
+              asksDetail,
+              data.secondaryPosition,
+              data.secondaryPositionDetail
+            ),
         stars: data.playsAs === "GOALKEEPER" ? null : data.stars,
         isSuperStar: data.playsAs === "GOALKEEPER" ? false : data.isSuperStar,
       });
@@ -91,16 +117,20 @@ export function useGuestScreen() {
         if (await hasRachaAccess()) showToast(ACTION_FAILED);
         return;
       }
+      const message =
+        code === "spot_limit"
+          ? ATTENDANCE_SPOT_LIMIT
+          : code === "position_detail_required"
+            ? POSITION_DETAIL_REQUIRED
+            : code === "position_detail_mismatch"
+              ? POSITION_DETAIL_MISMATCH
+              : ACTION_FAILED;
       if (!navigation.isFocused()) {
-        showToast(
-          code === "spot_limit" ? ATTENDANCE_SPOT_LIMIT : ACTION_FAILED
-        );
+        showToast(message);
         return;
       }
       setIsSaving(false);
-      setFailureMessage(
-        code === "spot_limit" ? ATTENDANCE_SPOT_LIMIT : ACTION_FAILED
-      );
+      setFailureMessage(message);
     }
   };
 
@@ -108,6 +138,7 @@ export function useGuestScreen() {
     isMissing,
     values,
     errors,
+    asksPositionDetail: asksDetail,
     failureMessage,
     isSaving,
     canSubmit: !isSaving,

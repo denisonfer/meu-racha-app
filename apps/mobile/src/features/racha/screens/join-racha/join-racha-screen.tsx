@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   EmptyState,
@@ -10,6 +10,7 @@ import {
   TIconName,
 } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { JoinPositionSection } from "./join-position-section";
 import { useJoinRachaScreen } from "./use-join-racha-screen";
 
 export const JoinRachaScreen = () => {
@@ -23,6 +24,8 @@ export const JoinRachaScreen = () => {
     goBack,
     request,
     isRequesting,
+    positionSection,
+    canRequest,
     cancel,
     isCancelling,
   } = useJoinRachaScreen();
@@ -54,7 +57,11 @@ export const JoinRachaScreen = () => {
 
   return (
     <Screen title="Convite" canGoBack onGoBack={goBack}>
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.titleBlock}>
           <Text preset="small" color="muted" style={styles.bold}>
             Convite para o racha
@@ -97,7 +104,9 @@ export const JoinRachaScreen = () => {
             </View>
           </View>
         ) : null}
-      </View>
+
+        {positionSection ? <JoinPositionSection {...positionSection} /> : null}
+      </ScrollView>
 
       {invite.status === null ? (
         <ScreenFooter>
@@ -110,6 +119,7 @@ export const JoinRachaScreen = () => {
               isRequesting ? "Enviando pedido" : "Solicitar entrada"
             }
             isLoading={isRequesting}
+            isDisabled={!canRequest}
             onPress={request}
           />
         </ScreenFooter>
@@ -141,7 +151,8 @@ const InfoRow = ({ icon, hasDivider = false, children }: TInfoRowProps) => (
 );
 
 const styles = StyleSheet.create({
-  content: { gap: 20 },
+  scroll: { flex: 1 },
+  content: { gap: 20, paddingBottom: theme.space[24] },
   titleBlock: { gap: 6 },
   bold: { fontFamily: "Manrope-Bold" },
   extraBold: { fontFamily: "Manrope-ExtraBold" },

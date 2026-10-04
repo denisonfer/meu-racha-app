@@ -1,4 +1,10 @@
-import type { TPlaysAs, TPosition, TRachaRules } from "@meu-racha/domain";
+import type {
+  TPlaysAs,
+  TPosition,
+  TPositionDetail,
+  TPositionLayer,
+  TRachaRules,
+} from "@meu-racha/domain";
 import type { Database } from "@/lib/database.types";
 
 export type TMemberRole = Database["public"]["Enums"]["member_role"];
@@ -63,6 +69,13 @@ export type TInvite = {
   ownerName: string;
   minAge: number | null;
   myStatus: TInviteStatus | null;
+  outfieldPerTeam: number;
+};
+
+export type TMyPositions = {
+  playsAs: TPlaysAs;
+  primaryPosition: TPosition | null;
+  secondaryPosition: TPosition | null;
 };
 
 export type TMyJoinRequest = {
@@ -90,6 +103,14 @@ export type TRachaMember = {
   secondaryPosition: TPosition | null;
   stars: number | null;
   isSuperStar: boolean;
+  // subdivisão neste Racha; o Perfil não tem
+  primaryPositionDetail: TPositionDetail | null;
+  secondaryPositionDetail: TPositionDetail | null;
+};
+
+export type TPositionDetails = {
+  primary: TPositionDetail | null;
+  secondary: TPositionDetail | null;
 };
 
 export type TMemberUpdate = {
@@ -173,6 +194,8 @@ export type TAttendancePerson = {
   playsAs: TPlaysAs;
   primaryPosition: TPosition | null;
   secondaryPosition: TPosition | null;
+  // camada da principal pelo tamanho de Time do Evento; nula em jogador de linha = pendente
+  primaryLayer: TPositionLayer | null;
   role: TMemberRole | null;
   stars: number | null;
   isSuperStar: boolean;
@@ -195,9 +218,14 @@ export type TGuestInput = {
   playsAs: TPlaysAs;
   primaryPosition: TPosition | null;
   secondaryPosition: TPosition | null;
+  primaryPositionDetail: TPositionDetail | null;
+  secondaryPositionDetail: TPositionDetail | null;
   stars: number | null;
   isSuperStar: boolean;
 };
+
+/** position_detail_pending: o detail da exceção traz os nomes de quem veio e está pendente. */
+export type TPositionDetailPendingError = Error & { pendingNames: string[] };
 
 export type TAttendanceTarget =
   { kind: "member"; profileId: string } | { kind: "guest"; guestId: string };

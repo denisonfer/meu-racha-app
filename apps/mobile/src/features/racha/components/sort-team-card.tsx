@@ -36,6 +36,14 @@ export type TSortTeamCardProps = {
   missingText: string | null;
   headerAccessibilityLabel: string;
   players: TSortTeamCardPerson[];
+  // Evento 8+: os jogadores de linha por subdivisão, com cabeçalho; null mostra `players` sem grupos
+  playerGroups:
+    | {
+        key: string;
+        title: string;
+        players: TSortTeamCardPerson[];
+      }[]
+    | null;
   goalkeeper: TSortTeamCardPerson | null;
 };
 
@@ -112,6 +120,7 @@ export const SortTeamCard = ({
   missingText,
   headerAccessibilityLabel,
   players,
+  playerGroups,
   goalkeeper,
 }: TSortTeamCardProps) => (
   <View style={[styles.card, isIncomplete && styles.incomplete]}>
@@ -144,9 +153,20 @@ export const SortTeamCard = ({
       </View>
     </View>
     <View style={styles.list}>
-      {players.map((person) => (
-        <PersonRow key={person.key} person={person} />
-      ))}
+      {playerGroups
+        ? playerGroups.map((group) => (
+            <View key={group.key}>
+              <Text preset="small" color="muted" style={styles.groupTitle}>
+                {group.title}
+              </Text>
+              {group.players.map((person) => (
+                <PersonRow key={person.key} person={person} />
+              ))}
+            </View>
+          ))
+        : players.map((person) => (
+            <PersonRow key={person.key} person={person} />
+          ))}
       {goalkeeper ? <PersonRow person={goalkeeper} /> : null}
     </View>
     {missingText ? (
@@ -196,6 +216,8 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   list: { paddingTop: 6 },
+  // mesmo cabeçalho de grupo da Presença
+  groupTitle: { paddingTop: 8, paddingBottom: 2, fontFamily: "Manrope-Bold" },
   person: {
     flexDirection: "row",
     alignItems: "center",

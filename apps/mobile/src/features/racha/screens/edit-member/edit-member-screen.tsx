@@ -37,6 +37,7 @@ export const EditMemberScreen = () => {
           viewerRole={racha.role}
           member={member}
           adminCount={adminCount}
+          outfieldPerTeam={racha.rules.outfieldPerTeam}
         />
       )}
     </Screen>

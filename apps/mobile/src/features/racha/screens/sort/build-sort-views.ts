@@ -1,5 +1,9 @@
 import {
+  asksPositionDetail,
+  groupInOrder,
+  LAYER_GROUPS,
   OVERALL_MIN,
+  type TLayerGroupKey,
   type TSortPerson,
   type TSortPlayer,
   type TSortTeam,
@@ -70,12 +74,30 @@ const goalkeeperView = (
 const playersWord = (count: number) =>
   count === 1 ? "1 jogador" : `${count} jogadores`;
 
+// a ordem do banco (Estrelas) continua dentro de cada camada
+const layerGroups = (
+  players: TSortPlayer[],
+  leaveActionFor: TSortLeaveActionFor
+) =>
+  groupInOrder(
+    players,
+    LAYER_GROUPS,
+    (player): TLayerGroupKey => player.primaryLayer ?? "PENDING"
+  ).map((group) => ({
+    key: group.key,
+    title: `${group.label} · ${group.members.length}`,
+    players: group.members.map((player) => playerView(player, leaveActionFor)),
+  }));
+
 /** Cartões de Time: a mesma conta para a proposta e para os Times publicados. */
 export function buildTeamCards(
   teams: TSortTeam[],
   outfieldPerTeam: number | null,
   leaveActionFor: TSortLeaveActionFor
 ): TSortTeamsProps["teams"] {
+  // Time 3–7 não tem subdivisão: o card segue sem grupos
+  const isLayered =
+    outfieldPerTeam !== null && asksPositionDetail(outfieldPerTeam);
   return teams.map((team) => {
     const isIncomplete = !team.isComplete;
     const missing = isIncomplete
@@ -103,6 +125,9 @@ export function buildTeamCards(
       missingText: missing > 0 ? sortMissingToComplete(missing) : null,
       headerAccessibilityLabel: header,
       players: team.players.map((player) => playerView(player, leaveActionFor)),
+      playerGroups: isLayered
+        ? layerGroups(team.players, leaveActionFor)
+        : null,
       goalkeeper: team.goalkeeper
         ? goalkeeperView(team.goalkeeper, leaveActionFor)
         : null,

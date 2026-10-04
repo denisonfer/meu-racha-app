@@ -6,6 +6,7 @@ import {
   MIN_AGE_MIN,
   RACHA_NAME_MIN,
 } from "@meu-racha/domain";
+import { joinNames } from "./sort-view";
 
 /**
  * Todo pt-BR de erro do Racha mora aqui; a api fala em código, a tela fala em
@@ -218,6 +219,59 @@ export const SORT_ALREADY_PARTICIPATING = "Essa pessoa já está jogando.";
 export const SORT_USE_RETURN = "Essa pessoa saiu. Use Voltar para trazê-la.";
 export const SORT_NOT_LEFT = "Essa pessoa não saiu deste evento.";
 
+// --- Subdivisão de posição (Times de 8+ na linha) ---
+export const POSITION_DETAIL_REQUIRED =
+  "Escolha a subdivisão de cada posição para continuar.";
+export const POSITION_DETAIL_MISMATCH =
+  "A posição mudou enquanto você escolhia. Confira e tente de novo.";
+export const POSITION_DETAIL_SAVE_FAILED =
+  "Não salvou a posição. Toque em Salvar para tentar de novo.";
+export const POSITION_DETAIL_SAVED = "Posição salva";
+export const POSITION_DETAIL_BLOCKED =
+  "Complete as posições pendentes para sortear.";
+export const POSITION_DETAIL_GUEST_HINT =
+  "A subdivisão do Avulso vale só para este Evento.";
+export const POSITION_DETAIL_PROFILE_HINT =
+  "Isso vale só para este Racha. Seu Perfil não muda. Para trocar a posição ampla, edite o Perfil.";
+export const POSITION_DETAIL_JOIN_TEXT =
+  "Neste Racha, defesa e meio-campo se dividem. Diga onde você joga em cada um.";
+export const positionDetailJoinKicker = (outfieldPerTeam: number) =>
+  `${outfieldPerTeam} na linha por Time`;
+export const POSITION_DETAIL_LOAD_FAILED =
+  "Não deu pra ler as posições do seu Perfil.";
+export const POSITION_DETAIL_MEMBER_HINT =
+  "Zonas do Perfil. Só a subdivisão é deste Racha.";
+export const POSITION_DETAIL_SECTION = "Posição neste Racha";
+export const POSITION_DETAIL_COMPLETE = "Completar";
+export const POSITION_DETAIL_SELF_TITLE = "Complete sua posição.";
+export const POSITION_DETAIL_PENDING_GROUP = "Posição pendente";
+export const POSITION_DETAIL_PRESENCE_TEXT =
+  "O Sorteio não sai enquanto quem veio estiver pendente.";
+export const positionDetailSelfText = (outfieldPerTeam: number) =>
+  `Este Racha tem ${outfieldPerTeam} na linha por Time e divide defesa e meio-campo.`;
+export const POSITION_DETAIL_SHEET_TITLE = "Sua posição neste Racha";
+export const POSITION_DETAIL_SHEET_TEXT = "Seu Perfil não muda.";
+export const positionDetailPendingTitle = (count: number) =>
+  count === 1
+    ? "1 jogador sem subdivisão."
+    : `${count} jogadores sem subdivisão.`;
+export const POSITION_DETAIL_SORT_TEXT =
+  "Eles vieram e precisam completar a posição antes do Sorteio.";
+export const positionDetailMemberPending = (name: string) =>
+  `Sem a subdivisão, ${name} não entra no Sorteio quando vier.`;
+/** Erro junto ao seletor: as duas opções da zona. */
+export const positionDetailChoose = (labels: string[]) =>
+  `Escolha ${labels.join(" ou ")} para continuar.`;
+export const positionDetailCompleteLabel = (name: string) =>
+  `Completar a posição de ${name}`;
+/** position_detail_pending: o banco manda os nomes de quem veio e está pendente. */
+export const positionDetailPendingMessage = (names: string[]) =>
+  names.length === 0
+    ? "Há jogadores com a posição pendente. Complete antes de sortear."
+    : names.length === 1
+      ? `${names[0]} está com a posição pendente. Complete antes de sortear.`
+      : `${joinNames(names)} estão com a posição pendente. Complete antes de sortear.`;
+
 /** Código de erro das RPCs do Sorteio → pt-BR; desconhecido cai em ACTION_FAILED. */
 export function sortErrorMessage(code: string): string {
   switch (code) {
@@ -256,9 +310,25 @@ export function sortErrorMessage(code: string): string {
       return SORT_NOT_LEFT;
     case "spot_limit":
       return ATTENDANCE_SPOT_LIMIT;
+    case "position_detail_required":
+      return POSITION_DETAIL_REQUIRED;
+    case "position_detail_mismatch":
+      return POSITION_DETAIL_MISMATCH;
+    case "position_detail_pending":
+      return positionDetailPendingMessage([]);
     default:
       return ACTION_FAILED;
   }
+}
+
+/** Nomes do detail de position_detail_pending; vazio para qualquer outro erro. */
+export function pendingNamesOf(error: unknown): string[] {
+  if (!(error instanceof Error) || error.message !== "position_detail_pending")
+    return [];
+  const names = (error as { pendingNames?: unknown }).pendingNames;
+  return Array.isArray(names)
+    ? names.filter((name): name is string => typeof name === "string")
+    : [];
 }
 
 // --- Telas do Sorteio ---
@@ -371,6 +441,9 @@ export const sortScoreLabel = (score: number, label: string) =>
 /** Erro de uma ação do Sorteio → texto; sem rede, o convite a tentar de novo. */
 export function sortFailureMessage(error: unknown): string {
   const code = error instanceof Error ? error.message : "";
+  if (code === "position_detail_pending") {
+    return positionDetailPendingMessage(pendingNamesOf(error));
+  }
   return code === "network_error"
     ? SORT_LOAD_FAILED_TEXT
     : sortErrorMessage(code);

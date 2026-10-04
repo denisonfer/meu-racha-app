@@ -1,4 +1,5 @@
 import {
+  isLayerPending,
   roleBadge,
   type TSortGoalkeeperQueueEntry,
   type TSortPerson,
@@ -6,6 +7,23 @@ import {
   type TSortSuperWarning,
   type TSortTeam,
 } from "@meu-racha/domain";
+import type { TAttendancePerson } from "../racha-types";
+
+/**
+ * Quem trava o Sorteio: entra no elenco (confirmado ou Avulso, com "veio") e
+ * é de linha sem camada. Mesmo corte de private.assert_no_position_detail_pending.
+ */
+export const sortPendingPeople = (people: TAttendancePerson[]) =>
+  people
+    .filter(
+      (person) =>
+        person.didAttend &&
+        (person.kind === "guest"
+          ? person.status !== "left"
+          : person.status === "confirmed") &&
+        isLayerPending(person)
+    )
+    .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 
 /** Membro ou Avulso: o banco identifica por exatamente um dos dois ids. */
 export const sortPersonId = (person: TSortPerson): string =>

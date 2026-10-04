@@ -1,4 +1,8 @@
-import { formatPlaysAs, OVERALL_MIN } from "@meu-racha/domain";
+import {
+  asksPositionDetail,
+  formatPlaysAs,
+  OVERALL_MIN,
+} from "@meu-racha/domain";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { useBottomSheetClose, useToast } from "@/ui/components";
@@ -14,8 +18,9 @@ import {
   sortIncludeLabel,
 } from "../../utils/racha-messages";
 import {
+  buildGuestFormSchema,
   emptyGuestForm,
-  guestFormSchema,
+  guestPositionDetail,
   type TGuestFormValues,
 } from "../attendance/guest-schema";
 
@@ -101,6 +106,9 @@ export function useIncludeSortScreen() {
       },
     }));
 
+  const asksDetail =
+    published !== null && asksPositionDetail(published.outfieldPerTeam);
+  const guestFormSchema = buildGuestFormSchema(asksDetail);
   const parsed = guestFormSchema.safeParse(values);
   const issues = parsed.success ? [] : parsed.error.issues;
   const errors = triedSubmit
@@ -110,6 +118,12 @@ export function useIncludeSortScreen() {
           ?.message,
         secondaryPosition: issues.find((i) => i.path[0] === "secondaryPosition")
           ?.message,
+        primaryPositionDetail: issues.find(
+          (i) => i.path[0] === "primaryPositionDetail"
+        )?.message,
+        secondaryPositionDetail: issues.find(
+          (i) => i.path[0] === "secondaryPositionDetail"
+        )?.message,
         stars: issues.find((i) => i.path[0] === "stars")?.message,
       }
     : {};
@@ -129,6 +143,20 @@ export function useIncludeSortScreen() {
         playsAs: data.playsAs,
         primaryPosition: isGoalkeeper ? null : data.primaryPosition,
         secondaryPosition: isGoalkeeper ? null : data.secondaryPosition,
+        primaryPositionDetail: isGoalkeeper
+          ? null
+          : guestPositionDetail(
+              asksDetail,
+              data.primaryPosition,
+              data.primaryPositionDetail
+            ),
+        secondaryPositionDetail: isGoalkeeper
+          ? null
+          : guestPositionDetail(
+              asksDetail,
+              data.secondaryPosition,
+              data.secondaryPositionDetail
+            ),
         stars: isGoalkeeper ? null : data.stars,
         isSuperStar: isGoalkeeper ? false : data.isSuperStar,
       });
@@ -153,6 +181,7 @@ export function useIncludeSortScreen() {
     guestForm: {
       values,
       errors,
+      asksPositionDetail: asksDetail,
       failureMessage: guestFailure,
       isSaving,
       canSubmit: !isSaving,

@@ -293,8 +293,9 @@ begin
     '3 Super Estrelas, 3 Times: uma por Time');
   raise notice 'PASS: Super Estrela espalhada (diferença <= 1 em 200 cenários) e aviso coerente';
 
-  -- Quando não dá (Modo 2, ajuste fino não cruza camadas): 3 Super Estrelas na camada FORWARD
-  -- e a DEFENDER (1 pessoa) caem no mesmo Time, 3 contra 1
+  -- Modo 2, ajuste fino não cruza camadas: 3 Super Estrelas na camada FORWARD e a DEFENDER
+  -- (1 pessoa). Na serpentina contínua caíam 3 contra 1; no preenchimento por camada (ADR 0036)
+  -- cada FORWARD vai para o Time com menos FORWARD (empate, o mais vazio) e sai 2 contra 2, sem aviso
   v_pl := jsonb_build_array(
     jsonb_build_object('id', md5('q1')::uuid, 'stars', 5, 'super', true, 'main', 'DEFENDER', 'sec', null),
     jsonb_build_object('id', md5('q2')::uuid, 'stars', 3, 'super', false, 'main', 'MIDFIELDER', 'sec', null),
@@ -303,10 +304,9 @@ begin
     jsonb_build_object('id', md5('q5')::uuid, 'stars', 4, 'super', true, 'main', 'FORWARD', 'sec', null),
     jsonb_build_object('id', md5('q6')::uuid, 'stars', 3, 'super', true, 'main', 'FORWARD', 'sec', null));
   v_r := private.sort_teams(v_pl, '{}', 3, true, null, 0.6);
-  perform pg_temp.assert_that((v_r -> 'balance' ->> 'super_diff')::integer = 2
-    and jsonb_array_length(v_r -> 'super_warning') = 1
-    and jsonb_array_length(v_r -> 'super_warning' -> 0 -> 'player_ids') = 3,
-    'sem como separar: diferença 2 e aviso lista quem ficou junto');
+  perform pg_temp.assert_that((v_r -> 'balance' ->> 'super_diff')::integer = 0
+    and jsonb_array_length(v_r -> 'super_warning') = 0,
+    'preenchimento por camada separa as Super Estrelas: diferença 0 e nenhum aviso');
 
   -- Modo 2 por camada: 6 DEF + 6 MEI (secundária ATA), 2 Times de 6 => 3 + 3 em cada Time
   for v_seed in 1..50 loop

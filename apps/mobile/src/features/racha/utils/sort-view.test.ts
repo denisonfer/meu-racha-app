@@ -4,9 +4,67 @@ import {
   joinNames,
   missingToComplete,
   sortGoalkeeperEntries,
+  sortPendingPeople,
   sortPositionText,
   superWarningNames,
 } from "./sort-view";
+import type { TAttendancePerson } from "../racha-types";
+
+const attendee = (
+  name: string,
+  patch: Partial<TAttendancePerson> = {}
+): TAttendancePerson => ({
+  kind: "member",
+  profileId: name,
+  guestId: null,
+  name,
+  photoUrl: null,
+  initials: name.slice(0, 2),
+  overall: 40,
+  status: "confirmed",
+  queuePosition: null,
+  didAttend: true,
+  isPaidEffective: false,
+  isMonthlyPass: false,
+  playsAs: "OUTFIELD",
+  primaryPosition: "DEFENDER",
+  secondaryPosition: null,
+  primaryLayer: null,
+  role: "PLAYER",
+  stars: 3,
+  isSuperStar: false,
+  paymentNote: null,
+  creditBalance: null,
+  ...patch,
+});
+
+describe("sortPendingPeople", () => {
+  test("só quem veio, de linha e sem camada, em ordem alfabética", () => {
+    const people = [
+      attendee("Bruno"),
+      attendee("Ana"),
+      attendee("Caio", { primaryLayer: "CENTER_BACK" }),
+      attendee("Davi", { didAttend: false }),
+      attendee("Edu", { playsAs: "GOALKEEPER", primaryPosition: null }),
+      attendee("Fábio", { status: "waitlisted" }),
+      attendee("Gil", { status: "left" }),
+    ];
+    expect(sortPendingPeople(people).map((p) => p.name)).toEqual([
+      "Ana",
+      "Bruno",
+    ]);
+  });
+
+  test("Avulso entra com status nulo e sai se saiu", () => {
+    const guest = (name: string, status: TAttendancePerson["status"]) =>
+      attendee(name, { kind: "guest", profileId: null, guestId: name, status });
+    expect(
+      sortPendingPeople([guest("Léo", null), guest("Rui", "left")]).map(
+        (p) => p.name
+      )
+    ).toEqual(["Léo"]);
+  });
+});
 
 const person = (id: string, name: string): TSortPerson => ({
   kind: "member",
@@ -22,6 +80,7 @@ const player = (id: string, name: string): TSortPlayer => ({
   isSuperStar: true,
   primaryPosition: "DEFENDER",
   secondaryPosition: "ANY",
+  primaryLayer: "DEFENDER",
   enteredAt: "2026-10-03T10:00:00Z",
 });
 

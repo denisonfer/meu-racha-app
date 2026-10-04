@@ -26,6 +26,8 @@ export type TChipGroupProps<V extends string> = {
   hint?: string;
   /** Segmentado: as opções dividem a largura em vez de fluir em linha. */
   isFullWidth?: boolean;
+  /** Nome do grupo no leitor de tela, quando o rótulo visível não basta. */
+  accessibilityLabel?: string;
 };
 
 export type TFormChipGroupProps<T extends FieldValues, V extends string> = Omit<

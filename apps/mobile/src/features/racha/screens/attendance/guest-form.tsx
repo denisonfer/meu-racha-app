@@ -1,9 +1,28 @@
-import { type TPosition } from "@meu-racha/domain";
-import { ScrollView, StyleSheet, View } from "react-native";
+import {
+  positionDetailFits,
+  positionDetailOptions,
+  type TPosition,
+  type TPositionDetail,
+} from "@meu-racha/domain";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { Button, ChipGroup, Input, NoticeBanner, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { PositionDetailField } from "../../components/position-detail-field";
 import { StarsAndSuperStarField } from "../../components/stars-and-super-star-field";
-import { ATTENDANCE_GUEST_AGE_NOTICE } from "../../utils/racha-messages";
+import {
+  positionDetailFieldA11yLabel,
+  positionDetailZoneLabel,
+  type TPositionSlot,
+} from "../../utils/racha-labels";
+import {
+  ATTENDANCE_GUEST_AGE_NOTICE,
+  POSITION_DETAIL_GUEST_HINT,
+} from "../../utils/racha-messages";
 import { TGuestFormValues } from "./guest-schema";
 
 const PLAYS_AS_OPTIONS = [
@@ -18,9 +37,15 @@ const POSITION_OPTIONS: { value: TPosition; label: string }[] = [
   { value: "ANY", label: "TODAS" },
 ];
 
+// a subdivisão escolhida só sobrevive se ainda couber na zona nova
+const keepDetail = (zone: TPosition | null, detail: TPositionDetail | null) =>
+  zone !== null && positionDetailFits(zone, detail) ? detail : null;
+
 type TGuestFormProps = {
   values: TGuestFormValues;
   errors: Partial<Record<keyof TGuestFormValues, string>>;
+  // Evento 8+: DEF e MEI pedem a subdivisão logo abaixo da zona
+  asksPositionDetail: boolean;
   failureMessage: string | null;
   isSaving: boolean;
   canSubmit: boolean;
@@ -31,21 +56,52 @@ type TGuestFormProps = {
 export const GuestForm = ({
   values,
   errors,
+  asksPositionDetail,
   failureMessage,
   isSaving,
   canSubmit,
   onChange,
   onSubmit,
 }: TGuestFormProps) => {
+  const { height } = useWindowDimensions();
   const isOutfield = values.playsAs === "OUTFIELD";
   const needsSecondary =
     isOutfield &&
     values.primaryPosition != null &&
     values.primaryPosition !== "ANY";
 
+  const detailField = (
+    slot: TPositionSlot,
+    zone: TPosition | null,
+    value: TPositionDetail | null,
+    error: string | undefined
+  ) => {
+    const options = positionDetailOptions(zone);
+    if (!asksPositionDetail || zone === null || options.length === 0) {
+      return null;
+    }
+    const key =
+      slot === "primary" ? "primaryPositionDetail" : "secondaryPositionDetail";
+    return (
+      <PositionDetailField
+        label={positionDetailZoneLabel(zone)}
+        accessibilityLabel={positionDetailFieldA11yLabel(zone, slot)}
+        options={options}
+        value={value}
+        onChange={(detail) => onChange({ [key]: detail })}
+        error={error}
+        isDisabled={isSaving}
+      />
+    );
+  };
+
   return (
+    // a folha mede o conteúdo (fitToContents): sem teto, o ScrollView cresce com
+    // ele, nunca rola, e com as subdivisões o fim do formulário fica cortado
     <ScrollView
+      style={{ maxHeight: height * 0.6 }}
       keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.content}
     >
@@ -68,6 +124,8 @@ export const GuestForm = ({
             playsAs,
             primaryPosition: null,
             secondaryPosition: null,
+            primaryPositionDetail: null,
+            secondaryPositionDetail: null,
             stars: playsAs === "GOALKEEPER" ? null : values.stars,
             isSuperStar: playsAs === "GOALKEEPER" ? false : values.isSuperStar,
           })
@@ -81,33 +139,64 @@ export const GuestForm = ({
             label="Posição principal"
             isDisabled={isSaving}
             value={values.primaryPosition}
-            onChange={(primaryPosition) =>
+            onChange={(primaryPosition) => {
+              const secondaryPosition =
+                primaryPosition === "ANY" ||
+                primaryPosition === values.secondaryPosition
+                  ? null
+                  : values.secondaryPosition;
               onChange({
                 primaryPosition,
-                secondaryPosition:
-                  primaryPosition === "ANY" ||
-                  primaryPosition === values.secondaryPosition
-                    ? null
-                    : values.secondaryPosition,
-              })
-            }
+                secondaryPosition,
+                primaryPositionDetail: keepDetail(
+                  primaryPosition,
+                  values.primaryPositionDetail
+                ),
+                secondaryPositionDetail: keepDetail(
+                  secondaryPosition,
+                  values.secondaryPositionDetail
+                ),
+              });
+            }}
             options={POSITION_OPTIONS}
             error={errors.primaryPosition}
           />
+          {detailField(
+            "primary",
+            values.primaryPosition,
+            values.primaryPositionDetail,
+            errors.primaryPositionDetail
+          )}
 
           {needsSecondary ? (
-            <ChipGroup
-              label="Posição secundária"
-              isDisabled={isSaving}
-              value={values.secondaryPosition}
-              onChange={(secondaryPosition) => onChange({ secondaryPosition })}
-              options={POSITION_OPTIONS.filter(
-                (option) =>
-                  option.value !== "ANY" &&
-                  option.value !== values.primaryPosition
+            <>
+              <ChipGroup
+                label="Posição secundária"
+                isDisabled={isSaving}
+                value={values.secondaryPosition}
+                onChange={(secondaryPosition) =>
+                  onChange({
+                    secondaryPosition,
+                    secondaryPositionDetail: keepDetail(
+                      secondaryPosition,
+                      values.secondaryPositionDetail
+                    ),
+                  })
+                }
+                options={POSITION_OPTIONS.filter(
+                  (option) =>
+                    option.value !== "ANY" &&
+                    option.value !== values.primaryPosition
+                )}
+                error={errors.secondaryPosition}
+              />
+              {detailField(
+                "secondary",
+                values.secondaryPosition,
+                values.secondaryPositionDetail,
+                errors.secondaryPositionDetail
               )}
-              error={errors.secondaryPosition}
-            />
+            </>
           ) : null}
 
           <StarsAndSuperStarField
@@ -121,6 +210,11 @@ export const GuestForm = ({
           {errors.stars ? (
             <Text preset="small" color="errorText" accessibilityRole="alert">
               {errors.stars}
+            </Text>
+          ) : null}
+          {asksPositionDetail ? (
+            <Text preset="small" color="muted">
+              {POSITION_DETAIL_GUEST_HINT}
             </Text>
           ) : null}
         </>

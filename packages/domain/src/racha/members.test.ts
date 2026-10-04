@@ -3,8 +3,19 @@ import {
   formatPlaysAs,
   formatAge,
   isBelowMinAge,
+  groupInOrder,
   groupMembersByPosition,
 } from "./members";
+import {
+  asksPositionDetail,
+  isLayerPending,
+  LAYER_GROUPS,
+  layerGroupKey,
+  positionDetailFits,
+  positionDetailOptions,
+  toPositionLayer,
+  type TPositionLayer,
+} from "./position-detail";
 
 describe("formatPlaysAs", () => {
   test("returns 'Gol' for goalkeeper", () => {
@@ -151,5 +162,132 @@ describe("groupMembersByPosition", () => {
 
     expect(groups[0]!.members[0]!.displayName).toBe("Álvaro");
     expect(groups[0]!.members[1]!.displayName).toBe("Bruno");
+  });
+});
+
+const person = (
+  displayName: string,
+  primaryLayer: TPositionLayer | null,
+  playsAs: "OUTFIELD" | "GOALKEEPER" = "OUTFIELD"
+) => ({ displayName, playsAs, primaryLayer });
+
+describe("groupMembersByPosition por camada (Evento 8+)", () => {
+  test("ordem defesa → ataque, Goleiros à parte e pendente no fim", () => {
+    const groups = groupMembersByPosition(
+      [
+        person("Rita", null),
+        person("Bruno", "FORWARD"),
+        person("Dani", "ANY"),
+        person("Maria", "DEFENSIVE_MID"),
+        person("Lucas", "ATTACKING_MID"),
+        person("Ana", "FULL_BACK"),
+        person("João", "CENTER_BACK"),
+        person("Marcos", null, "GOALKEEPER"),
+      ],
+      LAYER_GROUPS,
+      layerGroupKey
+    );
+
+    expect(groups.map((group) => group.label)).toEqual([
+      "Goleiros",
+      "Zagueiros",
+      "Laterais",
+      "Volantes",
+      "Meias",
+      "Atacantes",
+      "Todas",
+      "Posição pendente",
+    ]);
+    expect(groups[0]!.members[0]!.displayName).toBe("Marcos");
+    expect(groups[7]!.key).toBe("PENDING");
+    expect(groups[7]!.members[0]!.displayName).toBe("Rita");
+  });
+
+  test("só grupos não vazios, em ordem alfabética dentro do grupo", () => {
+    const groups = groupMembersByPosition(
+      [person("Tiago", "CENTER_BACK"), person("Hugo", "CENTER_BACK")],
+      LAYER_GROUPS,
+      layerGroupKey
+    );
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0]!.key).toBe("CENTER_BACK");
+    expect(groups[0]!.members.map((m) => m.displayName)).toEqual([
+      "Hugo",
+      "Tiago",
+    ]);
+  });
+
+  test("Goleiro com camada nula não é pendente", () => {
+    expect(isLayerPending(person("Marcos", null, "GOALKEEPER"))).toBe(false);
+    expect(isLayerPending(person("Rita", null))).toBe(true);
+    expect(isLayerPending(person("Ana", "FULL_BACK"))).toBe(false);
+  });
+
+  test("padrão continua pela zona ampla (aba Membros)", () => {
+    const groups = groupMembersByPosition([
+      {
+        displayName: "Zé",
+        playsAs: "OUTFIELD" as const,
+        primaryPosition: "MIDFIELDER" as const,
+      },
+    ]);
+    expect(groups[0]!.key).toBe("MIDFIELDER");
+    expect(groups[0]!.label).toBe("Meias");
+  });
+});
+
+describe("groupInOrder", () => {
+  test("mantém a ordem de entrada dentro do grupo (cards de Time)", () => {
+    const groups = groupInOrder(
+      [
+        person("Zé", "CENTER_BACK"),
+        person("Bruno", "FORWARD"),
+        person("Ana", "CENTER_BACK"),
+      ],
+      LAYER_GROUPS,
+      layerGroupKey
+    );
+    expect(groups.map((group) => group.key)).toEqual([
+      "CENTER_BACK",
+      "FORWARD",
+    ]);
+    expect(groups[0]!.members.map((m) => m.displayName)).toEqual(["Zé", "Ana"]);
+  });
+});
+
+describe("subdivisão de posição", () => {
+  test("pergunta a partir de 8 na linha", () => {
+    expect(asksPositionDetail(7)).toBe(false);
+    expect(asksPositionDetail(8)).toBe(true);
+    expect(asksPositionDetail(10)).toBe(true);
+  });
+
+  test("só DEFENSOR e MEIO_CAMPO têm opções", () => {
+    expect(positionDetailOptions("DEFENDER").map((o) => o.label)).toEqual([
+      "Zagueiro",
+      "Lateral",
+    ]);
+    expect(positionDetailOptions("MIDFIELDER").map((o) => o.label)).toEqual([
+      "Volante",
+      "Meia",
+    ]);
+    expect(positionDetailOptions("FORWARD")).toEqual([]);
+    expect(positionDetailOptions("ANY")).toEqual([]);
+    expect(positionDetailOptions(null)).toEqual([]);
+  });
+
+  test("combina com a zona como position_detail_fits", () => {
+    expect(positionDetailFits("DEFENDER", "CENTER_BACK")).toBe(true);
+    expect(positionDetailFits("DEFENDER", "DEFENSIVE_MID")).toBe(false);
+    expect(positionDetailFits("MIDFIELDER", "ATTACKING_MID")).toBe(true);
+    expect(positionDetailFits("FORWARD", "FULL_BACK")).toBe(false);
+    expect(positionDetailFits("FORWARD", null)).toBe(true);
+  });
+
+  test("camada desconhecida vira nula", () => {
+    expect(toPositionLayer("FULL_BACK")).toBe("FULL_BACK");
+    expect(toPositionLayer("GOALKEEPER")).toBeNull();
+    expect(toPositionLayer(null)).toBeNull();
   });
 });
