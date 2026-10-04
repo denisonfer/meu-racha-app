@@ -48,10 +48,25 @@ export function spokenMatchClock(input: {
   return parts.join(". ");
 }
 
+/** Texto lido pelo leitor de tela: o ícone da bola e da chuteira não carrega sentido sozinho. */
 export function goalLine(goal: TMatchGoal): string {
   const team = sortTeamTitle(goal.teamNumber);
   if (goal.isOwnGoal) return `Gol contra · ${team}`;
   const scorer = goal.scorer?.displayName ?? "Gol";
   const assist = goal.assist ? ` (${goal.assist.displayName})` : "";
   return `${scorer}${assist} · ${team}`;
+}
+
+/** Linhas da lista: autor com o Time e, em baixo, a assistência (quando houver). */
+export function goalParts(goal: TMatchGoal): {
+  scorer: string;
+  assist: string | null;
+} {
+  const team = sortTeamTitle(goal.teamNumber);
+  return {
+    scorer: goal.isOwnGoal
+      ? `Gol contra · ${team}`
+      : `${goal.scorer?.displayName ?? "Gol"} · ${team}`,
+    assist: goal.assist?.displayName ?? null,
+  };
 }

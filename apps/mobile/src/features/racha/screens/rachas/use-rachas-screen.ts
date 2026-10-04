@@ -135,6 +135,10 @@ export function useRachasScreen() {
           ? {
               kicker: eventKicker(event.status, event.sortConfirmed),
               isTeamsDefined: event.status === "active" && event.sortConfirmed,
+              isMatchLive:
+                event.status === "active" &&
+                event.sortConfirmed &&
+                event.matchState === "open",
               when: formatEventWhen(event.startsOn, event.startsAt),
               place: event.place,
               confirmedCount: event.confirmedCount,
@@ -147,6 +151,11 @@ export function useRachasScreen() {
                 event.status === "active" && event.sortConfirmed
                   ? () =>
                       router.push(`/racha/${racha.id}/event/${event.id}/sort`)
+                  : null,
+              onOpenMatch:
+                event.status === "active" && event.sortConfirmed
+                  ? () =>
+                      router.push(`/racha/${racha.id}/event/${event.id}/match`)
                   : null,
             }
           : null,

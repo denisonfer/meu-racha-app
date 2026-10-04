@@ -14,7 +14,7 @@ import {
 export type TMatchTeamQueueRow = {
   teamId: string;
   teamNumber: number;
-  queueOrder: number;
+  position: number;
   winStreak: number;
   isComplete: boolean;
 };
@@ -31,17 +31,18 @@ type TMatchQueueProps = {
 };
 
 export const MatchQueue = ({ teams, keepers }: TMatchQueueProps) => {
-  // 1 e 2 já estão no card do confronto; o badge marca quem entra depois
-  const nextTeamId = teams.find((team) => team.queueOrder > 2)?.teamId;
+  const nextTeamId = teams[0]?.teamId;
 
   return (
     <View style={styles.block}>
-      <Text preset="h3" accessibilityRole="header">
-        {MATCH_TEAMS_QUEUE}
-      </Text>
+      {teams.length > 0 ? (
+        <Text preset="h3" accessibilityRole="header">
+          {MATCH_TEAMS_QUEUE}
+        </Text>
+      ) : null}
       {teams.map((team) => {
         const isNext = team.teamId === nextTeamId;
-        const title = `${team.queueOrder} · ${sortTeamTitle(team.teamNumber)}`;
+        const title = `${team.position} · ${sortTeamTitle(team.teamNumber)}`;
         return (
           <View
             key={team.teamId}

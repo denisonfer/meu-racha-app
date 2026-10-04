@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { MatchGoalText } from "./match-goal-text";
 import {
   MATCH_CORRECT,
   MATCH_FINISHED_TITLE,
@@ -11,7 +12,9 @@ import {
 
 export type TMatchHistoryGoal = {
   id: string;
-  text: string;
+  scorer: string;
+  assist: string | null;
+  label: string;
   onCorrect: (() => void) | null;
 };
 
@@ -49,14 +52,17 @@ export const MatchHistory = ({ matches }: TMatchHistoryProps) => {
           </Text>
           {item.goals.map((goal) => (
             <View key={goal.id} style={styles.goalRow}>
-              <Text preset="small" style={styles.goalText}>
-                {goal.text}
-              </Text>
+              <MatchGoalText
+                scorer={goal.scorer}
+                assist={goal.assist}
+                label={goal.label}
+                preset="small"
+              />
               {goal.onCorrect ? (
                 <Pressable
                   onPress={goal.onCorrect}
                   accessibilityRole="button"
-                  accessibilityLabel={`${MATCH_CORRECT} ${goal.text}`}
+                  accessibilityLabel={`${MATCH_CORRECT} ${goal.label}`}
                   style={styles.correct}
                 >
                   <Text preset="caption" color="action">
@@ -87,7 +93,6 @@ const styles = StyleSheet.create({
     minHeight: theme.minTouch,
     gap: theme.space[8],
   },
-  goalText: { flex: 1 },
   correct: {
     minHeight: theme.minTouch,
     justifyContent: "center",

@@ -24,13 +24,9 @@ import {
 import {
   ACTION_FAILED,
   conductorName,
-  MATCH_LIVE,
-  MATCH_VIEW,
   POSITION_DETAIL_COMPLETE,
   POSITION_DETAIL_SELF_TITLE,
   positionDetailSelfText,
-  matchNextLine,
-  matchScoreLine,
 } from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 import { TEventCardAction } from "./event-card";
@@ -149,12 +145,15 @@ export function useRachaHomeScreen() {
 
   const actionsFor = (event: TOpenEvent): TEventCardAction[] => {
     if (!racha) return [];
-    // Times publicados valem para qualquer Membro; o resto é de Dono/Admin
-    const viewSort: TEventCardAction[] =
+    // Times e Partida publicados valem para qualquer Membro; o resto é de Dono/Admin
+    const viewActions: TEventCardAction[] =
       event.status === "active" && event.sortConfirmed
-        ? [{ kind: "viewSort", onPress: () => openSort(event.id) }]
+        ? [
+            { kind: "viewSort", onPress: () => openSort(event.id) },
+            { kind: "viewMatch", onPress: () => openMatch(event.id) },
+          ]
         : [];
-    if (racha.role === "PLAYER") return viewSort;
+    if (racha.role === "PLAYER") return viewActions;
     if (event.status === "upcoming") {
       return [
         {
@@ -168,7 +167,7 @@ export function useRachaHomeScreen() {
     }
     if (event.status === "active") {
       return [
-        ...viewSort,
+        ...viewActions,
         ...(event.conductorId !== userId
           ? [{ kind: "assume" as const, onPress: () => openAssume(event.id) }]
           : [
@@ -239,52 +238,10 @@ export function useRachaHomeScreen() {
       myQueuePosition: shownEvent.myQueuePosition,
       onOpenAttendance: () => openAttendance(shownEvent.id),
       actions: actionsFor(shownEvent),
-      matchLine:
-        shownEvent.status === "active" && shownEvent.sortConfirmed
-          ? shownEvent.matchState === "open" &&
-            shownEvent.matchHomeScore != null &&
-            shownEvent.matchAwayScore != null
-            ? {
-                title: MATCH_LIVE,
-                score: matchScoreLine(
-                  shownEvent.matchHomeScore,
-                  shownEvent.matchAwayScore
-                ),
-                accessibilityLabel: `${MATCH_LIVE} ${matchScoreLine(
-                  shownEvent.matchHomeScore,
-                  shownEvent.matchAwayScore
-                )}`,
-                onPress: () => openMatch(shownEvent.id),
-              }
-            : shownEvent.matchState === "between" &&
-                shownEvent.nextHomeTeamNumber != null &&
-                shownEvent.nextAwayTeamNumber != null
-              ? {
-                  title: matchNextLine(
-                    shownEvent.nextHomeTeamNumber,
-                    shownEvent.nextAwayTeamNumber
-                  ),
-                  score:
-                    shownEvent.matchHomeScore != null &&
-                    shownEvent.matchAwayScore != null
-                      ? matchScoreLine(
-                          shownEvent.matchHomeScore,
-                          shownEvent.matchAwayScore
-                        )
-                      : null,
-                  accessibilityLabel: matchNextLine(
-                    shownEvent.nextHomeTeamNumber,
-                    shownEvent.nextAwayTeamNumber
-                  ),
-                  onPress: () => openMatch(shownEvent.id),
-                }
-              : {
-                  title: MATCH_VIEW,
-                  score: null,
-                  accessibilityLabel: MATCH_VIEW,
-                  onPress: () => openMatch(shownEvent.id),
-                }
-          : null,
+      isMatchLive:
+        shownEvent.status === "active" &&
+        shownEvent.sortConfirmed &&
+        shownEvent.matchState === "open",
       upcoming: hiddenUpcoming
         ? {
             when: formatEventWhen(

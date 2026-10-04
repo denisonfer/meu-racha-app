@@ -489,8 +489,6 @@ export const MATCH_WINNER_PICK = "Quem venceu nos pênaltis?";
 export const MATCH_KEEPER_FIRST = "Primeiro da fila";
 export const MATCH_QUEUE_NEXT = "PRÓXIMO";
 
-export const matchNextLine = (home: number, away: number) =>
-  `Próxima: Time ${home} × Time ${away}`;
 export const matchScoreLine = (home: number, away: number) =>
   `${home} × ${away}`;
 export const matchDurationLine = (clock: string) => `Duração ${clock}`;

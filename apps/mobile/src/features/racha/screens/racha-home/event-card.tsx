@@ -1,13 +1,25 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { Button, IconButton, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { MatchLiveTag } from "../../components/match-live-tag";
 import { TeamsDefinedTag } from "../../components/teams-defined-tag";
 import { EventAttendanceCta } from "../../components/event-attendance-cta";
 import { TAttendanceStatus } from "../../racha-types";
-import { SORT_PREPARE, SORT_VIEW_TEAMS } from "../../utils/racha-messages";
+import {
+  MATCH_VIEW,
+  SORT_PREPARE,
+  SORT_VIEW_TEAMS,
+} from "../../utils/racha-messages";
 
 export type TEventCardAction = {
-  kind: "assume" | "edit" | "cancel" | "finish" | "prepareSort" | "viewSort";
+  kind:
+    | "assume"
+    | "edit"
+    | "cancel"
+    | "finish"
+    | "prepareSort"
+    | "viewSort"
+    | "viewMatch";
   onPress: () => void;
   isLoading?: boolean;
 };
@@ -33,29 +45,12 @@ type TEventCardProps = {
     onEdit?: () => void;
     onCancel?: () => void;
   } | null;
-  matchLine: {
-    title: string;
-    score: string | null;
-    accessibilityLabel: string;
-    onPress: () => void;
-  } | null;
+  isMatchLive: boolean;
 };
 
-// Editar, Cancelar e Encerrar viram ícones no topo do cartão
+// Só Editar vira ícone no topo do cartão; Cancelar e Encerrar ficam como botões
 const ICON_ACTION_VIEW = {
   edit: { icon: "edit", label: "Editar evento", color: "foreground" },
-  cancel: {
-    icon: "ban",
-    label: "Cancelar evento",
-    color: "errorText",
-    hint: "Abre a confirmação",
-  },
-  finish: {
-    icon: "flag",
-    label: "Encerrar evento",
-    color: "errorText",
-    hint: "Abre a confirmação",
-  },
 } as const;
 
 type TIconKind = keyof typeof ICON_ACTION_VIEW;
@@ -64,7 +59,7 @@ const ACTION_VIEW: Record<
   Exclude<TEventCardAction["kind"], TIconKind>,
   {
     title: string;
-    preset: "primary" | "secondary";
+    preset: "primary" | "secondary" | "destructiveOutline";
     accessibilityHint?: string;
   }
 > = {
@@ -73,12 +68,26 @@ const ACTION_VIEW: Record<
     preset: "primary",
     accessibilityHint: "Abre a confirmação",
   },
+  cancel: {
+    title: "Cancelar evento",
+    preset: "destructiveOutline",
+    accessibilityHint: "Abre a confirmação",
+  },
+  finish: {
+    title: "Encerrar evento",
+    preset: "destructiveOutline",
+    accessibilityHint: "Abre a confirmação",
+  },
   prepareSort: {
     title: SORT_PREPARE,
     preset: "secondary",
   },
   viewSort: {
     title: SORT_VIEW_TEAMS,
+    preset: "secondary",
+  },
+  viewMatch: {
+    title: MATCH_VIEW,
     preset: "secondary",
   },
 };
@@ -99,12 +108,14 @@ export const EventCard = ({
   onOpenAttendance,
   actions,
   upcoming,
-  matchLine,
+  isMatchLive,
 }: TEventCardProps) => (
   <View style={styles.card}>
     <View style={styles.header}>
       <View style={styles.headerText}>
-        {isTeamsDefined ? (
+        {isMatchLive ? (
+          <MatchLiveTag />
+        ) : isTeamsDefined ? (
           <TeamsDefinedTag />
         ) : (
           <Text preset="small" color="muted" style={styles.bold}>
@@ -125,7 +136,6 @@ export const EventCard = ({
               icon={view.icon}
               color={view.color}
               accessibilityLabel={view.label}
-              accessibilityHint={"hint" in view ? view.hint : undefined}
               isLoading={action.isLoading}
               onPress={action.onPress}
             />
@@ -164,21 +174,6 @@ export const EventCard = ({
       <Text preset="small" color="muted">
         {conductorLine}
       </Text>
-    ) : null}
-    {matchLine ? (
-      <Pressable
-        onPress={matchLine.onPress}
-        accessibilityRole="button"
-        accessibilityLabel={matchLine.accessibilityLabel}
-        style={styles.matchLine}
-      >
-        <Text style={styles.bold}>{matchLine.title}</Text>
-        {matchLine.score ? (
-          <Text preset="stat" color="action">
-            {matchLine.score}
-          </Text>
-        ) : null}
-      </Pressable>
     ) : null}
     <EventAttendanceCta
       confirmedCount={confirmedCount}
@@ -275,14 +270,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     lineHeight: 32,
     fontVariant: ["tabular-nums"],
-  },
-  matchLine: {
-    gap: 4,
-    minHeight: theme.minTouch,
-    justifyContent: "center",
-    paddingVertical: theme.space[8],
-    borderTopWidth: 1,
-    borderColor: theme.colors.divider,
   },
   upcoming: {
     gap: 4,

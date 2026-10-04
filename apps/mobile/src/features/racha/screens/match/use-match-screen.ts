@@ -27,6 +27,7 @@ import {
   formatClock,
   formatOvertime,
   goalLine,
+  goalParts,
   spokenMatchClock,
 } from "./match-format";
 import type { TMatchGoalRow } from "./match-goal-list";
@@ -170,7 +171,8 @@ export function useMatchScreen() {
   const goals: TMatchGoalRow[] =
     match?.goals.map((goal) => ({
       id: goal.id,
-      text: goalLine(goal),
+      ...goalParts(goal),
+      label: goalLine(goal),
       onDelete:
         canConduct && !isOffline
           ? () =>
@@ -190,7 +192,8 @@ export function useMatchScreen() {
       awayScore: item.away.score,
       goals: item.goals.map((goal) => ({
         id: goal.id,
-        text: goalLine(goal),
+        ...goalParts(goal),
+        label: goalLine(goal),
         onCorrect: canConduct && !isOffline ? () => openCorrect(goal.id) : null,
       })),
     })) ?? [];
@@ -337,9 +340,11 @@ export function useMatchScreen() {
         : null,
     noNext: Boolean(portrait?.state === "ready" && !portrait.nextMatch),
     queue: {
+      // 1 e 2 são o confronto (em campo ou o próximo); a fila começa no 3
       teams: (portrait?.teams ?? [])
-        .slice()
-        .sort((a, b) => a.queueOrder - b.queueOrder),
+        .filter((team) => team.queueOrder > 2)
+        .sort((a, b) => a.queueOrder - b.queueOrder)
+        .map((team) => ({ ...team, position: team.queueOrder - 2 })),
       keepers: queue
         .slice()
         .sort((a, b) => a.queueOrder - b.queueOrder)

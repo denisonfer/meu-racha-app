@@ -2,14 +2,16 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { Button, Icon, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { EventAttendanceCta } from "../../components/event-attendance-cta";
+import { MatchLiveTag } from "../../components/match-live-tag";
 import { TeamsDefinedTag } from "../../components/teams-defined-tag";
 import { RoleChip } from "../../components/role-chip";
 import { TAttendanceStatus, TMemberRole } from "../../racha-types";
-import { SORT_VIEW_TEAMS } from "../../utils/racha-messages";
+import { MATCH_VIEW, SORT_VIEW_TEAMS } from "../../utils/racha-messages";
 
 type TRachaCardEvent = {
   kicker: string;
   isTeamsDefined: boolean;
+  isMatchLive: boolean;
   when: string;
   place: string;
   confirmedCount: number;
@@ -19,6 +21,8 @@ type TRachaCardEvent = {
   onOpenAttendance: () => void;
   // Times publicados: só existe com Sorteio confirmado
   onOpenSort: (() => void) | null;
+  // Partida: mesma condição dos Times publicados
+  onOpenMatch: (() => void) | null;
 };
 
 type TRachaCardProps = {
@@ -73,7 +77,9 @@ export const RachaCard = ({
       {event ? (
         <View style={styles.cardEvent}>
           <View style={styles.eventMeta}>
-            {event.isTeamsDefined ? (
+            {event.isMatchLive ? (
+              <MatchLiveTag />
+            ) : event.isTeamsDefined ? (
               <TeamsDefinedTag />
             ) : (
               <Text preset="small" color="muted" style={styles.bold}>
@@ -99,6 +105,15 @@ export const RachaCard = ({
               onPress={event.onOpenSort}
               accessibilityLabel={SORT_VIEW_TEAMS}
               accessibilityHint="Abre os times do sorteio"
+            />
+          ) : null}
+          {event.onOpenMatch ? (
+            <Button
+              title={MATCH_VIEW}
+              preset="secondary"
+              onPress={event.onOpenMatch}
+              accessibilityLabel={MATCH_VIEW}
+              accessibilityHint="Abre a partida do evento"
             />
           ) : null}
         </View>

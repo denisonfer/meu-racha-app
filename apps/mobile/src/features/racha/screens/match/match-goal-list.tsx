@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { MatchGoalText } from "./match-goal-text";
 import {
   MATCH_DELETE_GOAL,
   MATCH_GOALS_TITLE,
@@ -8,7 +9,9 @@ import {
 
 export type TMatchGoalRow = {
   id: string;
-  text: string;
+  scorer: string;
+  assist: string | null;
+  label: string;
   onDelete: (() => void) | null;
 };
 
@@ -23,14 +26,17 @@ export const MatchGoalList = ({ goals }: TMatchGoalListProps) => (
     </Text>
     {goals.map((goal) => (
       <View key={goal.id} style={styles.goalRow}>
-        <Text preset="body" style={styles.goalText}>
-          {goal.text}
-        </Text>
+        <MatchGoalText
+          scorer={goal.scorer}
+          assist={goal.assist}
+          label={goal.label}
+          preset="body"
+        />
         {goal.onDelete ? (
           <Pressable
             onPress={goal.onDelete}
             accessibilityRole="button"
-            accessibilityLabel={`${MATCH_DELETE_GOAL} ${goal.text}`}
+            accessibilityLabel={`${MATCH_DELETE_GOAL} ${goal.label}`}
             style={styles.delete}
           >
             <Text preset="caption" color="danger">
@@ -55,7 +61,6 @@ const styles = StyleSheet.create({
     borderBottomColor: theme.colors.divider,
     gap: theme.space[8],
   },
-  goalText: { flex: 1 },
   delete: {
     minHeight: theme.minTouch,
     minWidth: theme.minTouch,
