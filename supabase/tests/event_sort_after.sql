@@ -924,6 +924,84 @@ begin
 end $$;
 
 -- ============================================================
+-- 8b. Partida aberta: Inclusão pula 1/2, recálculo fixa goleiro,
+--     finish_event recusa, home none/open/between
+-- ============================================================
+do $$
+declare
+  j jsonb := pg_temp.fx('mpart', 9, 3, 2, 20::smallint);
+  v_e uuid := pg_temp.id(j, 'event');
+  v_r uuid := pg_temp.id(j, 'racha');
+  v_owner uuid := pg_temp.id(j, 'owner');
+  v_extra uuid := pg_temp.id(j, 'line', 10);
+  v_p1 uuid;
+  v_p3 uuid;
+  v_dest integer;
+  v_gk uuid;
+  v_gk_team uuid;
+  v_match uuid;
+  j_none jsonb := pg_temp.fx('mnone', 6, 0, 0, 12::smallint, false, 0, 0, false);
+begin
+  perform pg_temp.as_(v_owner);
+  perform pg_temp.assert_that(
+    (select o.match_state from public.list_open_events(v_r) o where o.id = v_e) = 'between'
+    and (select o.match_state from public.list_my_racha_events() o where o.id = v_e) = 'between',
+    'home between com Sorteio e sem Partida');
+
+  v_match := (public.start_event_match(v_e) #>> '{match,id}')::uuid;
+  perform pg_temp.assert_that(
+    (select o.match_state from public.list_open_events(v_r) o where o.id = v_e) = 'open'
+    and (select o.match_state from public.list_my_racha_events() o where o.id = v_e) = 'open',
+    'home open com Partida aberta');
+
+  select k.person_id, k.team_id into v_gk, v_gk_team
+  from public.event_sort_goalkeeper k
+  where k.event_id = v_e and k.team_id is not null
+  order by k.team_id
+  limit 1;
+  perform private.event_sort_rebalance_goalkeepers(v_e);
+  perform pg_temp.assert_that(
+    exists (
+      select 1 from public.event_sort_goalkeeper k
+      where k.event_id = v_e and k.person_id = v_gk and k.team_id = v_gk_team
+    ),
+    'recálculo não mexe no goleiro ativo da Partida');
+
+  select p.person_id into v_p1
+  from public.event_sort_team_player p
+  join public.event_sort_team t on t.id = p.team_id
+  where p.event_id = v_e and p.left_at is null and t.queue_order = 1
+  limit 1;
+  select p.person_id into v_p3
+  from public.event_sort_team_player p
+  join public.event_sort_team t on t.id = p.team_id
+  where p.event_id = v_e and p.left_at is null and t.queue_order = 3
+  limit 1;
+  perform public.leave_event_sort(v_e, v_p1);
+  perform public.leave_event_sort(v_e, v_p3);
+  perform public.include_event_sort_member(v_e, v_extra);
+  select t.queue_order into v_dest
+  from public.event_sort_team_player p
+  join public.event_sort_team t on t.id = p.team_id
+  where p.event_id = v_e and p.person_id = v_extra and p.left_at is null;
+  perform pg_temp.assert_that(v_dest = 3, 'Inclusão com Partida aberta ignora queue_order 1 e 2');
+
+  perform pg_temp.assert_that(
+    pg_temp.err(format('select public.finish_event(%L)', v_e)) = 'match_open',
+    'finish_event com Partida aberta → match_open');
+
+  perform pg_temp.as_(pg_temp.id(j_none, 'owner'));
+  perform pg_temp.assert_that(
+    (select o.match_state from public.list_open_events(pg_temp.id(j_none, 'racha')) o
+      where o.id = pg_temp.id(j_none, 'event')) = 'none'
+    and (select o.match_state from public.list_my_racha_events() o
+      where o.id = pg_temp.id(j_none, 'event')) = 'none',
+    'home none sem Sorteio confirmado');
+
+  raise notice 'PASS: Partida aberta — Inclusão, recálculo, finish_event match_open e home';
+end $$;
+
+-- ============================================================
 -- 9. Trava comum, grants e leitura
 -- ============================================================
 do $$

@@ -33,6 +33,12 @@ type TEventCardProps = {
     onEdit?: () => void;
     onCancel?: () => void;
   } | null;
+  matchLine: {
+    title: string;
+    score: string | null;
+    accessibilityLabel: string;
+    onPress: () => void;
+  } | null;
 };
 
 // Editar, Cancelar e Encerrar viram ícones no topo do cartão
@@ -93,6 +99,7 @@ export const EventCard = ({
   onOpenAttendance,
   actions,
   upcoming,
+  matchLine,
 }: TEventCardProps) => (
   <View style={styles.card}>
     <View style={styles.header}>
@@ -157,6 +164,21 @@ export const EventCard = ({
       <Text preset="small" color="muted">
         {conductorLine}
       </Text>
+    ) : null}
+    {matchLine ? (
+      <Pressable
+        onPress={matchLine.onPress}
+        accessibilityRole="button"
+        accessibilityLabel={matchLine.accessibilityLabel}
+        style={styles.matchLine}
+      >
+        <Text style={styles.bold}>{matchLine.title}</Text>
+        {matchLine.score ? (
+          <Text preset="stat" color="action">
+            {matchLine.score}
+          </Text>
+        ) : null}
+      </Pressable>
     ) : null}
     <EventAttendanceCta
       confirmedCount={confirmedCount}
@@ -253,6 +275,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     lineHeight: 32,
     fontVariant: ["tabular-nums"],
+  },
+  matchLine: {
+    gap: 4,
+    minHeight: theme.minTouch,
+    justifyContent: "center",
+    paddingVertical: theme.space[8],
+    borderTopWidth: 1,
+    borderColor: theme.colors.divider,
   },
   upcoming: {
     gap: 4,

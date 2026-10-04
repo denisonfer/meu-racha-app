@@ -364,6 +364,67 @@ begin
   end;
   raise notice 'PASS: 10 credit_already_used bloqueia correção';
 
+  -- 12) job de 12h com Partida aberta: descarta e encerra; settle uma vez
+  v_event := pg_temp.make_caixa_event(
+    v_racha, v_past, time '16:00', 'Quadra Caixa',
+    'active'::public.event_status, v_owner, 10::smallint, 1
+  );
+  perform set_config('request.jwt.claim.sub', v_owner::text, true);
+  perform public.confirm_attendance(v_event);
+  perform public.set_attendance_paid(v_event, v_owner, null, true);
+  perform public.set_attendance_attended(v_event, v_owner, null, true);
+  perform set_config('request.jwt.claim.sub', v_p1::text, true);
+  perform public.confirm_attendance(v_event);
+  perform set_config('request.jwt.claim.sub', v_owner::text, true);
+  perform public.set_attendance_paid(v_event, v_p1, null, true);
+
+  insert into public.event_sort (
+    event_id, status, signature, version, leftover_ids, mode, goalkeepers_per_team,
+    balance_score, balance_label, balance_diff, super_diff, capped_by_super,
+    confirmed_at, confirmed_by
+  ) values (
+    v_event, 'confirmed', 'caixa-match', 1, '{}', 'normal', true,
+    80, 'Equilibrado', 0, 0, false, now(), v_owner
+  );
+
+  insert into public.event_sort_team (event_id, team_number, queue_order)
+  values (v_event, 1, 1), (v_event, 2, 2);
+
+  insert into public.event_match (
+    event_id, number, home_team_id, away_team_id, queue_before, started_by
+  )
+  select v_event, 1, t1.id, t2.id, '{}'::jsonb, v_owner
+  from public.event_sort_team t1
+  join public.event_sort_team t2 on t2.event_id = v_event and t2.queue_order = 2
+  where t1.event_id = v_event and t1.queue_order = 1;
+
+  perform private.process_overdue_events(now());
+
+  if (select status from public.event where id = v_event) is distinct from 'finished'
+     or not (select ended_by_system from public.event where id = v_event) then
+    raise exception 'overdue_did_not_finish_event_with_open_match';
+  end if;
+  if (select status from public.event_match where event_id = v_event)
+     is distinct from 'discarded' then
+    raise exception 'overdue_did_not_discard_open_match';
+  end if;
+
+  v_balance := (
+    select count(*)::integer from public.racha_credit_entry
+    where source_event_id = v_event
+  );
+  if v_balance < 1 then
+    raise exception 'overdue_settle_missing_entries';
+  end if;
+  perform private.settle_event_credits(v_event);
+  if (
+    select count(*)::integer from public.racha_credit_entry
+    where source_event_id = v_event
+  ) <> v_balance then
+    raise exception 'overdue_settle_ran_more_than_once';
+  end if;
+  raise notice 'PASS: 12 job 12h descarta Partida aberta e settle uma vez';
+
   raise notice 'ALL_CAIXA_PASS';
 end $$;
 

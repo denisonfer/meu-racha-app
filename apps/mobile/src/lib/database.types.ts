@@ -232,6 +232,304 @@ export type Database = {
           },
         ];
       };
+      event_match: {
+        Row: {
+          away_team_id: string;
+          challenger_team_id: string | null;
+          decided_by_penalties: boolean;
+          ended_at: string | null;
+          event_id: string;
+          home_team_id: string;
+          id: string;
+          is_rematch: boolean;
+          next_challenger_team_id: string | null;
+          next_is_rematch: boolean;
+          number: number;
+          paused_at: string | null;
+          paused_seconds: number;
+          queue_before: Json;
+          seq: number;
+          started_at: string;
+          started_by: string;
+          status: Database["public"]["Enums"]["event_match_status"];
+          winner_team_id: string | null;
+        };
+        Insert: {
+          away_team_id: string;
+          challenger_team_id?: string | null;
+          decided_by_penalties?: boolean;
+          ended_at?: string | null;
+          event_id: string;
+          home_team_id: string;
+          id?: string;
+          is_rematch?: boolean;
+          next_challenger_team_id?: string | null;
+          next_is_rematch?: boolean;
+          number: number;
+          paused_at?: string | null;
+          paused_seconds?: number;
+          queue_before: Json;
+          seq?: number;
+          started_at?: string;
+          started_by: string;
+          status?: Database["public"]["Enums"]["event_match_status"];
+          winner_team_id?: string | null;
+        };
+        Update: {
+          away_team_id?: string;
+          challenger_team_id?: string | null;
+          decided_by_penalties?: boolean;
+          ended_at?: string | null;
+          event_id?: string;
+          home_team_id?: string;
+          id?: string;
+          is_rematch?: boolean;
+          next_challenger_team_id?: string | null;
+          next_is_rematch?: boolean;
+          number?: number;
+          paused_at?: string | null;
+          paused_seconds?: number;
+          queue_before?: Json;
+          seq?: number;
+          started_at?: string;
+          started_by?: string;
+          status?: Database["public"]["Enums"]["event_match_status"];
+          winner_team_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_match_away_fk";
+            columns: ["away_team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_match_challenger_fk";
+            columns: ["challenger_team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_match_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort";
+            referencedColumns: ["event_id"];
+          },
+          {
+            foreignKeyName: "event_match_home_fk";
+            columns: ["home_team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_match_next_challenger_fk";
+            columns: ["next_challenger_team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_match_started_by_fkey";
+            columns: ["started_by"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_winner_fk";
+            columns: ["winner_team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+        ];
+      };
+      event_match_goal: {
+        Row: {
+          assist_guest_id: string | null;
+          assist_id: string | null;
+          assist_profile_id: string | null;
+          conceded_goalkeeper_id: string | null;
+          conceded_guest_id: string | null;
+          conceded_profile_id: string | null;
+          created_at: string;
+          event_id: string;
+          id: string;
+          is_own_goal: boolean;
+          match_id: string;
+          request_key: string;
+          scorer_guest_id: string | null;
+          scorer_id: string | null;
+          scorer_profile_id: string | null;
+          team_id: string;
+        };
+        Insert: {
+          assist_guest_id?: string | null;
+          assist_id?: string | null;
+          assist_profile_id?: string | null;
+          conceded_goalkeeper_id?: string | null;
+          conceded_guest_id?: string | null;
+          conceded_profile_id?: string | null;
+          created_at?: string;
+          event_id: string;
+          id?: string;
+          is_own_goal?: boolean;
+          match_id: string;
+          request_key: string;
+          scorer_guest_id?: string | null;
+          scorer_id?: string | null;
+          scorer_profile_id?: string | null;
+          team_id: string;
+        };
+        Update: {
+          assist_guest_id?: string | null;
+          assist_id?: string | null;
+          assist_profile_id?: string | null;
+          conceded_goalkeeper_id?: string | null;
+          conceded_guest_id?: string | null;
+          conceded_profile_id?: string | null;
+          created_at?: string;
+          event_id?: string;
+          id?: string;
+          is_own_goal?: boolean;
+          match_id?: string;
+          request_key?: string;
+          scorer_guest_id?: string | null;
+          scorer_id?: string | null;
+          scorer_profile_id?: string | null;
+          team_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_match_goal_assist_guest_id_fkey";
+            columns: ["assist_guest_id"];
+            isOneToOne: false;
+            referencedRelation: "event_guest";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_goal_assist_profile_id_fkey";
+            columns: ["assist_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_goal_conceded_guest_id_fkey";
+            columns: ["conceded_guest_id"];
+            isOneToOne: false;
+            referencedRelation: "event_guest";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_goal_conceded_profile_id_fkey";
+            columns: ["conceded_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_goal_match_fk";
+            columns: ["match_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_match";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_match_goal_scorer_guest_id_fkey";
+            columns: ["scorer_guest_id"];
+            isOneToOne: false;
+            referencedRelation: "event_guest";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_goal_scorer_profile_id_fkey";
+            columns: ["scorer_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_goal_team_fk";
+            columns: ["team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+        ];
+      };
+      event_match_lineup: {
+        Row: {
+          entered_at: string;
+          event_id: string;
+          guest_id: string | null;
+          id: string;
+          left_at: string | null;
+          match_id: string;
+          person_id: string | null;
+          profile_id: string | null;
+          role: Database["public"]["Enums"]["event_match_role"];
+          team_id: string;
+        };
+        Insert: {
+          entered_at?: string;
+          event_id: string;
+          guest_id?: string | null;
+          id?: string;
+          left_at?: string | null;
+          match_id: string;
+          person_id?: string | null;
+          profile_id?: string | null;
+          role: Database["public"]["Enums"]["event_match_role"];
+          team_id: string;
+        };
+        Update: {
+          entered_at?: string;
+          event_id?: string;
+          guest_id?: string | null;
+          id?: string;
+          left_at?: string | null;
+          match_id?: string;
+          person_id?: string | null;
+          profile_id?: string | null;
+          role?: Database["public"]["Enums"]["event_match_role"];
+          team_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_match_lineup_guest_id_fkey";
+            columns: ["guest_id"];
+            isOneToOne: false;
+            referencedRelation: "event_guest";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_lineup_match_fk";
+            columns: ["match_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_match";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_match_lineup_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_lineup_team_fk";
+            columns: ["team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+        ];
+      };
       event_payment_fact: {
         Row: {
           cancelled_at: string | null;
@@ -432,18 +730,21 @@ export type Database = {
           id: string;
           queue_order: number | null;
           team_number: number;
+          win_streak: number;
         };
         Insert: {
           event_id: string;
           id?: string;
           queue_order?: number | null;
           team_number: number;
+          win_streak?: number;
         };
         Update: {
           event_id?: string;
           id?: string;
           queue_order?: number | null;
           team_number?: number;
+          win_streak?: number;
         };
         Relationships: [
           {
@@ -950,6 +1251,17 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_event_match_goal: {
+        Args: {
+          p_assist?: string;
+          p_match_id: string;
+          p_own_goal?: boolean;
+          p_request_key: string;
+          p_scorer?: string;
+          p_team_id: string;
+        };
+        Returns: Json;
+      };
       add_guest: {
         Args: {
           p_display_name: string;
@@ -1010,6 +1322,8 @@ export type Database = {
           invite_code: string;
         }[];
       };
+      delete_event_match_goal: { Args: { p_goal_id: string }; Returns: Json };
+      discard_event_match: { Args: { p_match_id: string }; Returns: Json };
       email_available: { Args: { p_email: string }; Returns: boolean };
       expel_member: {
         Args: { p_profile_id: string; p_racha_id: string };
@@ -1019,6 +1333,11 @@ export type Database = {
         Args: { p_event_id: string; p_payments_reviewed?: boolean };
         Returns: undefined;
       };
+      finish_event_match: {
+        Args: { p_match_id: string; p_penalty_winner?: string };
+        Returns: Json;
+      };
+      get_event_match: { Args: { p_event_id: string }; Returns: Json };
       get_event_sort: { Args: { p_event_id: string }; Returns: Json };
       get_event_sort_proposal: { Args: { p_event_id: string }; Returns: Json };
       get_invite: {
@@ -1080,7 +1399,7 @@ export type Database = {
           payer_target: number;
           plays_as: Database["public"]["Enums"]["plays_as"];
           present_payer_count: number;
-          primary_layer: string | null;
+          primary_layer: string;
           primary_position: Database["public"]["Enums"]["position"];
           profile_id: string;
           queue_position: number;
@@ -1115,12 +1434,17 @@ export type Database = {
         Returns: {
           confirmed_count: number;
           id: string;
+          match_away_score: number;
+          match_home_score: number;
+          match_state: string;
           my_queue_position: number;
           my_status: string;
+          next_away_team_number: number;
+          next_home_team_number: number;
           place: string;
           racha_id: string;
           sort_confirmed: boolean;
-          spot_limit: number | null;
+          spot_limit: number;
           starts_at: string;
           starts_on: string;
           status: Database["public"]["Enums"]["event_status"];
@@ -1134,8 +1458,13 @@ export type Database = {
           confirmed_count: number;
           id: string;
           is_paid: boolean;
+          match_away_score: number;
+          match_home_score: number;
+          match_state: string;
           my_queue_position: number;
           my_status: string;
+          next_away_team_number: number;
+          next_home_team_number: number;
           outfield_per_team: number;
           payer_target: number;
           place: string;
@@ -1167,7 +1496,12 @@ export type Database = {
         Args: { p_racha_id: string };
         Returns: Database["public"]["Enums"]["member_role"];
       };
+      pause_event_match: { Args: { p_match_id: string }; Returns: Json };
       prepare_event_sort: { Args: { p_event_id: string }; Returns: Json };
+      preview_finish_event_match: {
+        Args: { p_match_id: string; p_penalty_winner?: string };
+        Returns: Json;
+      };
       racha_has_active_event: {
         Args: { p_racha_id: string };
         Returns: boolean;
@@ -1177,6 +1511,7 @@ export type Database = {
         Returns: undefined;
       };
       remove_guest: { Args: { p_guest_id: string }; Returns: undefined };
+      resume_event_match: { Args: { p_match_id: string }; Returns: Json };
       return_event_sort_player: {
         Args: {
           p_event_id: string;
@@ -1229,6 +1564,18 @@ export type Database = {
         };
         Returns: undefined;
       };
+      start_event_match: {
+        Args: {
+          p_away_goalkeeper?: string;
+          p_event_id: string;
+          p_home_goalkeeper?: string;
+        };
+        Returns: Json;
+      };
+      swap_event_match_goalkeeper: {
+        Args: { p_goalkeeper: string; p_match_id: string; p_team_id: string };
+        Returns: Json;
+      };
       swap_event_sort_goalkeepers: {
         Args: {
           p_event_id: string;
@@ -1254,6 +1601,10 @@ export type Database = {
           p_starts_on: string;
         };
         Returns: undefined;
+      };
+      update_event_match_goal: {
+        Args: { p_assist?: string; p_goal_id: string; p_scorer: string };
+        Returns: Json;
       };
       update_member: {
         Args: {
@@ -1283,6 +1634,8 @@ export type Database = {
     };
     Enums: {
       attendance_status: "confirmed" | "waitlisted" | "cancelled" | "left";
+      event_match_role: "OUTFIELD" | "GOALKEEPER";
+      event_match_status: "open" | "finished" | "discarded";
       event_sort_status: "draft" | "confirmed";
       event_status: "upcoming" | "active" | "finished";
       game_mode: "WINNER_STAYS" | "ROTATION" | "MAX_WINS";
@@ -1426,6 +1779,8 @@ export const Constants = {
   public: {
     Enums: {
       attendance_status: ["confirmed", "waitlisted", "cancelled", "left"],
+      event_match_role: ["OUTFIELD", "GOALKEEPER"],
+      event_match_status: ["open", "finished", "discarded"],
       event_sort_status: ["draft", "confirmed"],
       event_status: ["upcoming", "active", "finished"],
       game_mode: ["WINNER_STAYS", "ROTATION", "MAX_WINS"],

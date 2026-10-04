@@ -24,9 +24,13 @@ import {
 import {
   ACTION_FAILED,
   conductorName,
+  MATCH_LIVE,
+  MATCH_VIEW,
   POSITION_DETAIL_COMPLETE,
   POSITION_DETAIL_SELF_TITLE,
   positionDetailSelfText,
+  matchNextLine,
+  matchScoreLine,
 } from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 import { TEventCardAction } from "./event-card";
@@ -116,6 +120,10 @@ export function useRachaHomeScreen() {
 
   const openSort = (eventId: string) => {
     router.push(`/racha/${id}/event/${eventId}/sort`);
+  };
+
+  const openMatch = (eventId: string) => {
+    router.push(`/racha/${id}/event/${eventId}/match`);
   };
 
   // Preparar o Sorteio é assumir a condução: outro Condutor pede confirmação antes
@@ -231,6 +239,52 @@ export function useRachaHomeScreen() {
       myQueuePosition: shownEvent.myQueuePosition,
       onOpenAttendance: () => openAttendance(shownEvent.id),
       actions: actionsFor(shownEvent),
+      matchLine:
+        shownEvent.status === "active" && shownEvent.sortConfirmed
+          ? shownEvent.matchState === "open" &&
+            shownEvent.matchHomeScore != null &&
+            shownEvent.matchAwayScore != null
+            ? {
+                title: MATCH_LIVE,
+                score: matchScoreLine(
+                  shownEvent.matchHomeScore,
+                  shownEvent.matchAwayScore
+                ),
+                accessibilityLabel: `${MATCH_LIVE} ${matchScoreLine(
+                  shownEvent.matchHomeScore,
+                  shownEvent.matchAwayScore
+                )}`,
+                onPress: () => openMatch(shownEvent.id),
+              }
+            : shownEvent.matchState === "between" &&
+                shownEvent.nextHomeTeamNumber != null &&
+                shownEvent.nextAwayTeamNumber != null
+              ? {
+                  title: matchNextLine(
+                    shownEvent.nextHomeTeamNumber,
+                    shownEvent.nextAwayTeamNumber
+                  ),
+                  score:
+                    shownEvent.matchHomeScore != null &&
+                    shownEvent.matchAwayScore != null
+                      ? matchScoreLine(
+                          shownEvent.matchHomeScore,
+                          shownEvent.matchAwayScore
+                        )
+                      : null,
+                  accessibilityLabel: matchNextLine(
+                    shownEvent.nextHomeTeamNumber,
+                    shownEvent.nextAwayTeamNumber
+                  ),
+                  onPress: () => openMatch(shownEvent.id),
+                }
+              : {
+                  title: MATCH_VIEW,
+                  score: null,
+                  accessibilityLabel: MATCH_VIEW,
+                  onPress: () => openMatch(shownEvent.id),
+                }
+          : null,
       upcoming: hiddenUpcoming
         ? {
             when: formatEventWhen(

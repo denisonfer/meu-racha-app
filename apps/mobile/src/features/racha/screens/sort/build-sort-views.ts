@@ -98,39 +98,43 @@ export function buildTeamCards(
   // Time 3–7 não tem subdivisão: o card segue sem grupos
   const isLayered =
     outfieldPerTeam !== null && asksPositionDetail(outfieldPerTeam);
-  return teams.map((team) => {
-    const isIncomplete = !team.isComplete;
-    const missing = isIncomplete
-      ? missingToComplete(outfieldPerTeam, team.playerCount)
-      : 0;
-    const header = [
-      sortTeamTitle(team.teamNumber),
-      starsLabel(team.starSum),
-      playersWord(team.playerCount),
-      isIncomplete ? "incompleto" : null,
-      missing > 0 ? sortMissingToComplete(missing) : null,
-    ]
-      .filter(Boolean)
-      .join(", ");
+  return teams
+    .filter((team) => team.isActive && team.playerCount > 0)
+    .map((team) => {
+      const isIncomplete = !team.isComplete;
+      const missing = isIncomplete
+        ? missingToComplete(outfieldPerTeam, team.playerCount)
+        : 0;
+      const header = [
+        sortTeamTitle(team.teamNumber),
+        starsLabel(team.starSum),
+        playersWord(team.playerCount),
+        isIncomplete ? "incompleto" : null,
+        missing > 0 ? sortMissingToComplete(missing) : null,
+      ]
+        .filter(Boolean)
+        .join(", ");
 
-    return {
-      key: `team:${team.teamNumber}`,
-      title: sortTeamTitle(team.teamNumber),
-      starSum: team.starSum,
-      occupancyText:
-        isIncomplete && outfieldPerTeam !== null
-          ? `${team.playerCount}/${outfieldPerTeam}`
+      return {
+        key: `team:${team.teamNumber}`,
+        title: sortTeamTitle(team.teamNumber),
+        starSum: team.starSum,
+        occupancyText:
+          isIncomplete && outfieldPerTeam !== null
+            ? `${team.playerCount}/${outfieldPerTeam}`
+            : null,
+        isIncomplete,
+        missingText: missing > 0 ? sortMissingToComplete(missing) : null,
+        headerAccessibilityLabel: header,
+        players: team.players.map((player) =>
+          playerView(player, leaveActionFor)
+        ),
+        playerGroups: isLayered
+          ? layerGroups(team.players, leaveActionFor)
           : null,
-      isIncomplete,
-      missingText: missing > 0 ? sortMissingToComplete(missing) : null,
-      headerAccessibilityLabel: header,
-      players: team.players.map((player) => playerView(player, leaveActionFor)),
-      playerGroups: isLayered
-        ? layerGroups(team.players, leaveActionFor)
-        : null,
-      goalkeeper: team.goalkeeper
-        ? goalkeeperView(team.goalkeeper, leaveActionFor)
-        : null,
-    };
-  });
+        goalkeeper: team.goalkeeper
+          ? goalkeeperView(team.goalkeeper, leaveActionFor)
+          : null,
+      };
+    });
 }

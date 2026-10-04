@@ -81,6 +81,22 @@ export default function AppLayout() {
         name="racha/[id]/event/[eventId]/sort-include"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/match-goal"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/match-finish"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/match-discard"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/match-goalkeeper"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
     </Stack>
   );
 }

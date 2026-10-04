@@ -3,9 +3,19 @@ import {
   ACTION_FAILED,
   ATTENDANCE_SPOT_LIMIT,
   FINISH_EVENT_PAYMENTS_NOT_REVIEWED,
+  MATCH_ALREADY_OPEN,
+  MATCH_INVALID_GOALKEEPER,
+  MATCH_INVALID_SCORER,
+  MATCH_LOCKED,
+  MATCH_NO_OPEN,
+  MATCH_NOT_ENOUGH_TEAMS,
+  MATCH_PENALTY_WINNER_REQUIRED,
+  SORT_NOT_CONDUCTOR,
   SORT_ROSTER_CHANGED,
   finishEventErrorMessage,
   finishEventPaidSummary,
+  matchErrorMessage,
+  matchFailureMessage,
   positionDetailChoose,
   positionDetailPendingMessage,
   sortAttendanceSummary,
@@ -112,5 +122,47 @@ describe("S1 do Sorteio", () => {
   test("resumo e bloqueio falam de quem veio", () => {
     expect(sortAttendanceSummary(11, 6)).toBe("11 confirmaram · 6 vieram");
     expect(sortMissingLinePlayers(2)).toContain("que vieram");
+  });
+});
+
+const MATCH_ERROR_CODES = [
+  "match_open",
+  "no_open_match",
+  "not_enough_teams",
+  "match_locked",
+  "penalty_winner_required",
+  "invalid_goalkeeper",
+  "invalid_scorer",
+  "not_conductor",
+] as const;
+
+describe("matchErrorMessage", () => {
+  test.each(MATCH_ERROR_CODES)("%s tem mensagem própria", (code) => {
+    const message = matchErrorMessage(code);
+    expect(message).not.toBe(ACTION_FAILED);
+    expect(message.length).toBeGreaterThan(0);
+  });
+
+  test("códigos da Partida batem com o texto fixo", () => {
+    expect(matchErrorMessage("match_open")).toBe(MATCH_ALREADY_OPEN);
+    expect(matchErrorMessage("no_open_match")).toBe(MATCH_NO_OPEN);
+    expect(matchErrorMessage("not_enough_teams")).toBe(MATCH_NOT_ENOUGH_TEAMS);
+    expect(matchErrorMessage("match_locked")).toBe(MATCH_LOCKED);
+    expect(matchErrorMessage("penalty_winner_required")).toBe(
+      MATCH_PENALTY_WINNER_REQUIRED
+    );
+    expect(matchErrorMessage("invalid_goalkeeper")).toBe(
+      MATCH_INVALID_GOALKEEPER
+    );
+    expect(matchErrorMessage("invalid_scorer")).toBe(MATCH_INVALID_SCORER);
+    expect(matchErrorMessage("not_conductor")).toBe(SORT_NOT_CONDUCTOR);
+  });
+
+  test("código desconhecido e falha de rede caem na mensagem genérica", () => {
+    expect(matchErrorMessage("xyz")).toBe(ACTION_FAILED);
+    expect(matchFailureMessage(new Error("network_error"))).not.toBe(
+      ACTION_FAILED
+    );
+    expect(matchFailureMessage(new Error("xyz"))).toBe(ACTION_FAILED);
   });
 });

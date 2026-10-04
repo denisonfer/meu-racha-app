@@ -7,6 +7,16 @@ import type {
 } from "@meu-racha/domain";
 import type { Database } from "@/lib/database.types";
 
+export type {
+  TEventMatch,
+  TMatchFinishPreview,
+  TMatchGoal,
+  TMatchItem,
+  TMatchPerson,
+} from "@meu-racha/domain";
+
+export type TMatchListState = "none" | "open" | "between";
+
 export type TMemberRole = Database["public"]["Enums"]["member_role"];
 
 export type TMyRacha = {
@@ -144,6 +154,11 @@ export type TMyRachaEvent = {
   myQueuePosition: number | null;
   // Sorteio confirmado: a Presença livre acabou
   sortConfirmed: boolean;
+  matchState: TMatchListState;
+  matchHomeScore: number | null;
+  matchAwayScore: number | null;
+  nextHomeTeamNumber: number | null;
+  nextAwayTeamNumber: number | null;
 };
 
 export type TOpenEvent = {
@@ -163,6 +178,11 @@ export type TOpenEvent = {
   myStatus: TAttendanceStatus | null;
   myQueuePosition: number | null;
   sortConfirmed: boolean;
+  matchState: TMatchListState;
+  matchHomeScore: number | null;
+  matchAwayScore: number | null;
+  nextHomeTeamNumber: number | null;
+  nextAwayTeamNumber: number | null;
 };
 
 export type TEventInput = {

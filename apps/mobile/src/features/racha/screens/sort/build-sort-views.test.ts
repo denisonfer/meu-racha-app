@@ -58,6 +58,17 @@ describe("buildTeamCards por subdivisão", () => {
     ]);
   });
 
+  test("Time sem jogador ativo some da lista", () => {
+    const empty: TSortTeam = {
+      ...team([]),
+      teamNumber: 4,
+      queueOrder: null,
+      isActive: false,
+      isComplete: false,
+    };
+    expect(buildTeamCards([team(players), empty], 5, noAction)).toHaveLength(1);
+  });
+
   test("Evento 3–7 e tamanho desconhecido: card sem grupos", () => {
     expect(buildTeamCards([team(players)], 7, noAction)[0]?.playerGroups).toBe(
       null

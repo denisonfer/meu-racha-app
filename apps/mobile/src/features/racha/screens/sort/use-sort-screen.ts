@@ -483,6 +483,7 @@ export function useSortScreen() {
       onInclude: viewer.canInclude
         ? () => router.push(`/racha/${id}/event/${eventId}/sort-include`)
         : null,
+      onOpenMatch: () => router.push(`/racha/${id}/event/${eventId}/match`),
     };
   };
 

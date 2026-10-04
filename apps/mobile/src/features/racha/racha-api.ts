@@ -3,9 +3,13 @@ import {
   initialsOf,
   normalizeInviteCode,
   OVERALL_MIN,
+  parseEventMatch,
+  parseMatchFinishPreview,
   parsePublishedSort,
   parseSortProposal,
   toPositionLayer,
+  type TEventMatch,
+  type TMatchFinishPreview,
   type TPositionDetail,
   type TPublishedSort,
   type TRachaRules,
@@ -38,6 +42,7 @@ import {
   TRachaLogistics,
   TRachaNotice,
   TRachaSettings,
+  TMatchListState,
 } from "./racha-types";
 import { attendancePaymentNote } from "./utils/racha-messages";
 
@@ -81,6 +86,13 @@ const RAISE_EXCEPTION_CODES = [
   "payments_not_reviewed",
   "position_detail_required",
   "position_detail_mismatch",
+  "match_open",
+  "no_open_match",
+  "not_enough_teams",
+  "match_locked",
+  "penalty_winner_required",
+  "invalid_goalkeeper",
+  "invalid_scorer",
 ];
 
 // o detail é texto com um array JSON de nomes; formato estranho não derruba a mensagem
@@ -129,6 +141,37 @@ function toPhotoUrl(avatarPath: string | null): string | null {
     ? supabase.storage.from(AVATAR_BUCKET).getPublicUrl(avatarPath).data
         .publicUrl
     : null;
+}
+
+function toMatchListState(value: string): TMatchListState {
+  return value === "open" || value === "between" || value === "none"
+    ? value
+    : "none";
+}
+
+function matchListFields(row: {
+  match_state: string;
+  match_home_score: number;
+  match_away_score: number;
+  next_home_team_number: number;
+  next_away_team_number: number;
+}) {
+  return {
+    matchState: toMatchListState(row.match_state),
+    // o tipo gerado diz number; sem Partida / sem próximo confronto vem null
+    matchHomeScore: row.match_home_score ?? null,
+    matchAwayScore: row.match_away_score ?? null,
+    nextHomeTeamNumber: row.next_home_team_number ?? null,
+    nextAwayTeamNumber: row.next_away_team_number ?? null,
+  };
+}
+
+function parseMatchJson(data: unknown): TEventMatch {
+  return parseEventMatch(data, toPhotoUrl);
+}
+
+function goalRequestKey(): string {
+  return String(Date.now()) + Math.random();
 }
 
 function toInviteStatus(value: string | null): TInviteStatus | null {
@@ -523,6 +566,7 @@ async function listOpenEvents(rachaId: string): Promise<TOpenEvent[]> {
     myStatus: toAttendanceStatus(row.my_status ?? null),
     myQueuePosition: row.my_queue_position ?? null,
     sortConfirmed: row.sort_confirmed,
+    ...matchListFields(row),
   }));
 }
 
@@ -543,6 +587,7 @@ async function listMyRachaEvents(): Promise<TMyRachaEvent[]> {
     myStatus: toAttendanceStatus(row.my_status ?? null),
     myQueuePosition: row.my_queue_position ?? null,
     sortConfirmed: row.sort_confirmed,
+    ...matchListFields(row),
   }));
 }
 
@@ -953,6 +998,193 @@ async function includeEventSortMember(
   return parsePublishedSort(data, toPhotoUrl);
 }
 
+async function getEventMatch(eventId: string): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc("get_event_match", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function startEventMatch(
+  eventId: string,
+  homeGoalkeeperId?: string | null,
+  awayGoalkeeperId?: string | null
+): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc("start_event_match", {
+    p_event_id: eventId,
+    ...(homeGoalkeeperId ? { p_home_goalkeeper: homeGoalkeeperId } : {}),
+    ...(awayGoalkeeperId ? { p_away_goalkeeper: awayGoalkeeperId } : {}),
+  });
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function pauseEventMatch(matchId: string): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc("pause_event_match", {
+    p_match_id: matchId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function resumeEventMatch(matchId: string): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc("resume_event_match", {
+    p_match_id: matchId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function addEventMatchGoal(
+  matchId: string,
+  teamId: string,
+  input: {
+    scorerId?: string | null;
+    assistId?: string | null;
+    ownGoal?: boolean;
+  } = {}
+): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc("add_event_match_goal", {
+    p_match_id: matchId,
+    p_request_key: goalRequestKey(),
+    p_team_id: teamId,
+    ...(input.scorerId ? { p_scorer: input.scorerId } : {}),
+    ...(input.assistId ? { p_assist: input.assistId } : {}),
+    ...(input.ownGoal ? { p_own_goal: true } : {}),
+  });
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function updateEventMatchGoal(
+  goalId: string,
+  scorerId: string,
+  assistId?: string | null
+): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc(
+    "update_event_match_goal",
+    {
+      p_goal_id: goalId,
+      p_scorer: scorerId,
+      ...(assistId ? { p_assist: assistId } : {}),
+    }
+  );
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function deleteEventMatchGoal(goalId: string): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc(
+    "delete_event_match_goal",
+    {
+      p_goal_id: goalId,
+    }
+  );
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function swapEventMatchGoalkeeper(
+  matchId: string,
+  teamId: string,
+  goalkeeperId: string
+): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc(
+    "swap_event_match_goalkeeper",
+    {
+      p_match_id: matchId,
+      p_team_id: teamId,
+      p_goalkeeper: goalkeeperId,
+    }
+  );
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function previewFinishEventMatch(
+  matchId: string,
+  penaltyWinnerId?: string | null
+): Promise<TMatchFinishPreview> {
+  const { data, error, status } = await supabase.rpc(
+    "preview_finish_event_match",
+    {
+      p_match_id: matchId,
+      ...(penaltyWinnerId ? { p_penalty_winner: penaltyWinnerId } : {}),
+    }
+  );
+  if (error) throw toCodedError(error, status);
+  return parseMatchFinishPreview(data);
+}
+
+async function finishEventMatch(
+  matchId: string,
+  penaltyWinnerId?: string | null
+): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc("finish_event_match", {
+    p_match_id: matchId,
+    ...(penaltyWinnerId ? { p_penalty_winner: penaltyWinnerId } : {}),
+  });
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function discardEventMatch(matchId: string): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc("discard_event_match", {
+    p_match_id: matchId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+export type TEventMatchLive = {
+  isConductorPresent: () => boolean;
+  track: () => Promise<void>;
+  untrack: () => Promise<void>;
+  unsubscribe: () => void;
+};
+
+/** Canal privado event:<id>. setAuth + private:true: tipos realtime-js 2.117.1. */
+async function subscribeEventMatch(
+  eventId: string,
+  handlers: {
+    onMatchChanged: (seq: number) => void;
+    onSubscribed: () => void;
+    onPresenceSync: () => void;
+  }
+): Promise<TEventMatchLive> {
+  await supabase.realtime.setAuth();
+  const channel = supabase.channel("event:" + eventId, {
+    config: { private: true, presence: { enabled: true } },
+  });
+  channel.on(
+    "broadcast",
+    { event: "match_changed" },
+    (message: { payload?: { seq?: unknown } }) => {
+      const seq = Number(message.payload?.seq);
+      if (Number.isFinite(seq)) handlers.onMatchChanged(seq);
+    }
+  );
+  channel.on("presence", { event: "sync" }, () => {
+    handlers.onPresenceSync();
+  });
+  channel.subscribe((status) => {
+    if (status === "SUBSCRIBED") handlers.onSubscribed();
+  });
+  return {
+    isConductorPresent: () => Object.keys(channel.presenceState()).length > 0,
+    track: async () => {
+      await channel.track({});
+    },
+    untrack: async () => {
+      await channel.untrack();
+    },
+    unsubscribe: () => {
+      void supabase.removeChannel(channel);
+    },
+  };
+}
+
 async function includeEventSortGuest(
   eventId: string,
   input: TGuestInput
@@ -1030,4 +1262,16 @@ export const rachaApi = {
   returnEventSortPlayer,
   includeEventSortMember,
   includeEventSortGuest,
+  getEventMatch,
+  startEventMatch,
+  pauseEventMatch,
+  resumeEventMatch,
+  addEventMatchGoal,
+  updateEventMatchGoal,
+  deleteEventMatchGoal,
+  swapEventMatchGoalkeeper,
+  previewFinishEventMatch,
+  finishEventMatch,
+  discardEventMatch,
+  subscribeEventMatch,
 };

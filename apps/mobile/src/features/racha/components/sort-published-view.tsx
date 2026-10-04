@@ -1,6 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { Button, Text } from "@/ui/components";
 import {
+  MATCH_VIEW,
   SORT_CONFIRMED_TITLE,
   SORT_INCLUDE_PERSON,
 } from "../utils/racha-messages";
@@ -29,6 +30,7 @@ type TSortPublishedViewProps = TSortTeamsProps & {
   failureMessage: string | null;
   // só o Condutor recebe o comando de incluir
   onInclude: (() => void) | null;
+  onOpenMatch: (() => void) | null;
 };
 
 /** S3: os mesmos Times para todos; as ações vêm prontas por papel. */
@@ -44,6 +46,7 @@ export const SortPublishedView = ({
   sections,
   failureMessage,
   onInclude,
+  onOpenMatch,
 }: TSortPublishedViewProps) => {
   const content = (
     <>
@@ -55,6 +58,14 @@ export const SortPublishedView = ({
         <Text color="muted">
           {when} · {place}
         </Text>
+        {onOpenMatch ? (
+          <Button
+            title={MATCH_VIEW}
+            preset="secondary"
+            onPress={onOpenMatch}
+            accessibilityHint="Abre a tela da Partida"
+          />
+        ) : null}
       </View>
 
       <SortBalanceCard

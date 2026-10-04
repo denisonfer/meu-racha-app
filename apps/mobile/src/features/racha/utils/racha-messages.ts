@@ -438,6 +438,140 @@ export const sortLeftTitle = (count: number) => `${SORT_LEFT_TITLE} · ${count}`
 export const sortScoreLabel = (score: number, label: string) =>
   `${Math.round(score)}%, ${label}`;
 
+export const MATCH_ALREADY_OPEN = "Já existe uma partida em andamento.";
+export const MATCH_NO_OPEN = "Não há partida em andamento.";
+export const MATCH_NOT_ENOUGH_TEAMS =
+  "Faltam times na fila para iniciar a partida.";
+export const MATCH_LOCKED =
+  "Essa partida já foi encerrada. Não dá para apagar o gol.";
+export const MATCH_PENALTY_WINNER_REQUIRED =
+  "Empate nos pênaltis: escolha o vencedor.";
+export const MATCH_INVALID_GOALKEEPER =
+  "Esse goleiro não pode entrar neste time agora.";
+export const MATCH_INVALID_SCORER =
+  "Esse jogador não pode ser o autor deste gol.";
+
+export const MATCH_TITLE = "Partida";
+export const MATCH_VIEW = "Ver partida";
+export const MATCH_LIVE = "Partida rolando";
+export const MATCH_LOADING = "Carregando a partida";
+export const MATCH_LOAD_FAILED_TITLE = "Não deu pra abrir a partida";
+export const MATCH_PAUSE = "Pausar";
+export const MATCH_RESUME = "Retomar";
+export const MATCH_START = "Iniciar";
+export const MATCH_FINISH = "Encerrar";
+export const MATCH_DISCARD = "Descartar";
+export const MATCH_SWAP_KEEPER = "Trocar goleiro";
+export const MATCH_PAUSED = "pausado";
+export const MATCH_OVERTIME = "acrésc.";
+export const MATCH_DELETE_GOAL = "apagar";
+export const MATCH_CORRECT = "Corrigir";
+export const MATCH_OWN_GOAL = "Gol contra";
+export const MATCH_NO_ASSIST = "Sem assistência";
+export const MATCH_ASSIST_TITLE = "Assistência";
+export const MATCH_GOALS_TITLE = "Gols desta partida";
+export const MATCH_TEAMS_QUEUE = "Fila de times";
+export const MATCH_FINISHED_TITLE = "Partidas encerradas";
+export const MATCH_TAP_GOAL = "toque p/ gol";
+export const MATCH_REMATCH = "Revanche";
+export const MATCH_CONDUCTOR_OFFLINE = "O Condutor está sem conexão.";
+export const MATCH_OFFLINE =
+  "Sem conexão. Os botões ficam bloqueados até a rede voltar.";
+export const MATCH_DISCARD_TITLE = "Descartar partida?";
+export const MATCH_DISCARD_TEXT =
+  "Gols somem, ninguém recebe crédito e a fila volta ao estado de antes do apito.";
+export const MATCH_DISCARD_CONFIRM = "Descartar";
+export const MATCH_DISCARD_BUSY = "Descartando";
+export const MATCH_FINISH_TITLE = "Encerrar partida?";
+export const MATCH_FINISH_CONFIRM = "Confirmar";
+export const MATCH_FINISH_BUSY = "Encerrando";
+export const MATCH_WINNER_PICK = "Quem venceu nos pênaltis?";
+export const MATCH_KEEPER_FIRST = "Primeiro da fila";
+export const MATCH_QUEUE_NEXT = "PRÓXIMO";
+
+export const matchNextLine = (home: number, away: number) =>
+  `Próxima: Time ${home} × Time ${away}`;
+export const matchScoreLine = (home: number, away: number) =>
+  `${home} × ${away}`;
+export const matchDurationLine = (clock: string) => `Duração ${clock}`;
+export const matchIncompleteTeam = (teamNumber: number) =>
+  `Time ${teamNumber} está incompleto. Joga assim.`;
+export const matchKeeperLine = (name: string) => `Goleiro · ${name}`;
+export const matchSwapKeeperOf = (team: string) => `Trocar goleiro · ${team}`;
+export const matchGoalScorerTitle = (team: string) => `Autor do gol — ${team}`;
+export const matchAssistHint = (name: string) => `Gol de ${name} — opcional`;
+export const matchVsLine = (home: number, away: number) =>
+  `Time ${home} × Time ${away}`;
+export const matchNumberLabel = (number: number) => `Partida ${number}`;
+
+/** Consequência do preview: o banco manda o código, a tela fala em português. */
+export function matchFinishConsequence(
+  consequence: string,
+  fallback: string | null,
+  nextIsRematch: boolean
+): string {
+  const fallbackText =
+    fallback === "REMATCH_TIED_AGAIN"
+      ? "A revanche empatou de novo: os dois Times saem."
+      : fallback === "NO_CHALLENGER"
+        ? "Sem desafiante: os dois Times saem."
+        : null;
+  const main =
+    fallbackText ??
+    (consequence === "WINNER_STAYS"
+      ? "O vencedor fica. O perdedor vai para o fim da fila."
+      : consequence === "ROTATION"
+        ? "Os dois Times saem. O próximo da fila entra."
+        : consequence === "MAX_WINS_OUT"
+          ? "O vencedor atingiu o máximo de vitórias e sai com o perdedor."
+          : consequence === "REMATCH"
+            ? "Empate: revanche. Os dois Times ficam."
+            : consequence === "CHALLENGER_STAYS"
+              ? "Empate: o desafiante fica. O outro Time sai."
+              : consequence === "BOTH_OUT"
+                ? "Empate: os dois Times saem."
+                : consequence);
+  return nextIsRematch && consequence !== "REMATCH"
+    ? `${main} Próxima é a revanche.`
+    : main;
+}
+
+/** Código de erro das RPCs da Partida → pt-BR; desconhecido cai em ACTION_FAILED. */
+export function matchErrorMessage(code: string): string {
+  switch (code) {
+    case "match_open":
+      return MATCH_ALREADY_OPEN;
+    case "no_open_match":
+      return MATCH_NO_OPEN;
+    case "not_enough_teams":
+      return MATCH_NOT_ENOUGH_TEAMS;
+    case "match_locked":
+      return MATCH_LOCKED;
+    case "penalty_winner_required":
+      return MATCH_PENALTY_WINNER_REQUIRED;
+    case "invalid_goalkeeper":
+      return MATCH_INVALID_GOALKEEPER;
+    case "invalid_scorer":
+      return MATCH_INVALID_SCORER;
+    case "not_conductor":
+      return SORT_NOT_CONDUCTOR;
+    case "not_member":
+      return SORT_NOT_MEMBER;
+    case "event_not_active":
+      return SORT_EVENT_NOT_ACTIVE;
+    default:
+      return ACTION_FAILED;
+  }
+}
+
+/** Erro de uma ação da Partida → texto; sem rede, o convite a tentar de novo. */
+export function matchFailureMessage(error: unknown): string {
+  const code = error instanceof Error ? error.message : "";
+  return code === "network_error"
+    ? SORT_LOAD_FAILED_TEXT
+    : matchErrorMessage(code);
+}
+
 /** Erro de uma ação do Sorteio → texto; sem rede, o convite a tentar de novo. */
 export function sortFailureMessage(error: unknown): string {
   const code = error instanceof Error ? error.message : "";
