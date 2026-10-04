@@ -153,6 +153,7 @@ export const SortTeamCard = ({
       </View>
     </View>
     <View style={styles.list}>
+      {goalkeeper ? <PersonRow person={goalkeeper} /> : null}
       {playerGroups
         ? playerGroups.map((group) => (
             <View key={group.key}>
@@ -167,7 +168,6 @@ export const SortTeamCard = ({
         : players.map((person) => (
             <PersonRow key={person.key} person={person} />
           ))}
-      {goalkeeper ? <PersonRow person={goalkeeper} /> : null}
     </View>
     {missingText ? (
       <Text preset="small" color="warning" style={styles.missing}>
