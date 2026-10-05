@@ -1,5 +1,6 @@
 import type { TPlaysAs, TPosition } from "../profile";
 import { POSITION_LAYERS, type TPositionLayer } from "../racha/position-detail";
+import type { TMatchArrival } from "../match/types";
 import type {
   TPublishedSort,
   TSortAttendanceStatus,
@@ -100,6 +101,12 @@ const WAITING_REASONS = [
   "not_attended",
 ] as const satisfies readonly TSortWaitingReason[];
 const KINDS = ["member", "guest"] as const;
+const ARRIVAL_KINDS = [
+  "field",
+  "field_draw",
+  "queue",
+  "new_team",
+] as const satisfies readonly TMatchArrival["kind"][];
 
 function position(value: unknown): TPosition | null {
   return value == null ? null : oneOf(value, POSITIONS);
@@ -212,6 +219,24 @@ function leftPlayer(value: unknown, photo: TPhotoResolver): TSortLeftPlayer {
   };
 }
 
+function arrival(value: unknown): TMatchArrival {
+  const raw = obj(value);
+  const kind = oneOf(raw.kind, ARRIVAL_KINDS);
+  if (kind === "field_draw") {
+    if (raw.team_id != null || raw.team_number != null) throw invalid();
+    return { kind, teamId: null, teamNumber: null };
+  }
+  if (kind === "new_team") {
+    if (raw.team_id != null) throw invalid();
+    return { kind, teamId: null, teamNumber: num(raw.team_number) };
+  }
+  return {
+    kind,
+    teamId: str(raw.team_id),
+    teamNumber: num(raw.team_number),
+  };
+}
+
 /** Retorno de prepare/swap/get_event_sort_proposal. */
 export function parseSortProposal(
   json: unknown,
@@ -273,5 +298,6 @@ export function parsePublishedSort(
       waiting(item, photo)
     ),
     left: list(raw.left).map((item) => leftPlayer(item, photo)),
+    nextArrival: arrival(raw.next_arrival),
   };
 }

@@ -450,6 +450,11 @@ export const MATCH_INVALID_GOALKEEPER =
   "Esse goleiro não pode entrar neste time agora.";
 export const MATCH_INVALID_SCORER =
   "Esse jogador não pode ser o autor deste gol.";
+export const MATCH_NOT_ON_FIELD =
+  "Essa pessoa não está em campo nesta partida.";
+export const MATCH_ALREADY_REINFORCED = "Essa saída já teve Reforço.";
+export const MATCH_INVALID_DONOR = "Esse Time não pode ceder o Reforço.";
+export const MATCH_NO_DONOR_TEAM = "Não há Time na fila para ceder.";
 
 export const MATCH_TITLE = "Partida";
 export const MATCH_VIEW = "Ver partida";
@@ -488,12 +493,115 @@ export const MATCH_FINISH_BUSY = "Encerrando";
 export const MATCH_WINNER_PICK = "Quem venceu nos pênaltis?";
 export const MATCH_KEEPER_FIRST = "Primeiro da fila";
 export const MATCH_QUEUE_NEXT = "PRÓXIMO";
+export const MATCH_QUEUE_EMPTY = "Ninguém esperando na fila";
+export const MATCH_QUEUE_OPEN = "Ver fila";
+export const MATCH_QUEUE_SHEET_TITLE = "Fila";
+export const MATCH_MY_TEAM_NEXT = "Seu Time joga na próxima";
+export const matchMyTeamPosition = (position: number) =>
+  `Seu Time é o ${position}º na fila`;
+const queueTeamLabel = (teamNumber: number, isComplete: boolean) =>
+  isComplete
+    ? sortTeamTitle(teamNumber)
+    : `${sortTeamTitle(teamNumber)} (incompleto)`;
+export const matchQueueStrip = (
+  next: { teamNumber: number; isComplete: boolean },
+  after: { teamNumber: number; isComplete: boolean } | null
+) =>
+  after
+    ? `Próxima: ${queueTeamLabel(next.teamNumber, next.isComplete)} · depois ${queueTeamLabel(after.teamNumber, after.isComplete)}`
+    : `Próxima: ${queueTeamLabel(next.teamNumber, next.isComplete)}`;
+
+export const MATCH_LEAVE_REINFORCE = "Chamar Reforço";
+export const MATCH_LEAVE_ONLY = "Só marcar saída";
+export const MATCH_ROSTER_TEXT =
+  "Toque em Marcar saída quando alguém parar de jogar.";
+export const MATCH_ROSTER = "Elenco";
+export const MATCH_EVENTS_TITLE = "Últimos lances";
+export const MATCH_REINFORCE_TITLE = "Quem cede o Reforço?";
+export const MATCH_REINFORCE_DRAW_TEAM = "Sortear o Time";
+export const MATCH_REINFORCE_DRAW_TEAM_TEXT =
+  "O app escolhe entre os Times da fila.";
+export const MATCH_REINFORCE_DRAW_TEAM_RESULT =
+  "O Time sorteado fica com um jogador a menos.";
+export const MATCH_REINFORCE_DRAW = "Sortear jogador";
+export const MATCH_REINFORCE_BACK = "Voltar à partida";
+export const MATCH_EVENT_REINFORCEMENT = "Reforço";
+export const MATCH_EVENT_LEAVE = "Saída";
+export const MATCH_EVENT_INCLUSION = "Inclusão";
+export const MATCH_EVENT_RETURN = "Volta";
+export const MATCH_LEFT_BY_SELF = "Registrou a própria saída.";
+export const MATCH_GOL_DETAIL = "GOL";
+export const ARRIVAL_FIELD_DRAW =
+  "Entra agora num dos Times em campo (sorteio)";
+
+export const matchRosterTitle = (team: string) => `${team} em campo`;
+export const matchRosterLabel = (team: number, n: number, cap: number) =>
+  `Elenco do Time ${team}, ${n} de ${cap}${n < cap ? ", incompleto" : ""}`;
+export const matchLeaveOnField = (team: string) => `${team} · em campo`;
+export const matchLinePlayers = (n: number, cap: number) =>
+  `Na linha · ${n} de ${cap} + goleiro`;
+export const matchReinforceOptionText = (team: number, cap: number) =>
+  `Um jogador de um Time da fila entra no lugar. O Time ${team} segue com ${cap}.`;
+export const matchLeaveOnlyText = (team: number, n: number, cap: number) =>
+  `O Time ${team} joga com ${n} de ${cap}. Quem chegar depois entra nele.`;
+export const matchTeamPlaysWith = (team: number, n: number, cap: number) =>
+  `O Time ${team} joga com ${n} de ${cap}.`;
+export const matchReinforceSubtitle = (team: number, name: string) =>
+  `Entra no Time ${team}, no lugar de ${name}. O app sorteia a pessoa dentro do Time escolhido.`;
+export const matchQueueOption = (
+  pos: number,
+  n: number,
+  cap: number,
+  incomplete: boolean
+) =>
+  `${pos}º na fila · ${n} de ${cap}${incomplete ? ` · ${SORT_INCOMPLETE}` : ""}`;
+export const matchTeamLeftWith = (team: number, n: number, cap: number) =>
+  `O Time ${team} fica com ${n} de ${cap}.`;
+export const matchTeamLeavesQueue = (team: number) =>
+  `O Time ${team} sai da fila.`;
+export const matchReinforceResult = (name: string, from: number, to: number) =>
+  `${name} (Time ${from}) entra no Time ${to}.`;
+export const matchNoDonor = (team: number, n: number, cap: number) =>
+  `Não há Time na fila para ceder. O Time ${team} segue com ${n} de ${cap}.`;
+export const matchSelfLeftTitle = (name: string, team: number) =>
+  `${name} saiu do Time ${team}`;
+export const matchTeamNowWith = (team: number, n: number, cap: number) =>
+  `O Time ${team} está com ${n} de ${cap}.`;
+export const arrivalField = (team: number) =>
+  `Entra agora no Time ${team} (em campo)`;
+export const arrivalQueue = (team: number) =>
+  `Vai para o Time ${team}, na fila`;
+export const arrivalNewTeam = (team: number) =>
+  `Vai para o Time ${team}, um Time novo no fim da fila`;
+export const matchEventReinforceText = (name: string, team: number) =>
+  `${name} entra no Time ${team}`;
+export const matchEventReinforceDetail = (from: number, left: string) =>
+  `Veio do Time ${from}, no lugar de ${left}.`;
+export const matchEventLeaveText = (name: string, team: number) =>
+  `${name} · Time ${team}`;
+export const matchEventEnterText = (name: string, team: number) =>
+  `${name} entra no Time ${team}`;
+export const matchOccupancy = (n: number, cap: number) => `${n}/${cap}`;
+
+export function matchArrivalText(
+  kind: "field" | "field_draw" | "queue" | "new_team",
+  teamNumber: number | null
+): string {
+  switch (kind) {
+    case "field":
+      return arrivalField(teamNumber ?? 0);
+    case "field_draw":
+      return ARRIVAL_FIELD_DRAW;
+    case "queue":
+      return arrivalQueue(teamNumber ?? 0);
+    case "new_team":
+      return arrivalNewTeam(teamNumber ?? 0);
+  }
+}
 
 export const matchScoreLine = (home: number, away: number) =>
   `${home} × ${away}`;
 export const matchDurationLine = (clock: string) => `Duração ${clock}`;
-export const matchIncompleteTeam = (teamNumber: number) =>
-  `Time ${teamNumber} está incompleto. Joga assim.`;
 export const matchKeeperLine = (name: string) => `Goleiro · ${name}`;
 export const matchSwapKeeperOf = (team: string) => `Trocar goleiro · ${team}`;
 export const matchGoalScorerTitle = (team: string) => `Autor do gol — ${team}`;
@@ -551,6 +659,14 @@ export function matchErrorMessage(code: string): string {
       return MATCH_INVALID_GOALKEEPER;
     case "invalid_scorer":
       return MATCH_INVALID_SCORER;
+    case "not_on_field":
+      return MATCH_NOT_ON_FIELD;
+    case "already_reinforced":
+      return MATCH_ALREADY_REINFORCED;
+    case "invalid_donor":
+      return MATCH_INVALID_DONOR;
+    case "no_donor":
+      return MATCH_NO_DONOR_TEAM;
     case "not_conductor":
       return SORT_NOT_CONDUCTOR;
     case "not_member":

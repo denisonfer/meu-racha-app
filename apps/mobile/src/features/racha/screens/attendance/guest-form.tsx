@@ -49,6 +49,7 @@ type TGuestFormProps = {
   failureMessage: string | null;
   isSaving: boolean;
   canSubmit: boolean;
+  hint?: string;
   onChange: (patch: Partial<TGuestFormValues>) => void;
   onSubmit: () => void;
 };
@@ -60,6 +61,7 @@ export const GuestForm = ({
   failureMessage,
   isSaving,
   canSubmit,
+  hint,
   onChange,
   onSubmit,
 }: TGuestFormProps) => {
@@ -232,6 +234,11 @@ export const GuestForm = ({
       <NoticeBanner tone="warning" text={ATTENDANCE_GUEST_AGE_NOTICE} />
 
       <View style={styles.footer}>
+        {hint ? (
+          <Text preset="small" color="muted">
+            {hint}
+          </Text>
+        ) : null}
         {failureMessage ? (
           <Text preset="small" color="errorText" accessibilityRole="alert">
             {failureMessage}

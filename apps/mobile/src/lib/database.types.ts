@@ -465,10 +465,12 @@ export type Database = {
       event_match_lineup: {
         Row: {
           entered_at: string;
+          entry_kind: Database["public"]["Enums"]["event_match_lineup_entry_kind"];
           event_id: string;
           guest_id: string | null;
           id: string;
           left_at: string | null;
+          left_by_self: boolean;
           match_id: string;
           person_id: string | null;
           profile_id: string | null;
@@ -477,10 +479,12 @@ export type Database = {
         };
         Insert: {
           entered_at?: string;
+          entry_kind?: Database["public"]["Enums"]["event_match_lineup_entry_kind"];
           event_id: string;
           guest_id?: string | null;
           id?: string;
           left_at?: string | null;
+          left_by_self?: boolean;
           match_id: string;
           person_id?: string | null;
           profile_id?: string | null;
@@ -489,10 +493,12 @@ export type Database = {
         };
         Update: {
           entered_at?: string;
+          entry_kind?: Database["public"]["Enums"]["event_match_lineup_entry_kind"];
           event_id?: string;
           guest_id?: string | null;
           id?: string;
           left_at?: string | null;
+          left_by_self?: boolean;
           match_id?: string;
           person_id?: string | null;
           profile_id?: string | null;
@@ -524,6 +530,98 @@ export type Database = {
           {
             foreignKeyName: "event_match_lineup_team_fk";
             columns: ["team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+        ];
+      };
+      event_match_reinforcement: {
+        Row: {
+          created_at: string;
+          entered_guest_id: string | null;
+          entered_profile_id: string | null;
+          event_id: string;
+          from_team_id: string;
+          id: string;
+          left_guest_id: string | null;
+          left_profile_id: string | null;
+          match_id: string;
+          team_drawn: boolean;
+          to_team_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          entered_guest_id?: string | null;
+          entered_profile_id?: string | null;
+          event_id: string;
+          from_team_id: string;
+          id?: string;
+          left_guest_id?: string | null;
+          left_profile_id?: string | null;
+          match_id: string;
+          team_drawn: boolean;
+          to_team_id: string;
+        };
+        Update: {
+          created_at?: string;
+          entered_guest_id?: string | null;
+          entered_profile_id?: string | null;
+          event_id?: string;
+          from_team_id?: string;
+          id?: string;
+          left_guest_id?: string | null;
+          left_profile_id?: string | null;
+          match_id?: string;
+          team_drawn?: boolean;
+          to_team_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_match_reinforcement_entered_guest_id_fkey";
+            columns: ["entered_guest_id"];
+            isOneToOne: false;
+            referencedRelation: "event_guest";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_reinforcement_entered_profile_id_fkey";
+            columns: ["entered_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_reinforcement_from_fk";
+            columns: ["from_team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_match_reinforcement_left_guest_id_fkey";
+            columns: ["left_guest_id"];
+            isOneToOne: false;
+            referencedRelation: "event_guest";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_reinforcement_left_profile_id_fkey";
+            columns: ["left_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_reinforcement_match_fk";
+            columns: ["match_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_match";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_match_reinforcement_to_fk";
+            columns: ["to_team_id", "event_id"];
             isOneToOne: false;
             referencedRelation: "event_sort_team";
             referencedColumns: ["id", "event_id"];
@@ -1510,6 +1608,15 @@ export type Database = {
         Args: { p_request_id: string };
         Returns: undefined;
       };
+      reinforce_event_match: {
+        Args: {
+          p_donor_team_id?: string;
+          p_guest_id?: string;
+          p_match_id: string;
+          p_profile_id?: string;
+        };
+        Returns: Json;
+      };
       remove_guest: { Args: { p_guest_id: string }; Returns: undefined };
       resume_event_match: { Args: { p_match_id: string }; Returns: Json };
       return_event_sort_player: {
@@ -1634,6 +1741,8 @@ export type Database = {
     };
     Enums: {
       attendance_status: "confirmed" | "waitlisted" | "cancelled" | "left";
+      event_match_lineup_entry_kind:
+        "start" | "reinforcement" | "inclusion" | "return" | "goalkeeper";
       event_match_role: "OUTFIELD" | "GOALKEEPER";
       event_match_status: "open" | "finished" | "discarded";
       event_sort_status: "draft" | "confirmed";
@@ -1779,6 +1888,13 @@ export const Constants = {
   public: {
     Enums: {
       attendance_status: ["confirmed", "waitlisted", "cancelled", "left"],
+      event_match_lineup_entry_kind: [
+        "start",
+        "reinforcement",
+        "inclusion",
+        "return",
+        "goalkeeper",
+      ],
       event_match_role: ["OUTFIELD", "GOALKEEPER"],
       event_match_status: ["open", "finished", "discarded"],
       event_sort_status: ["draft", "confirmed"],

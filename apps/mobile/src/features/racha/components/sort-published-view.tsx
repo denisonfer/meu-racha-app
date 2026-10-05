@@ -15,6 +15,7 @@ import { SortTeams, type TSortTeamsProps } from "./sort-teams";
 export type TSortPublishedSection = {
   key: string;
   title: string;
+  hint?: string;
   rows: TSortPersonListRow[];
 };
 
@@ -81,6 +82,7 @@ export const SortPublishedView = ({
         <SortPersonList
           key={section.key}
           title={section.title}
+          hint={section.hint}
           rows={section.rows}
         />
       ))}

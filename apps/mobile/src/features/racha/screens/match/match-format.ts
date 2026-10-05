@@ -1,5 +1,19 @@
-import type { TMatchGoal } from "@meu-racha/domain";
-import { sortTeamTitle } from "../../utils/racha-messages";
+import type { TEventMatch, TMatchEvent, TMatchGoal } from "@meu-racha/domain";
+import {
+  MATCH_EVENT_INCLUSION,
+  MATCH_EVENT_LEAVE,
+  MATCH_EVENT_REINFORCEMENT,
+  MATCH_EVENT_RETURN,
+  MATCH_LEFT_BY_SELF,
+  matchEventEnterText,
+  matchEventLeaveText,
+  matchEventReinforceDetail,
+  matchEventReinforceText,
+  matchTeamPlaysWith,
+  sortTeamTitle,
+} from "../../utils/racha-messages";
+import type { TMatchHistoryItem } from "./match-history";
+import type { TMatchKeeperQueueRow, TMatchTeamQueueRow } from "./match-queue";
 
 export function formatClock(totalSeconds: number): string {
   const safe = Math.max(0, Math.floor(totalSeconds));
@@ -69,4 +83,109 @@ export function goalParts(goal: TMatchGoal): {
       : `${goal.scorer?.displayName ?? "Gol"} · ${team}`,
     assist: goal.assist?.displayName ?? null,
   };
+}
+
+export type TRosterEventCopy = {
+  title: string;
+  text: string;
+  detail: string | null;
+  label: string;
+};
+
+/** Textos de Últimos lances para mudanças de elenco; Gol reusa goalLine. */
+export function rosterEventCopy(
+  event: Exclude<TMatchEvent, { kind: "goal" }>
+): TRosterEventCopy {
+  if (event.kind === "reinforcement") {
+    const text = matchEventReinforceText(
+      event.entered.displayName,
+      event.toTeamNumber
+    );
+    const detail = matchEventReinforceDetail(
+      event.fromTeamNumber,
+      event.left.displayName
+    );
+    return {
+      title: MATCH_EVENT_REINFORCEMENT,
+      text,
+      detail,
+      label: `${MATCH_EVENT_REINFORCEMENT}: ${text}, ${detail}`,
+    };
+  }
+  if (event.kind === "leave") {
+    const text = matchEventLeaveText(
+      event.person.displayName,
+      event.teamNumber
+    );
+    const detail = event.reinforced
+      ? null
+      : event.bySelf
+        ? MATCH_LEFT_BY_SELF
+        : matchTeamPlaysWith(
+            event.teamNumber,
+            event.outfieldCount,
+            event.capacity
+          );
+    return {
+      title: MATCH_EVENT_LEAVE,
+      text,
+      detail,
+      label: detail
+        ? `${MATCH_EVENT_LEAVE}: ${text}, ${detail}`
+        : `${MATCH_EVENT_LEAVE}: ${text}`,
+    };
+  }
+  const title =
+    event.kind === "inclusion" ? MATCH_EVENT_INCLUSION : MATCH_EVENT_RETURN;
+  const text = matchEventEnterText(event.person.displayName, event.teamNumber);
+  return {
+    title,
+    text,
+    detail: null,
+    label: `${title}: ${text}`,
+  };
+}
+
+// 1 e 2 são o confronto (em campo ou o próximo); a fila de espera começa no 3
+export function matchQueueRows(portrait: TEventMatch | undefined): {
+  teams: TMatchTeamQueueRow[];
+  keepers: TMatchKeeperQueueRow[];
+} {
+  return {
+    teams: (portrait?.teams ?? [])
+      .filter((team) => team.queueOrder > 2)
+      .sort((a, b) => a.queueOrder - b.queueOrder)
+      .map((team) => ({ ...team, position: team.queueOrder - 2 })),
+    keepers: (portrait?.goalkeeperQueue ?? [])
+      .slice()
+      .sort((a, b) => a.queueOrder - b.queueOrder)
+      .map((entry) => ({
+        personId: entry.person.personId,
+        name: entry.person.displayName,
+        queueOrder: entry.queueOrder,
+      })),
+  };
+}
+
+// sem onCorrect, a lista só mostra (folha da fila); o hub passa a correção do Condutor
+export function matchHistoryItems(
+  portrait: TEventMatch | undefined,
+  onCorrect: ((goalId: string) => void) | null
+): TMatchHistoryItem[] {
+  return (
+    portrait?.finishedMatches.map((item) => ({
+      id: item.id,
+      number: item.number,
+      homeNumber: item.home.teamNumber,
+      awayNumber: item.away.teamNumber,
+      homeScore: item.home.score,
+      awayScore: item.away.score,
+      goals: item.goals.map((goal) => ({
+        id: goal.id,
+        ...goalParts(goal),
+        label: goalLine(goal),
+        onCorrect: onCorrect ? () => onCorrect(goal.id) : null,
+      })),
+    })) ?? []
+  );
 }

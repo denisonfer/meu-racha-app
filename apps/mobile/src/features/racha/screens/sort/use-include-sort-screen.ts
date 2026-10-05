@@ -14,6 +14,7 @@ import {
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import {
   SORT_INCLUDE,
+  matchArrivalText,
   sortFailureMessage,
   sortIncludeLabel,
 } from "../../utils/racha-messages";
@@ -68,6 +69,13 @@ export function useIncludeSortScreen() {
     if (person.profileId) unavailable.add(person.profileId);
   }
 
+  const destination = published
+    ? matchArrivalText(
+        published.nextArrival.kind,
+        published.nextArrival.teamNumber
+      )
+    : null;
+
   const include = async (profileId: string) => {
     if (busyId) return;
     setFailureMessage(null);
@@ -95,7 +103,9 @@ export function useIncludeSortScreen() {
         member.primaryPosition,
         member.secondaryPosition
       ),
-      accessibilityLabel: member.displayName,
+      accessibilityLabel: destination
+        ? `${sortIncludeLabel(member.displayName)}, ${destination}`
+        : sortIncludeLabel(member.displayName),
       isSelected: false,
       onPress: null,
       action: {
@@ -177,6 +187,7 @@ export function useIncludeSortScreen() {
     isLoadingMembers: sortQuery.isPending || membersQuery.isPending,
     hasMembersError: membersQuery.isError,
     memberRows,
+    destination,
     failureMessage,
     guestForm: {
       values,
@@ -185,6 +196,7 @@ export function useIncludeSortScreen() {
       failureMessage: guestFailure,
       isSaving,
       canSubmit: !isSaving,
+      hint: destination ?? undefined,
       onChange: (patch: Partial<TGuestFormValues>) => {
         setGuestFailure(null);
         setValues((current) => ({ ...current, ...patch }));

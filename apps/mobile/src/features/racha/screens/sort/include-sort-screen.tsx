@@ -20,6 +20,7 @@ export const IncludeSortScreen = () => {
     isLoadingMembers,
     hasMembersError,
     memberRows,
+    destination,
     failureMessage,
     guestForm,
     openGuest,
@@ -55,7 +56,11 @@ export const IncludeSortScreen = () => {
               style={styles.scroll}
               showsVerticalScrollIndicator={false}
             >
-              <SortPersonList title={SORT_INCLUDE_MEMBERS} rows={memberRows} />
+              <SortPersonList
+                title={SORT_INCLUDE_MEMBERS}
+                hint={destination ?? undefined}
+                rows={memberRows}
+              />
             </ScrollView>
           )}
           {failureMessage ? (

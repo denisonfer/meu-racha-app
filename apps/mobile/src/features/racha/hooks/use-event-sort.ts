@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { rachaApi } from "../racha-api";
 import type { TAttendanceTarget, TGuestInput } from "../racha-types";
 import { eventAttendanceKey } from "./use-event-attendance";
+import { eventMatchKey } from "./use-event-match";
 import { myRachaEventsKey } from "./use-my-racha-events";
 import { openEventsKey } from "./use-open-events";
 
@@ -29,6 +30,9 @@ export function useEventSortOperations(rachaId: string, eventId: string) {
     const refresh = Promise.all([
       queryClient.invalidateQueries({
         queryKey: eventSortKey(rachaId, eventId),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: eventMatchKey(rachaId, eventId),
       }),
       queryClient.invalidateQueries({
         queryKey: eventAttendanceKey(rachaId, eventId),

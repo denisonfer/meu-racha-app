@@ -356,6 +356,11 @@ export const PUBLISHED = {
   ],
   outfield_per_team: 3,
   goalkeepers_per_team: true,
+  next_arrival: {
+    kind: "queue",
+    team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    team_number: 3,
+  },
   waiting_for_inclusion: [
     {
       plays_as: "OUTFIELD",

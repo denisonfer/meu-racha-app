@@ -1,3 +1,4 @@
+import type { TMatchArrival } from "../match/types";
 import type { TPlaysAs, TPosition } from "../profile";
 import type { TPositionLayer } from "../racha/position-detail";
 
@@ -131,4 +132,5 @@ export type TPublishedSort =
       viewer: TSortViewer;
       waitingForInclusion: TSortWaitingPlayer[];
       left: TSortLeftPlayer[];
+      nextArrival: TMatchArrival;
     };

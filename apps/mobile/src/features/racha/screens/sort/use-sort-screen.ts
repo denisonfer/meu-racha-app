@@ -12,6 +12,7 @@ import type { TSortPersonListRow } from "../../components/sort-person-list";
 import type { TSortPublishedSection } from "../../components/sort-published-view";
 import type { TSortRowAction } from "../../components/sort-team-card";
 import { useEventAttendance } from "../../hooks/use-event-attendance";
+import { useEventMatch } from "../../hooks/use-event-match";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import {
   useEventSortDraft,
@@ -53,6 +54,7 @@ import {
   sortLeaveOtherLabel,
   sortLeftTitle,
   sortMissingLinePlayers,
+  matchArrivalText,
   sortReturnLabel,
   sortScoreLabel,
   sortSuperWarningText,
@@ -95,6 +97,7 @@ export function useSortScreen() {
   const { data: racha } = useRacha(id);
   const eventsQuery = useOpenEvents(id);
   const sortQuery = useEventSort(id, eventId);
+  const openMatch = useEventMatch(id, eventId).data?.match ?? null;
   const event = eventsQuery.data?.find((item) => item.id === eventId);
   const published =
     sortQuery.data?.state === "published" ? sortQuery.data : null;
@@ -250,6 +253,19 @@ export function useSortScreen() {
     const query = person.profileId
       ? `profileId=${person.profileId}`
       : `guestId=${person.guestId}`;
+    // em campo com a Partida rolando, a Saída do Condutor oferece Reforço (R1)
+    const fieldTeamId = published.viewer.canLeaveAny
+      ? [openMatch?.home, openMatch?.away]
+          .flatMap((side) => side?.lineup ?? [])
+          .find(
+            (entry) =>
+              entry.role === "OUTFIELD" &&
+              entry.leftAt === null &&
+              (entry.person.profileId ?? entry.person.guestId) ===
+                (person.profileId ?? person.guestId)
+          )?.teamId
+      : undefined;
+    const name = encodeURIComponent(person.displayName);
     return {
       label: isMe ? SORT_LEAVE_SELF : SORT_LEAVE_OTHER,
       icon: "leave",
@@ -259,7 +275,9 @@ export function useSortScreen() {
       isDisabled: busyKey !== null,
       onPress: () =>
         router.push(
-          `/racha/${id}/event/${eventId}/sort-leave?${query}&name=${encodeURIComponent(person.displayName)}`
+          fieldTeamId
+            ? `/racha/${id}/event/${eventId}/match-leave?teamId=${fieldTeamId}&${query}&name=${name}`
+            : `/racha/${id}/event/${eventId}/sort-leave?${query}&name=${name}`
         ),
     } satisfies TSortRowAction;
   };
@@ -389,6 +407,10 @@ export function useSortScreen() {
     if (!published) return null;
     const { viewer } = published;
     const isBusy = busyKey !== null;
+    const destination = matchArrivalText(
+      published.nextArrival.kind,
+      published.nextArrival.teamNumber
+    );
     const queueRows: TSortPersonListRow[] = [...published.goalkeeperQueue]
       .sort((a, b) => a.queueOrder - b.queueOrder)
       .map((entry) => ({
@@ -414,13 +436,13 @@ export function useSortScreen() {
           photoUrl: person.photoUrl,
           overall: OVERALL_MIN,
           detail: detail,
-          accessibilityLabel: `${person.displayName}, ${detail}`,
+          accessibilityLabel: `${person.displayName}, ${detail}. ${destination}`,
           isSelected: false,
           onPress: null,
           action: viewer.canInclude
             ? {
                 label: SORT_INCLUDE,
-                accessibilityLabel: sortIncludeLabel(person.displayName),
+                accessibilityLabel: `${sortIncludeLabel(person.displayName)}, ${destination}`,
                 isDisabled: isBusy,
                 onPress: () =>
                   void runOperation(`include:${person.profileId}`, () =>
@@ -439,14 +461,14 @@ export function useSortScreen() {
         photoUrl: person.photoUrl,
         overall: OVERALL_MIN,
         detail: SORT_LEFT_DETAIL,
-        accessibilityLabel: `${person.displayName}, ${SORT_LEFT_DETAIL}`,
+        accessibilityLabel: `${person.displayName}, ${SORT_LEFT_DETAIL}. ${destination}`,
         isSelected: false,
         onPress: null,
         action:
           viewer.canReturn && target
             ? {
                 label: SORT_RETURN,
-                accessibilityLabel: sortReturnLabel(person.displayName),
+                accessibilityLabel: `${sortReturnLabel(person.displayName)}, ${destination}`,
                 isDisabled: isBusy,
                 onPress: () =>
                   void runOperation(`return:${sortPersonId(person)}`, () =>
@@ -461,9 +483,15 @@ export function useSortScreen() {
       {
         key: "waiting",
         title: sortWaitingTitle(waitingRows.length),
+        hint: destination,
         rows: waitingRows,
       },
-      { key: "left", title: sortLeftTitle(leftRows.length), rows: leftRows },
+      {
+        key: "left",
+        title: sortLeftTitle(leftRows.length),
+        hint: destination,
+        rows: leftRows,
+      },
     ].filter((section) => section.rows.length > 0);
     const warnings = superWarningNames(
       published.superWarning,

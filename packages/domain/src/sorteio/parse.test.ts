@@ -155,6 +155,27 @@ describe("parsePublishedSort", () => {
     expect(sort.left).toEqual([
       expect.objectContaining({ displayName: "Jogador B", didAttend: false }),
     ]);
+    expect(sort.nextArrival).toEqual({
+      kind: "queue",
+      teamId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      teamNumber: 3,
+    });
+  });
+
+  test("published mapeia field_draw sem Time", () => {
+    const sort = parsePublishedSort(
+      {
+        ...PUBLISHED,
+        next_arrival: { kind: "field_draw", team_id: null, team_number: null },
+      },
+      photo
+    );
+    if (sort.state !== "published") throw new Error("esperava published");
+    expect(sort.nextArrival).toEqual({
+      kind: "field_draw",
+      teamId: null,
+      teamNumber: null,
+    });
   });
 
   test("Goleiro de Time ausente vira null (fila do gol)", () => {
@@ -169,6 +190,11 @@ describe("parsePublishedSort", () => {
 
   test("rejeita published sem viewer", () => {
     const { viewer: _viewer, ...rest } = PUBLISHED;
+    expect(() => parsePublishedSort(rest, photo)).toThrow(SORT_PAYLOAD_INVALID);
+  });
+
+  test("rejeita published sem next_arrival", () => {
+    const { next_arrival: _next, ...rest } = PUBLISHED;
     expect(() => parsePublishedSort(rest, photo)).toThrow(SORT_PAYLOAD_INVALID);
   });
 });

@@ -4,11 +4,15 @@ import {
   ATTENDANCE_SPOT_LIMIT,
   FINISH_EVENT_PAYMENTS_NOT_REVIEWED,
   MATCH_ALREADY_OPEN,
+  MATCH_ALREADY_REINFORCED,
+  MATCH_INVALID_DONOR,
   MATCH_INVALID_GOALKEEPER,
   MATCH_INVALID_SCORER,
   MATCH_LOCKED,
+  MATCH_NO_DONOR_TEAM,
   MATCH_NO_OPEN,
   MATCH_NOT_ENOUGH_TEAMS,
+  MATCH_NOT_ON_FIELD,
   MATCH_PENALTY_WINNER_REQUIRED,
   SORT_NOT_CONDUCTOR,
   SORT_ROSTER_CHANGED,
@@ -133,6 +137,10 @@ const MATCH_ERROR_CODES = [
   "penalty_winner_required",
   "invalid_goalkeeper",
   "invalid_scorer",
+  "not_on_field",
+  "already_reinforced",
+  "invalid_donor",
+  "no_donor",
   "not_conductor",
 ] as const;
 
@@ -155,6 +163,12 @@ describe("matchErrorMessage", () => {
       MATCH_INVALID_GOALKEEPER
     );
     expect(matchErrorMessage("invalid_scorer")).toBe(MATCH_INVALID_SCORER);
+    expect(matchErrorMessage("not_on_field")).toBe(MATCH_NOT_ON_FIELD);
+    expect(matchErrorMessage("already_reinforced")).toBe(
+      MATCH_ALREADY_REINFORCED
+    );
+    expect(matchErrorMessage("invalid_donor")).toBe(MATCH_INVALID_DONOR);
+    expect(matchErrorMessage("no_donor")).toBe(MATCH_NO_DONOR_TEAM);
     expect(matchErrorMessage("not_conductor")).toBe(SORT_NOT_CONDUCTOR);
   });
 

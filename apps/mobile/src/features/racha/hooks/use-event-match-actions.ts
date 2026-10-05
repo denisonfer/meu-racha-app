@@ -54,6 +54,24 @@ function applyGoalToPortrait(portrait: TEventMatch, goal: Goal): TEventMatch {
   return {
     ...portrait,
     seq: next.seq,
+    events: [
+      {
+        kind: "goal" as const,
+        id: added.id,
+        requestKey: added.id,
+        teamId: added.teamId,
+        teamNumber:
+          added.teamId === portrait.match.home.teamId
+            ? portrait.match.home.teamNumber
+            : portrait.match.away.teamNumber,
+        isOwnGoal: added.scorerId == null,
+        scorer: null,
+        assist: null,
+        concededGoalkeeper: null,
+        createdAt: new Date().toISOString(),
+      },
+      ...portrait.events,
+    ],
     match: {
       ...portrait.match,
       seq: next.seq,
@@ -213,6 +231,16 @@ export function useEventMatchActions(rachaId: string, eventId: string) {
     onSettled: settle,
   });
 
+  const reinforce = useMutation({
+    mutationFn: (vars: {
+      matchId: string;
+      profileId?: string | null;
+      guestId?: string | null;
+      donorTeamId?: string | null;
+    }) => rachaApi.reinforceEventMatch(vars),
+    onSettled: settle,
+  });
+
   return {
     startEventMatch: start.mutateAsync,
     pauseEventMatch: pause.mutateAsync,
@@ -224,5 +252,6 @@ export function useEventMatchActions(rachaId: string, eventId: string) {
     previewFinishEventMatch: previewFinish.mutateAsync,
     finishEventMatch: finish.mutateAsync,
     discardEventMatch: discard.mutateAsync,
+    reinforceEventMatch: reinforce.mutateAsync,
   };
 }

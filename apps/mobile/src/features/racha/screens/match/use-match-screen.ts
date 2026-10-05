@@ -8,19 +8,28 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Vibration } from "react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "@/features/auth";
 import { useToast } from "@/ui/components";
 import { useEventMatch } from "../../hooks/use-event-match";
 import { useEventMatchActions } from "../../hooks/use-event-match-actions";
 import { useEventMatchLive } from "../../hooks/use-event-match-live";
+import { useEventSort } from "../../hooks/use-event-sort";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import {
   conductorName,
   MATCH_CONDUCTOR_OFFLINE,
+  MATCH_LEAVE_REINFORCE,
+  MATCH_MY_TEAM_NEXT,
+  MATCH_QUEUE_EMPTY,
   MATCH_OFFLINE,
   MATCH_TAP_GOAL,
   SORT_NOT_CONDUCTOR,
   matchFailureMessage,
+  matchMyTeamPosition,
+  matchQueueStrip,
+  matchSelfLeftTitle,
   matchSwapKeeperOf,
+  matchTeamNowWith,
   sortTeamTitle,
 } from "../../utils/racha-messages";
 import {
@@ -28,10 +37,12 @@ import {
   formatOvertime,
   goalLine,
   goalParts,
+  matchHistoryItems,
+  matchQueueRows,
+  rosterEventCopy,
   spokenMatchClock,
 } from "./match-format";
-import type { TMatchGoalRow } from "./match-goal-list";
-import type { TMatchHistoryItem } from "./match-history";
+import type { TMatchEventRow } from "./match-event-list";
 import { pendingKeepersKey, type TPendingKeepers } from "./pending-keepers";
 
 const vibratedMatches = new Set<string>();
@@ -63,6 +74,8 @@ export function useMatchScreen() {
   const eventsQuery = useOpenEvents(id);
   const actions = useEventMatchActions(id, eventId);
   const { isConductorOffline } = useEventMatchLive(id, eventId);
+  const { session } = useSession();
+  const sortQuery = useEventSort(id, eventId);
   const pendingQuery = useQuery({
     queryKey: pendingKeepersKey(id, eventId),
     queryFn: async (): Promise<TPendingKeepers> => ({}),
@@ -137,6 +150,27 @@ export function useMatchScreen() {
 
   const pending = pendingQuery.data ?? {};
   const queue = portrait?.goalkeeperQueue ?? [];
+  const queueRows = matchQueueRows(portrait);
+
+  // o Time da sessão vem dos Times publicados; a fila da Partida só traz número e ordem
+  const published =
+    sortQuery.data?.state === "published" ? sortQuery.data : null;
+  const myTeamNumber = published?.teams.find(
+    (team) =>
+      team.isActive &&
+      team.players.some((player) => player.profileId === session?.userId)
+  )?.teamNumber;
+  const myRow = queueRows.teams.find(
+    (team) => team.teamNumber === myTeamNumber
+  );
+  const [nextTeam, afterTeam] = queueRows.teams;
+  const queueStripText = myRow
+    ? myRow.position === 1
+      ? MATCH_MY_TEAM_NEXT
+      : matchMyTeamPosition(myRow.position)
+    : nextTeam
+      ? matchQueueStrip(nextTeam, afterTeam ?? null)
+      : MATCH_QUEUE_EMPTY;
 
   const openGoal = (teamId: string) => {
     router.push(`/racha/${id}/event/${eventId}/match-goal?teamId=${teamId}`);
@@ -147,6 +181,20 @@ export function useMatchScreen() {
   const openKeeper = (teamId: string) => {
     router.push(
       `/racha/${id}/event/${eventId}/match-goalkeeper?teamId=${teamId}`
+    );
+  };
+  const openRoster = (teamId: string) => {
+    router.push(`/racha/${id}/event/${eventId}/match-roster?teamId=${teamId}`);
+  };
+  const openReinforcement = (
+    teamId: string,
+    profileId: string | null,
+    guestId: string | null,
+    displayName: string
+  ) => {
+    const query = profileId ? `profileId=${profileId}` : `guestId=${guestId}`;
+    router.push(
+      `/racha/${id}/event/${eventId}/match-reinforcement?teamId=${teamId}&${query}&name=${encodeURIComponent(displayName)}`
     );
   };
 
@@ -168,35 +216,41 @@ export function useMatchScreen() {
       ? sortTeamTitle(portrait.nextMatch.away.teamNumber)
       : "";
 
-  const goals: TMatchGoalRow[] =
-    match?.goals.map((goal) => ({
-      id: goal.id,
-      ...goalParts(goal),
-      label: goalLine(goal),
-      onDelete:
-        canConduct && !isOffline
-          ? () =>
-              void run(`delete:${goal.id}`, () =>
-                actions.deleteEventMatchGoal(goal.id)
-              )
-          : null,
-    })) ?? [];
+  const events: TMatchEventRow[] =
+    (portrait?.events ?? []).map((event) => {
+      if (event.kind === "goal") {
+        return {
+          kind: "goal" as const,
+          id: event.id,
+          ...goalParts(event),
+          label: goalLine(event),
+          onDelete:
+            canConduct && !isOffline
+              ? () =>
+                  void run(`delete:${event.id}`, () =>
+                    actions.deleteEventMatchGoal(event.id)
+                  )
+              : null,
+        };
+      }
+      const copy = rosterEventCopy(event);
+      return {
+        kind: "roster" as const,
+        id: event.id,
+        ...copy,
+        icon:
+          event.kind === "leave"
+            ? ("leave" as const)
+            : event.kind === "return"
+              ? ("users" as const)
+              : ("user-plus" as const),
+      };
+    }) ?? [];
 
-  const history: TMatchHistoryItem[] =
-    portrait?.finishedMatches.map((item) => ({
-      id: item.id,
-      number: item.number,
-      homeNumber: item.home.teamNumber,
-      awayNumber: item.away.teamNumber,
-      homeScore: item.home.score,
-      awayScore: item.away.score,
-      goals: item.goals.map((goal) => ({
-        id: goal.id,
-        ...goalParts(goal),
-        label: goalLine(goal),
-        onCorrect: canConduct && !isOffline ? () => openCorrect(goal.id) : null,
-      })),
-    })) ?? [];
+  const history = matchHistoryItems(
+    portrait,
+    canConduct && !isOffline ? openCorrect : null
+  );
 
   return {
     isLoading: matchQuery.isPending,
@@ -214,10 +268,45 @@ export function useMatchScreen() {
       conductorOffline:
         !canConduct && isConductorOffline ? MATCH_CONDUCTOR_OFFLINE : null,
       assumed: !canConduct ? assumedLine : null,
+      // sem Time na fila para ceder, o aviso levaria a uma lista vazia
+      pending:
+        canConduct && match && (portrait?.reinforcementDonors.length ?? 0) > 0
+          ? (portrait?.pendingReinforcements ?? []).map((item) => {
+              const side =
+                item.teamId === match.home.teamId ? match.home : match.away;
+              const queryPerson = item.person;
+              return {
+                key: `${item.teamId}:${queryPerson.personId}`,
+                title: matchSelfLeftTitle(
+                  queryPerson.displayName,
+                  item.teamNumber
+                ),
+                text: matchTeamNowWith(
+                  item.teamNumber,
+                  side.outfieldCount,
+                  side.capacity
+                ),
+                actionLabel: MATCH_LEAVE_REINFORCE,
+                onAction: () =>
+                  openReinforcement(
+                    item.teamId,
+                    queryPerson.profileId,
+                    queryPerson.guestId,
+                    queryPerson.displayName
+                  ),
+              };
+            })
+          : [],
     },
     open:
       portrait?.state === "open" && match
         ? {
+            queueStrip: {
+              text: queueStripText,
+              isMine: Boolean(myRow),
+              onPress: () =>
+                router.push(`/racha/${id}/event/${eventId}/match-queue`),
+            },
             clock: {
               mainLabel: formatClock(split.main),
               overtimeLabel:
@@ -278,7 +367,24 @@ export function useMatchScreen() {
                     onPress: () => openKeeper(match.away.teamId),
                   }
                 : null,
-            goals,
+            rosters:
+              canConduct && !isOffline
+                ? {
+                    home: {
+                      teamNumber: match.home.teamNumber,
+                      count: match.home.outfieldCount,
+                      capacity: match.home.capacity,
+                      onPress: () => openRoster(match.home.teamId),
+                    },
+                    away: {
+                      teamNumber: match.away.teamNumber,
+                      count: match.away.outfieldCount,
+                      capacity: match.away.capacity,
+                      onPress: () => openRoster(match.away.teamId),
+                    },
+                  }
+                : null,
+            events,
             footer: canConduct
               ? {
                   isDisabled: isOffline || busy !== null,
@@ -339,21 +445,7 @@ export function useMatchScreen() {
           }
         : null,
     noNext: Boolean(portrait?.state === "ready" && !portrait.nextMatch),
-    queue: {
-      // 1 e 2 são o confronto (em campo ou o próximo); a fila começa no 3
-      teams: (portrait?.teams ?? [])
-        .filter((team) => team.queueOrder > 2)
-        .sort((a, b) => a.queueOrder - b.queueOrder)
-        .map((team) => ({ ...team, position: team.queueOrder - 2 })),
-      keepers: queue
-        .slice()
-        .sort((a, b) => a.queueOrder - b.queueOrder)
-        .map((entry) => ({
-          personId: entry.person.personId,
-          name: entry.person.displayName,
-          queueOrder: entry.queueOrder,
-        })),
-    },
+    queue: queueRows,
     history,
   };
 }

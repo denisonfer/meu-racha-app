@@ -449,6 +449,8 @@ begin
     and p.prosrc ~* '(insert into|update|delete from)\s+public\.(member|event|event_attendance|event_guest)\y'
     and p.prosrc !~* 'from public\.racha r[^;]*for update'
     and p.prosrc !~* 'lock_event_for_attendance'
+    -- lock_event_match chama lock_event_for_attendance antes de travar a Partida
+    and p.prosrc !~* 'lock_event_match'
     -- create_racha cria o Racha e o Dono (não há Evento nem elenco a proteger);
     -- o gatilho abaixo só roda dentro de update_member/expel_member/leave_racha, já travados
     and p.proname not in ('create_racha', 'clear_ineligible_upcoming_conductor');

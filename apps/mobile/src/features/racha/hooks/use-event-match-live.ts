@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { TEventMatch } from "@meu-racha/domain";
 import { rachaApi, type TEventMatchLive } from "../racha-api";
 import { eventMatchKey } from "./use-event-match";
+import { eventSortKey } from "./use-event-sort";
 
 const CONDUCTOR_OFFLINE_MS = 90_000;
 
@@ -27,6 +28,7 @@ export function useEventMatchLive(rachaId: string, eventId: string) {
     let wantTrack = false;
 
     const matchKey = eventMatchKey(rachaId, eventId);
+    const sortKey = eventSortKey(rachaId, eventId);
 
     function portrait(): TEventMatch | undefined {
       return queryClient.getQueryData<TEventMatch>(matchKey);
@@ -68,6 +70,8 @@ export function useEventMatchLive(rachaId: string, eventId: string) {
         onMatchChanged: (seq) => {
           if (seq <= (portrait()?.seq ?? 0)) return;
           void queryClient.invalidateQueries({ queryKey: matchKey });
+          // Reforço, Inclusão e Volta mudam o Time de alguém: a faixa da fila lê os Times
+          void queryClient.invalidateQueries({ queryKey: sortKey });
         },
         onSubscribed: () => {
           // reconnect: o servidor pode ter avançado o seq enquanto estávamos fora

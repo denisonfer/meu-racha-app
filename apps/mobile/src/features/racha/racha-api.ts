@@ -93,6 +93,10 @@ const RAISE_EXCEPTION_CODES = [
   "penalty_winner_required",
   "invalid_goalkeeper",
   "invalid_scorer",
+  "not_on_field",
+  "already_reinforced",
+  "invalid_donor",
+  "no_donor",
 ];
 
 // o detail é texto com um array JSON de nomes; formato estranho não derruba a mensagem
@@ -1137,6 +1141,22 @@ async function discardEventMatch(matchId: string): Promise<TEventMatch> {
   return parseMatchJson(data);
 }
 
+async function reinforceEventMatch(input: {
+  matchId: string;
+  profileId?: string | null;
+  guestId?: string | null;
+  donorTeamId?: string | null;
+}): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc("reinforce_event_match", {
+    p_match_id: input.matchId,
+    ...(input.profileId ? { p_profile_id: input.profileId } : {}),
+    ...(input.guestId ? { p_guest_id: input.guestId } : {}),
+    ...(input.donorTeamId ? { p_donor_team_id: input.donorTeamId } : {}),
+  });
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
 export type TEventMatchLive = {
   isConductorPresent: () => boolean;
   track: () => Promise<void>;
@@ -1273,5 +1293,6 @@ export const rachaApi = {
   previewFinishEventMatch,
   finishEventMatch,
   discardEventMatch,
+  reinforceEventMatch,
   subscribeEventMatch,
 };

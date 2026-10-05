@@ -8073,7 +8073,7 @@ begin
     ),
     'Gol seguinte grava o novo conceded_*');
 
-  -- Inclusão com Partida aberta: pula 1 e 2 (T1 incompleto não recebe)
+  -- Inclusão com Partida aberta e Time esperando: vai para o incompleto da fila, não para o campo
   v := pg_temp.live('inc', 'WINNER_STAYS', 'BOTH_OUT', 3, 3);
   v_e := (v ->> 'event')::uuid;
   v_owner := (v ->> 'owner')::uuid;
@@ -8093,9 +8093,8 @@ begin
   from public.event_sort_team_player p
   where p.event_id = v_e and p.person_id = v_new and p.left_at is null;
   perform pg_temp.assert_that(
-    v_dest = v_t3
-    and (select t.queue_order from public.event_sort_team t where t.id = v_dest) = 3,
-    'Inclusão com Partida aberta vai ao incompleto que não é 1 nem 2');
+    v_dest = v_t3,
+    'Inclusão com Time esperando vai para o incompleto da fila, não para o Time em campo');
 
   -- Recálculo não mexe no goleiro ativo da Partida (2 GKs, 3 Times: sem pin cairiam na fila)
   v := pg_temp.live('reb', 'WINNER_STAYS', 'BOTH_OUT', 2, 3);

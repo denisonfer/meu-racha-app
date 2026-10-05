@@ -433,13 +433,13 @@ begin
   perform pg_temp.assert_that((select count(*) from public.event_sort_team_player p where p.event_id = v_e and p.person_id = pg_temp.id(j, 'gk', 1)) = 0,
     'Goleiro nunca na linha');
 
-  -- Saída e Inclusão preenchendo o primeiro Time incompleto da fila
+  -- Saída e Inclusão: com dois incompletos, quem chega vai para o mais atrás (§11.4 v1.38)
   v_k := pg_temp.team_of(v_e, v_l[1]);
   perform public.leave_event_sort(v_e, v_l[1]);
   perform pg_temp.assert_that(pg_temp.active_in(v_e, v_k) = 2, 'Time perdeu um');
   perform pg_temp.assert_that(pg_temp.err(format('select public.include_event_sort_member(%L, %L)', v_e, v_l[1])) = 'use_return', 'quem saiu volta só pela Volta');
   perform public.include_event_sort_member(v_e, v_l[11]);
-  perform pg_temp.assert_that(pg_temp.team_of(v_e, v_l[11]) = v_k, 'Inclusão vai para o primeiro Time incompleto da fila (antes do Time 4)');
+  perform pg_temp.assert_that(pg_temp.team_of(v_e, v_l[11]) = 4, 'Inclusão vai para o incompleto mais atrás (Time 4), não para o da frente');
 
   -- Volta: mesmo destino da Inclusão, sem retorno ao Time antigo; dado atual na entrada
   perform pg_temp.assert_that(pg_temp.err(format('select public.return_event_sort_player(%L, %L)', v_e, v_l[2])) = 'not_left', 'Volta de quem não saiu');
@@ -450,7 +450,7 @@ begin
   update public.member set stars = 5 where racha_id = v_r and profile_id = v_l[1];
   select p.stars_snapshot into v_old from public.event_sort_team_player p where p.event_id = v_e and p.person_id = v_l[1];
   perform public.return_event_sort_player(v_e, v_l[1]);
-  perform pg_temp.assert_that(pg_temp.team_of(v_e, v_l[1]) = 4, 'Volta vai para o Time 4 (o único incompleto), não para o antigo');
+  perform pg_temp.assert_that(pg_temp.team_of(v_e, v_l[1]) = 4, 'Volta vai para o incompleto mais atrás (Time 4), não para o antigo');
   perform pg_temp.assert_that(pg_temp.team_of(v_e, v_l[1]) <> v_k, 'sem retorno automático');
   perform pg_temp.assert_that(pg_temp.passes(v_e, v_l[1]) = 2, 'histórico: duas passagens');
   select p.stars_snapshot into v_stars from public.event_sort_team_player p
@@ -924,7 +924,7 @@ begin
 end $$;
 
 -- ============================================================
--- 8b. Partida aberta: Inclusão pula 1/2, recálculo fixa goleiro,
+-- 8b. Partida aberta: Inclusão entra em campo se desfalcado, recálculo fixa goleiro,
 --     finish_event recusa, home none/open/between
 -- ============================================================
 do $$
@@ -984,7 +984,7 @@ begin
   from public.event_sort_team_player p
   join public.event_sort_team t on t.id = p.team_id
   where p.event_id = v_e and p.person_id = v_extra and p.left_at is null;
-  perform pg_temp.assert_that(v_dest = 3, 'Inclusão com Partida aberta ignora queue_order 1 e 2');
+  perform pg_temp.assert_that(v_dest = 3, 'Inclusão com Time esperando vai para o incompleto da fila, não para o Time em campo');
 
   perform pg_temp.assert_that(
     pg_temp.err(format('select public.finish_event(%L)', v_e)) = 'match_open',

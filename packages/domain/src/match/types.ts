@@ -8,6 +8,9 @@ export type TMatchStatus = "open" | "finished" | "discarded";
 
 export type TMatchRole = "OUTFIELD" | "GOALKEEPER";
 
+export type TMatchEntryKind =
+  "start" | "reinforcement" | "inclusion" | "return" | "goalkeeper";
+
 export type TMatchPerson = {
   kind: "member" | "guest";
   personId: string;
@@ -25,7 +28,12 @@ export type TMatchNextSide = {
   isComplete: boolean;
 };
 
-export type TMatchSide = TMatchNextSide & { score: number };
+export type TMatchSide = TMatchNextSide & {
+  score: number;
+  outfieldCount: number;
+  capacity: number;
+  lineup: TMatchLineupEntry[];
+};
 
 export type TMatchGoal = {
   id: string;
@@ -45,7 +53,70 @@ export type TMatchLineupEntry = {
   person: TMatchPerson;
   enteredAt: string;
   leftAt: string | null;
+  entryKind: TMatchEntryKind;
+  leftBySelf: boolean;
 };
+
+export type TMatchReinforcementDonor = {
+  teamId: string;
+  teamNumber: number;
+  queuePosition: number;
+  outfieldCount: number;
+};
+
+export type TMatchPendingReinforcement = {
+  person: TMatchPerson;
+  teamId: string;
+  teamNumber: number;
+  leftAt: string;
+};
+
+export type TMatchArrival =
+  | { kind: "field"; teamId: string; teamNumber: number }
+  | { kind: "field_draw"; teamId: null; teamNumber: null }
+  | { kind: "queue"; teamId: string; teamNumber: number }
+  | { kind: "new_team"; teamId: null; teamNumber: number };
+
+export type TMatchLeaveEvent = {
+  kind: "leave";
+  id: string;
+  person: TMatchPerson;
+  teamId: string;
+  teamNumber: number;
+  bySelf: boolean;
+  reinforced: boolean;
+  outfieldCount: number;
+  capacity: number;
+  createdAt: string;
+};
+
+export type TMatchReinforcementEvent = {
+  kind: "reinforcement";
+  id: string;
+  entered: TMatchPerson;
+  left: TMatchPerson;
+  fromTeamId: string;
+  fromTeamNumber: number;
+  toTeamId: string;
+  toTeamNumber: number;
+  teamDrawn: boolean;
+  createdAt: string;
+};
+
+export type TMatchArrivalEvent = {
+  kind: "inclusion" | "return";
+  id: string;
+  person: TMatchPerson;
+  teamId: string;
+  teamNumber: number;
+  createdAt: string;
+};
+
+export type TMatchEvent =
+  | (TMatchGoal & { kind: "goal" })
+  | TMatchLeaveEvent
+  | TMatchReinforcementEvent
+  | TMatchArrivalEvent;
 
 export type TMatchItem = {
   id: string;
@@ -102,6 +173,10 @@ export type TEventMatch = {
   goalkeeperQueue: TMatchGoalkeeperQueueEntry[];
   finishedMatches: TMatchItem[];
   viewer: { canConduct: boolean };
+  reinforcementDonors: TMatchReinforcementDonor[];
+  pendingReinforcements: TMatchPendingReinforcement[];
+  events: TMatchEvent[];
+  nextArrival: TMatchArrival;
 };
 
 export type TMatchFinishPreview = {

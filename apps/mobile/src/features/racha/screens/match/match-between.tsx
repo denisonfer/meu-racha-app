@@ -4,9 +4,7 @@ import { theme } from "@/ui/theme";
 import {
   MATCH_REMATCH,
   MATCH_START,
-  matchIncompleteTeam,
   matchKeeperLine,
-  matchVsLine,
   sortTeamTitle,
 } from "../../utils/racha-messages";
 
@@ -37,7 +35,9 @@ const SideCard = ({
   const team = sortTeamTitle(teamNumber);
   return (
     <View style={styles.side}>
-      <Text preset="h3">{team}</Text>
+      <View style={styles.incomplete}>
+        <Text preset="h3">{team}</Text>
+      </View>
       {keeperName ? (
         onSwapKeeper ? (
           <Pressable
@@ -55,11 +55,6 @@ const SideCard = ({
             {matchKeeperLine(keeperName)}
           </Text>
         )
-      ) : null}
-      {!isComplete ? (
-        <Text preset="small" color="warning">
-          {matchIncompleteTeam(teamNumber)}
-        </Text>
       ) : null}
     </View>
   );
@@ -80,11 +75,12 @@ export const MatchBetween = ({
         {MATCH_REMATCH}
       </Text>
     ) : null}
-    <Text preset="h2" style={styles.vs}>
-      {matchVsLine(home.teamNumber, away.teamNumber)}
-    </Text>
+
     <View style={styles.sides}>
       <SideCard {...home} />
+      <Text preset="h2" style={styles.vs}>
+        x
+      </Text>
       <SideCard {...away} />
     </View>
     {canStart ? (
@@ -106,7 +102,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
     marginBottom: theme.space[16],
   },
-  vs: { textAlign: "center" },
+  vs: { alignSelf: "center" },
   sides: { flexDirection: "row", gap: theme.space[8] },
   side: {
     flex: 1,
@@ -118,5 +114,10 @@ const styles = StyleSheet.create({
   keeperHit: {
     minHeight: theme.minTouch,
     justifyContent: "center",
+  },
+  incomplete: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });

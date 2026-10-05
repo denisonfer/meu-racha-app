@@ -25,10 +25,12 @@ import {
 } from "../../utils/racha-messages";
 import { MatchBetween } from "./match-between";
 import { MatchClock } from "./match-clock";
-import { MatchGoalList } from "./match-goal-list";
+import { MatchEventList } from "./match-event-list";
 import { MatchHistory } from "./match-history";
 import { MatchQueue } from "./match-queue";
+import { MatchQueueStrip } from "./match-queue-strip";
 import { MatchScoreboard } from "./match-scoreboard";
+import { TeamRosterButton } from "./team-roster-button";
 import { useMatchScreen } from "./use-match-screen";
 
 export const MatchScreen = () => {
@@ -77,10 +79,27 @@ export const MatchScreen = () => {
               {notices.assumed}
             </Text>
           ) : null}
+          {notices.pending.map((item) => (
+            <NoticeBanner
+              key={item.key}
+              tone="warning"
+              isAlert
+              title={item.title}
+              text={item.text}
+              actionLabel={item.actionLabel}
+              onAction={item.onAction}
+            />
+          ))}
           {open ? (
             <>
               <MatchClock {...open.clock} />
               <MatchScoreboard {...open.scoreboard} />
+              {open.rosters ? (
+                <View style={styles.swaps}>
+                  <TeamRosterButton {...open.rosters.home} />
+                  <TeamRosterButton {...open.rosters.away} />
+                </View>
+              ) : null}
               {open.swapHome || open.swapAway ? (
                 <View style={styles.swaps}>
                   {open.swapHome ? (
@@ -109,12 +128,14 @@ export const MatchScreen = () => {
                   ) : null}
                 </View>
               ) : null}
+              <MatchQueueStrip {...open.queueStrip} />
+              <View style={styles.divider} />
               <ScrollView
                 style={styles.feed}
                 contentContainerStyle={styles.feedContent}
                 showsVerticalScrollIndicator={false}
               >
-                <MatchGoalList goals={open.goals} />
+                <MatchEventList events={open.events} />
               </ScrollView>
               {open.footer ? (
                 <ScreenFooter>
@@ -153,6 +174,10 @@ export const MatchScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: theme.colors.divider,
+  },
   body: { flex: 1, gap: theme.space[8] },
   swaps: { flexDirection: "row", gap: theme.space[8], marginBottom: 8 },
   swap: {

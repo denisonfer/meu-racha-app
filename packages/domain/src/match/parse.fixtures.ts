@@ -18,22 +18,73 @@ const GUEST = {
   avatar_path: null,
 };
 
+const LUCAS = {
+  kind: "member",
+  person_id: "33333333-3333-3333-3333-333333333333",
+  profile_id: "33333333-3333-3333-3333-333333333333",
+  guest_id: null,
+  display_name: "Lucas M.",
+  avatar_path: null,
+};
+
+const PEDRO = {
+  kind: "member",
+  person_id: "44444444-4444-4444-4444-444444444444",
+  profile_id: "44444444-4444-4444-4444-444444444444",
+  guest_id: null,
+  display_name: "Pedro H.",
+  avatar_path: null,
+};
+
+const TEAM1 = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+const TEAM2 = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+const TEAM3 = "99999999-9999-9999-9999-999999999999";
+const TEAM4 = "88888888-8888-8888-8888-888888888888";
+
+const GOAL = {
+  id: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+  request_key: "17600000000000.123",
+  team_id: TEAM1,
+  team_number: 1,
+  is_own_goal: false,
+  scorer: MEMBER,
+  assist: null,
+  conceded_goalkeeper: GUEST,
+  created_at: "2026-10-04T15:02:00+00:00",
+};
+
 const HOME_SIDE = {
-  team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  team_id: TEAM1,
   team_number: 1,
   win_streak: 2,
   score: 1,
   goalkeeper: MEMBER,
   is_complete: true,
+  outfield_count: 5,
+  capacity: 5,
+  lineup: [
+    {
+      team_id: TEAM1,
+      role: "OUTFIELD",
+      person: LUCAS,
+      entered_at: "2026-10-04T15:00:00+00:00",
+      left_at: null,
+      entry_kind: "start",
+      left_by_self: false,
+    },
+  ],
 };
 
 const AWAY_SIDE = {
-  team_id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  team_id: TEAM2,
   team_number: 2,
   win_streak: 0,
   score: 0,
   goalkeeper: GUEST,
   is_complete: false,
+  outfield_count: 4,
+  capacity: 5,
+  lineup: [],
 };
 
 export const MATCH_ITEM_OPEN = {
@@ -42,7 +93,7 @@ export const MATCH_ITEM_OPEN = {
   status: "open",
   home: HOME_SIDE,
   away: AWAY_SIDE,
-  challenger_team_id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  challenger_team_id: TEAM2,
   is_rematch: false,
   started_at: "2026-10-04T15:00:00+00:00",
   paused_at: null,
@@ -51,52 +102,40 @@ export const MATCH_ITEM_OPEN = {
   winner_team_id: null,
   decided_by_penalties: false,
   seq: 41,
-  goals: [
-    {
-      id: "dddddddd-dddd-dddd-dddd-dddddddddddd",
-      request_key: "17600000000000.123",
-      team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-      team_number: 1,
-      is_own_goal: false,
-      scorer: MEMBER,
-      assist: null,
-      conceded_goalkeeper: GUEST,
-      created_at: "2026-10-04T15:02:00+00:00",
-    },
-  ],
+  goals: [GOAL],
   lineup: [
     {
-      team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      team_id: TEAM1,
       role: "GOALKEEPER",
       person: MEMBER,
       entered_at: "2026-10-04T15:00:00+00:00",
       left_at: null,
+      entry_kind: "goalkeeper",
+      left_by_self: false,
     },
   ],
 };
 
-export const MATCH_OPEN = {
+const PORTRAIT_BASE = {
   event_id: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
   event_status: "active",
-  state: "open",
   server_now: "2026-10-04T15:05:00+00:00",
   duration_min: 7,
   started_at: "2026-10-04T15:00:00+00:00",
   paused_at: null,
   paused_seconds: 12,
   seq: 41,
-  match: MATCH_ITEM_OPEN,
   next_match: null,
   teams: [
     {
-      team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      team_id: TEAM1,
       team_number: 1,
       queue_order: 1,
       win_streak: 2,
       is_complete: true,
     },
     {
-      team_id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      team_id: TEAM2,
       team_number: 2,
       queue_order: 2,
       win_streak: 0,
@@ -106,6 +145,17 @@ export const MATCH_OPEN = {
   goalkeeper_queue: [{ person: GUEST, queue_order: 1 }],
   finished_matches: [],
   viewer: { can_conduct: true },
+};
+
+/** Fila vazia: só os dois Times em campo; donors []. */
+export const MATCH_OPEN = {
+  ...PORTRAIT_BASE,
+  state: "open",
+  match: MATCH_ITEM_OPEN,
+  reinforcement_donors: [],
+  pending_reinforcements: [],
+  events: [{ kind: "goal", ...GOAL }],
+  next_arrival: { kind: "field", team_id: TEAM2, team_number: 2 },
 };
 
 export const MATCH_READY = {
@@ -121,14 +171,14 @@ export const MATCH_READY = {
   match: null,
   next_match: {
     home: {
-      team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      team_id: TEAM1,
       team_number: 1,
       win_streak: 1,
       goalkeeper: MEMBER,
       is_complete: true,
     },
     away: {
-      team_id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      team_id: TEAM2,
       team_number: 2,
       win_streak: 0,
       goalkeeper: null,
@@ -139,14 +189,14 @@ export const MATCH_READY = {
   },
   teams: [
     {
-      team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      team_id: TEAM1,
       team_number: 1,
       queue_order: 1,
       win_streak: 1,
       is_complete: true,
     },
     {
-      team_id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      team_id: TEAM2,
       team_number: 2,
       queue_order: 2,
       win_streak: 0,
@@ -159,20 +209,113 @@ export const MATCH_READY = {
       ...MATCH_ITEM_OPEN,
       status: "finished",
       ended_at: "2026-10-04T15:10:00+00:00",
-      winner_team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      winner_team_id: TEAM1,
       paused_at: null,
     },
   ],
   viewer: { can_conduct: false },
+  reinforcement_donors: [],
+  pending_reinforcements: [],
+  events: [],
+  next_arrival: { kind: "new_team", team_id: null, team_number: 3 },
+};
+
+/** Doador na fila com um jogador de linha. */
+export const MATCH_OPEN_DONOR = {
+  ...MATCH_OPEN,
+  reinforcement_donors: [
+    {
+      team_id: TEAM4,
+      team_number: 4,
+      queue_position: 1,
+      outfield_count: 1,
+    },
+  ],
+  next_arrival: { kind: "queue", team_id: TEAM4, team_number: 4 },
+};
+
+/** Saída própria pendente (aviso R4). */
+export const MATCH_OPEN_PENDING_SELF = {
+  ...MATCH_OPEN,
+  pending_reinforcements: [
+    {
+      person: LUCAS,
+      team_id: TEAM2,
+      team_number: 2,
+      left_at: "2026-10-04T15:03:00+00:00",
+    },
+  ],
+};
+
+/** Empate entre os Times em campo abaixo da linha. */
+export const MATCH_OPEN_FIELD_DRAW = {
+  ...MATCH_OPEN,
+  next_arrival: { kind: "field_draw", team_id: null, team_number: null },
+};
+
+const LEAVE_EVENT = {
+  kind: "leave",
+  id: "55555555-5555-5555-5555-555555555555",
+  person: LUCAS,
+  team_id: TEAM2,
+  team_number: 2,
+  by_self: true,
+  reinforced: true,
+  outfield_count: 4,
+  capacity: 5,
+  created_at: "2026-10-04T15:03:00+00:00",
+};
+
+const REINFORCEMENT_EVENT = {
+  kind: "reinforcement",
+  id: "66666666-6666-6666-6666-666666666666",
+  entered: PEDRO,
+  left: LUCAS,
+  from_team_id: TEAM3,
+  from_team_number: 3,
+  to_team_id: TEAM2,
+  to_team_number: 2,
+  team_drawn: false,
+  created_at: "2026-10-04T15:03:00+00:00",
+};
+
+const INCLUSION_EVENT = {
+  kind: "inclusion",
+  id: "77777777-7777-7777-7777-777777777777",
+  person: MEMBER,
+  team_id: TEAM1,
+  team_number: 1,
+  created_at: "2026-10-04T15:01:00+00:00",
+};
+
+const RETURN_EVENT = {
+  kind: "return",
+  id: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  person: GUEST,
+  team_id: TEAM2,
+  team_number: 2,
+  created_at: "2026-10-04T15:00:30+00:00",
+};
+
+/** Últimos lances com os cinco kinds, mais recente primeiro. */
+export const MATCH_OPEN_EVENTS = {
+  ...MATCH_OPEN,
+  events: [
+    REINFORCEMENT_EVENT,
+    LEAVE_EVENT,
+    { kind: "goal", ...GOAL },
+    INCLUSION_EVENT,
+    RETURN_EVENT,
+  ],
 };
 
 export const MATCH_PREVIEW = {
   match_id: "cccccccc-cccc-cccc-cccc-cccccccccccc",
   score: { home: 1, away: 0 },
-  winner_team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  winner_team_id: TEAM1,
   decided_by_penalties: false,
   consequence: "winner_stays",
   fallback: null,
   next_is_rematch: false,
-  next_challenger_team_id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  next_challenger_team_id: TEAM2,
 };

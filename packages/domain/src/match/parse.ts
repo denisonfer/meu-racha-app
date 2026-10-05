@@ -1,6 +1,9 @@
 import type { TPhotoResolver } from "../sorteio/parse";
 import type {
   TEventMatch,
+  TMatchArrival,
+  TMatchEntryKind,
+  TMatchEvent,
   TMatchEventStatus,
   TMatchFinishPreview,
   TMatchGoal,
@@ -8,8 +11,10 @@ import type {
   TMatchItem,
   TMatchLineupEntry,
   TMatchNextSide,
+  TMatchPendingReinforcement,
   TMatchPerson,
   TMatchPortraitState,
+  TMatchReinforcementDonor,
   TMatchRole,
   TMatchSide,
   TMatchStatus,
@@ -87,6 +92,26 @@ const ROLES = [
   "OUTFIELD",
   "GOALKEEPER",
 ] as const satisfies readonly TMatchRole[];
+const ENTRY_KINDS = [
+  "start",
+  "reinforcement",
+  "inclusion",
+  "return",
+  "goalkeeper",
+] as const satisfies readonly TMatchEntryKind[];
+const EVENT_KINDS = [
+  "goal",
+  "leave",
+  "reinforcement",
+  "inclusion",
+  "return",
+] as const;
+const ARRIVAL_KINDS = [
+  "field",
+  "field_draw",
+  "queue",
+  "new_team",
+] as const satisfies readonly TMatchArrival["kind"][];
 const KINDS = ["member", "guest"] as const;
 
 function person(value: unknown, photo: TPhotoResolver): TMatchPerson {
@@ -121,7 +146,13 @@ function nextSide(value: unknown, photo: TPhotoResolver): TMatchNextSide {
 
 function side(value: unknown, photo: TPhotoResolver): TMatchSide {
   const raw = obj(value);
-  return { ...nextSide(raw, photo), score: num(raw.score) };
+  return {
+    ...nextSide(raw, photo),
+    score: num(raw.score),
+    outfieldCount: num(raw.outfield_count),
+    capacity: num(raw.capacity),
+    lineup: list(raw.lineup).map((item) => lineupEntry(item, photo)),
+  };
 }
 
 function goal(value: unknown, photo: TPhotoResolver): TMatchGoal {
@@ -147,6 +178,93 @@ function lineupEntry(value: unknown, photo: TPhotoResolver): TMatchLineupEntry {
     person: person(raw.person, photo),
     enteredAt: str(raw.entered_at),
     leftAt: strOrNull(raw.left_at),
+    entryKind: oneOf(raw.entry_kind, ENTRY_KINDS),
+    leftBySelf: bool(raw.left_by_self),
+  };
+}
+
+function donor(value: unknown): TMatchReinforcementDonor {
+  const raw = obj(value);
+  return {
+    teamId: str(raw.team_id),
+    teamNumber: num(raw.team_number),
+    queuePosition: num(raw.queue_position),
+    outfieldCount: num(raw.outfield_count),
+  };
+}
+
+function pending(
+  value: unknown,
+  photo: TPhotoResolver
+): TMatchPendingReinforcement {
+  const raw = obj(value);
+  return {
+    person: person(raw.person, photo),
+    teamId: str(raw.team_id),
+    teamNumber: num(raw.team_number),
+    leftAt: str(raw.left_at),
+  };
+}
+
+function arrival(json: unknown): TMatchArrival {
+  const raw = obj(json);
+  const kind = oneOf(raw.kind, ARRIVAL_KINDS);
+  if (kind === "field_draw") {
+    if (raw.team_id != null || raw.team_number != null) throw invalid();
+    return { kind, teamId: null, teamNumber: null };
+  }
+  if (kind === "new_team") {
+    if (raw.team_id != null) throw invalid();
+    return { kind, teamId: null, teamNumber: num(raw.team_number) };
+  }
+  return {
+    kind,
+    teamId: str(raw.team_id),
+    teamNumber: num(raw.team_number),
+  };
+}
+
+function matchEvent(value: unknown, photo: TPhotoResolver): TMatchEvent {
+  const raw = obj(value);
+  const kind = oneOf(raw.kind, EVENT_KINDS);
+  if (kind === "goal") {
+    return { kind, ...goal(raw, photo) };
+  }
+  if (kind === "leave") {
+    return {
+      kind,
+      id: str(raw.id),
+      person: person(raw.person, photo),
+      teamId: str(raw.team_id),
+      teamNumber: num(raw.team_number),
+      bySelf: bool(raw.by_self),
+      reinforced: bool(raw.reinforced),
+      outfieldCount: num(raw.outfield_count),
+      capacity: num(raw.capacity),
+      createdAt: str(raw.created_at),
+    };
+  }
+  if (kind === "reinforcement") {
+    return {
+      kind,
+      id: str(raw.id),
+      entered: person(raw.entered, photo),
+      left: person(raw.left, photo),
+      fromTeamId: str(raw.from_team_id),
+      fromTeamNumber: num(raw.from_team_number),
+      toTeamId: str(raw.to_team_id),
+      toTeamNumber: num(raw.to_team_number),
+      teamDrawn: bool(raw.team_drawn),
+      createdAt: str(raw.created_at),
+    };
+  }
+  return {
+    kind,
+    id: str(raw.id),
+    person: person(raw.person, photo),
+    teamId: str(raw.team_id),
+    teamNumber: num(raw.team_number),
+    createdAt: str(raw.created_at),
   };
 }
 
@@ -230,6 +348,12 @@ export function parseEventMatch(
       matchItem(item, photo)
     ),
     viewer: { canConduct: bool(obj(raw.viewer).can_conduct) },
+    reinforcementDonors: list(raw.reinforcement_donors).map(donor),
+    pendingReinforcements: list(raw.pending_reinforcements).map((item) =>
+      pending(item, photo)
+    ),
+    events: list(raw.events).map((item) => matchEvent(item, photo)),
+    nextArrival: arrival(raw.next_arrival),
   };
 }
 
