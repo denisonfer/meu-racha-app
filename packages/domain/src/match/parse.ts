@@ -383,6 +383,14 @@ function goalkeeperQueue(
   };
 }
 
+function viewer(value: unknown): TEventMatch["viewer"] {
+  const raw = obj(value);
+  return {
+    canConduct: bool(raw.can_conduct),
+    canAssume: raw.can_assume == null ? false : bool(raw.can_assume),
+  };
+}
+
 /** Retorno de get/start/pause/resume/add/update/delete/swap/finish/discard. */
 export function parseEventMatch(
   json: unknown,
@@ -401,6 +409,7 @@ export function parseEventMatch(
     pausedAt: strOrNull(raw.paused_at),
     pausedSeconds: numOrNull(raw.paused_seconds),
     seq: num(raw.seq),
+    conductorName: strOrNull(raw.conductor_name),
     match: raw.match == null ? null : matchItem(raw.match, photo),
     nextMatch: raw.next_match == null ? null : nextMatch(raw.next_match, photo),
     teams: list(raw.teams).map(teamQueue),
@@ -410,7 +419,7 @@ export function parseEventMatch(
     finishedMatches: list(raw.finished_matches).map((item) =>
       matchItem(item, photo)
     ),
-    viewer: { canConduct: bool(obj(raw.viewer).can_conduct) },
+    viewer: viewer(raw.viewer),
     reinforcementDonors: list(raw.reinforcement_donors).map(donor),
     pendingReinforcements: list(raw.pending_reinforcements).map((item) =>
       pending(item, photo)

@@ -1,5 +1,8 @@
 import { BottomSheet, Button, Text } from "@/ui/components";
 import {
+  ASSUME_ACTIVE_BACK,
+  ASSUME_ACTIVE_TITLE,
+  assumeActiveText,
   SORT_ASSUME_UPCOMING_STAY,
   SORT_ASSUME_UPCOMING_TITLE,
   sortAssumeUpcomingText,
@@ -22,12 +25,12 @@ export const AssumeEventConductionScreen = () => {
 
   return (
     <BottomSheet
-      title={isUpcoming ? SORT_ASSUME_UPCOMING_TITLE : "Assumir condução?"}
+      title={isUpcoming ? SORT_ASSUME_UPCOMING_TITLE : ASSUME_ACTIVE_TITLE}
       supporting={
         <Text>
           {isUpcoming
             ? sortAssumeUpcomingText(conductorName ?? "Outra pessoa")
-            : "Você assume a condução do evento em curso no lugar do Condutor atual. Isso permite editar e encerrar o evento, sem iniciar uma partida."}
+            : assumeActiveText(conductorName)}
         </Text>
       }
       hasCloseButton={false}
@@ -44,7 +47,7 @@ export const AssumeEventConductionScreen = () => {
         onPress={confirm}
       />
       <Button
-        title={isUpcoming ? SORT_ASSUME_UPCOMING_STAY : "Voltar"}
+        title={isUpcoming ? SORT_ASSUME_UPCOMING_STAY : ASSUME_ACTIVE_BACK}
         preset="outline"
         isDisabled={isAssuming}
         onPress={cancel}

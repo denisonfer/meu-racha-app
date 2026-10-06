@@ -130,6 +130,7 @@ const PORTRAIT_BASE = {
   paused_at: null,
   paused_seconds: 12,
   seq: 41,
+  conductor_name: "Lucas M.",
   next_match: null,
   teams: [
     {
@@ -149,7 +150,7 @@ const PORTRAIT_BASE = {
   ],
   goalkeeper_queue: [{ person: GUEST, queue_order: 1 }],
   finished_matches: [],
-  viewer: { can_conduct: true },
+  viewer: { can_conduct: true, can_assume: false },
 };
 
 /** Fila vazia: só os dois Times em campo; donors []. */

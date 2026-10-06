@@ -36,6 +36,7 @@ export type Database = {
     Tables: {
       event: {
         Row: {
+          conduction_seq: number | null;
           conductor_id: string | null;
           consider_position: boolean;
           ended_at: string | null;
@@ -62,6 +63,7 @@ export type Database = {
           yellow_out_min: number;
         };
         Insert: {
+          conduction_seq?: number | null;
           conductor_id?: string | null;
           consider_position: boolean;
           ended_at?: string | null;
@@ -88,6 +90,7 @@ export type Database = {
           yellow_out_min?: number;
         };
         Update: {
+          conduction_seq?: number | null;
           conductor_id?: string | null;
           consider_position?: boolean;
           ended_at?: string | null;

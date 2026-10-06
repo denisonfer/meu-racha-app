@@ -29,7 +29,8 @@ describe("parseEventMatch", () => {
       yellowOutMin: 2,
       pausedSeconds: 12,
       seq: 41,
-      viewer: { canConduct: true },
+      conductorName: "Lucas M.",
+      viewer: { canConduct: true, canAssume: false },
     });
     expect(portrait.match?.home).toMatchObject({
       teamNumber: 1,
@@ -209,6 +210,28 @@ describe("parseEventMatch", () => {
       person: { displayName: "Avulso Z" },
       teamNumber: 2,
     });
+  });
+
+  test("lê quem conduz e se o viewer pode assumir, com seq intacto", () => {
+    const portrait = parseEventMatch(
+      {
+        ...MATCH_OPEN,
+        seq: 57,
+        conductor_name: "Bruna",
+        viewer: { can_conduct: false, can_assume: true },
+      },
+      photo
+    );
+    expect(portrait.seq).toBe(57);
+    expect(portrait.conductorName).toBe("Bruna");
+    expect(portrait.viewer).toEqual({ canConduct: false, canAssume: true });
+  });
+
+  test("sem conductor_name e can_assume, usa null e false", () => {
+    const portrait = parseEventMatch(MATCH_READY, photo);
+    expect(portrait.seq).toBe(40);
+    expect(portrait.conductorName).toBeNull();
+    expect(portrait.viewer.canAssume).toBe(false);
   });
 
   test.each([

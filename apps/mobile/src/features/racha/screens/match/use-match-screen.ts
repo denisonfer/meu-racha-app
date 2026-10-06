@@ -18,13 +18,14 @@ import { useEventMatch } from "../../hooks/use-event-match";
 import { useEventMatchActions } from "../../hooks/use-event-match-actions";
 import { useEventMatchLive } from "../../hooks/use-event-match-live";
 import { useEventSort } from "../../hooks/use-event-sort";
-import { useOpenEvents } from "../../hooks/use-open-events";
 import {
   BOLINHAS_REMINDER_ACTION,
   BOLINHAS_REMINDER_TEXT,
   bolinhasReminderTitle,
   bolinhasReminderTitleMany,
+  conductorAssumed,
   conductorName,
+  MATCH_ASSUME,
   MATCH_CONDUCTOR_OFFLINE,
   MATCH_LEAVE_REINFORCE,
   MATCH_MY_TEAM_NEXT,
@@ -63,6 +64,12 @@ const seenRunningYellowIds = new Set<string>();
 const announcedCardBackIds = new Set<string>();
 
 const CARD_BACK_MS = 10_000;
+
+type TMatchNotice = {
+  text: string;
+  actionLabel?: string;
+  onAction?: () => void;
+};
 
 type TCardBackPill = {
   id: string;
@@ -131,7 +138,6 @@ export function useMatchScreen() {
   const showToast = useToast();
   const queryClient = useQueryClient();
   const matchQuery = useEventMatch(id, eventId);
-  const eventsQuery = useOpenEvents(id);
   const actions = useEventMatchActions(id, eventId);
   const { isConductorOffline } = useEventMatchLive(id, eventId);
   const { session } = useSession();
@@ -145,7 +151,6 @@ export function useMatchScreen() {
   });
 
   const portrait = matchQuery.data;
-  const event = eventsQuery.data?.find((item) => item.id === eventId);
   const [nowMs, setNowMs] = useState(() => Date.now());
   const cardBacks = useSyncExternalStore(
     subscribeCardBacks,
@@ -163,6 +168,7 @@ export function useMatchScreen() {
   }, []);
 
   const canConduct = Boolean(portrait?.viewer.canConduct);
+  const canAssume = Boolean(portrait?.viewer.canAssume);
   if (canConduct && !wasConductor) {
     setWasConductor(true);
   }
@@ -301,11 +307,35 @@ export function useMatchScreen() {
     );
   };
 
-  const assumedLine =
-    lostConduct || (wasConductor && !canConduct)
-      ? event?.conductorName
-        ? conductorName(event.conductorName)
-        : SORT_NOT_CONDUCTOR
+  const openAssume = () => {
+    router.push(`/racha/${id}/event/${eventId}/assume`);
+  };
+  // o nome vem do retrato: a troca sobe o seq e o retrato é refeito, a lista de Eventos não
+  const currentConductor = portrait?.conductorName ?? null;
+  const assumeAction = canAssume
+    ? { actionLabel: MATCH_ASSUME, onAction: openAssume }
+    : {};
+  const conductorOfflineNotice: TMatchNotice | null =
+    !canConduct && isConductorOffline
+      ? { text: MATCH_CONDUCTOR_OFFLINE, ...assumeAction }
+      : null;
+  const assumedNotice: TMatchNotice | null =
+    !canConduct && (lostConduct || wasConductor)
+      ? {
+          text: currentConductor
+            ? conductorAssumed(currentConductor)
+            : SORT_NOT_CONDUCTOR,
+          ...assumeAction,
+        }
+      : null;
+  // sem repetir a ação quando um dos avisos acima já a oferece
+  const conductionNotice: Required<TMatchNotice> | null =
+    canAssume && currentConductor && !conductorOfflineNotice && !assumedNotice
+      ? {
+          text: conductorName(currentConductor),
+          actionLabel: MATCH_ASSUME,
+          onAction: openAssume,
+        }
       : null;
 
   const homeTeam = match
@@ -418,9 +448,9 @@ export function useMatchScreen() {
     },
     notices: {
       offline: canConduct && isOffline ? MATCH_OFFLINE : null,
-      conductorOffline:
-        !canConduct && isConductorOffline ? MATCH_CONDUCTOR_OFFLINE : null,
-      assumed: !canConduct ? assumedLine : null,
+      conductorOffline: conductorOfflineNotice,
+      assumed: assumedNotice,
+      conduction: conductionNotice,
       // sem Time na fila para ceder, o aviso levaria a uma lista vazia
       pending:
         canConduct && match && (portrait?.reinforcementDonors.length ?? 0) > 0

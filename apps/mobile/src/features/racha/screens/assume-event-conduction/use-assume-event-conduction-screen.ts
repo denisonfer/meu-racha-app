@@ -1,7 +1,9 @@
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useAssumeEventConduction } from "../../hooks/use-assume-event-conduction";
+import { eventMatchKey } from "../../hooks/use-event-match";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import { ACTION_FAILED } from "../../utils/racha-messages";
 
@@ -13,6 +15,7 @@ export function useAssumeEventConductionScreen() {
   const { assumeEventConduction } = useAssumeEventConduction(id);
   const eventsQuery = useOpenEvents(id);
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const showToast = useToast();
   const close = useBottomSheetClose();
   const [isAssuming, setIsAssuming] = useState(false);
@@ -32,9 +35,17 @@ export function useAssumeEventConductionScreen() {
     setIsAssuming(true);
     try {
       await assumeEventConduction(eventId);
-      router.dismissTo(`/racha/${id}`);
-      // assumir a preparação do Sorteio leva direto a ele; o voltar cai na home
-      if (isUpcoming) router.push(`/racha/${id}/event/${eventId}/sort`);
+      if (isUpcoming) {
+        router.dismissTo(`/racha/${id}`);
+        // assumir a preparação do Sorteio leva direto a ele; o voltar cai na home
+        router.push(`/racha/${id}/event/${eventId}/sort`);
+        return;
+      }
+      // volta para quem abriu a folha: a Partida já mostra o retrato novo
+      void queryClient.invalidateQueries({
+        queryKey: eventMatchKey(id, eventId),
+      });
+      router.back();
     } catch {
       if (!navigation.isFocused()) {
         showToast(ACTION_FAILED);

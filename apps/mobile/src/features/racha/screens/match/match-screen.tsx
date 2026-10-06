@@ -72,14 +72,29 @@ export const MatchScreen = () => {
           {notices.conductorOffline ? (
             <NoticeBanner
               tone="warning"
-              text={notices.conductorOffline}
               isAlert
+              {...notices.conductorOffline}
             />
           ) : null}
           {notices.assumed ? (
-            <Text preset="small" color="muted">
-              {notices.assumed}
-            </Text>
+            <NoticeBanner tone="warning" isAlert {...notices.assumed} />
+          ) : null}
+          {notices.conduction ? (
+            <View style={styles.conduction}>
+              <Text preset="small" color="muted">
+                {notices.conduction.text}
+              </Text>
+              <Pressable
+                onPress={notices.conduction.onAction}
+                accessibilityRole="button"
+                accessibilityLabel={notices.conduction.actionLabel}
+                style={styles.conductionAction}
+              >
+                <Text preset="small" color="action">
+                  {notices.conduction.actionLabel}
+                </Text>
+              </Pressable>
+            </View>
           ) : null}
           {notices.pending.map((item) => (
             <NoticeBanner
@@ -186,6 +201,13 @@ const styles = StyleSheet.create({
   },
   body: { flex: 1, gap: theme.space[8] },
   swaps: { flexDirection: "row", gap: theme.space[8], marginBottom: 8 },
+  conduction: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    columnGap: theme.space[8],
+  },
+  conductionAction: { minHeight: theme.minTouch, justifyContent: "center" },
   swap: {
     flex: 1,
     minHeight: theme.minTouch,

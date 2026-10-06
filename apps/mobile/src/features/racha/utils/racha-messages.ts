@@ -485,6 +485,12 @@ export const MATCH_FINISHED_TITLE = "Partidas encerradas";
 export const MATCH_TAP_GOAL = "toque p/ gol";
 export const MATCH_REMATCH = "Revanche";
 export const MATCH_CONDUCTOR_OFFLINE = "O Condutor está sem conexão.";
+export const MATCH_ASSUME = "Assumir condução";
+export const conductorAssumed = (name: string) => `${name} assumiu a condução.`;
+export const ASSUME_ACTIVE_TITLE = "Assumir condução?";
+export const ASSUME_ACTIVE_BACK = "Voltar";
+export const assumeActiveText = (name: string | null) =>
+  `${name ?? "O Condutor atual"} deixa de conduzir. Você passa a gravar placar, cartões, Reforço e Bolinhas e a encerrar o Evento. O relógio e os cronômetros seguem como estão.`;
 export const MATCH_OFFLINE =
   "Sem conexão. Os botões ficam bloqueados até a rede voltar.";
 export const MATCH_DISCARD_TITLE = "Descartar partida?";

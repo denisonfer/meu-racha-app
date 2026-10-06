@@ -203,12 +203,13 @@ export type TEventMatch = {
   pausedAt: string | null;
   pausedSeconds: number | null;
   seq: number;
+  conductorName: string | null;
   match: TMatchItem | null;
   nextMatch: TNextMatch | null;
   teams: TMatchTeamQueueEntry[];
   goalkeeperQueue: TMatchGoalkeeperQueueEntry[];
   finishedMatches: TMatchItem[];
-  viewer: { canConduct: boolean };
+  viewer: { canConduct: boolean; canAssume: boolean };
   reinforcementDonors: TMatchReinforcementDonor[];
   pendingReinforcements: TMatchPendingReinforcement[];
   events: TMatchEvent[];
