@@ -147,6 +147,7 @@ function player(value: unknown, photo: TPhotoResolver): TSortPlayer {
 function team(value: unknown, photo: TPhotoResolver): TSortTeam {
   const raw = obj(value);
   return {
+    teamId: str(raw.team_id),
     teamNumber: num(raw.team_number),
     queueOrder: numOrNull(raw.queue_order),
     isActive: bool(raw.is_active),

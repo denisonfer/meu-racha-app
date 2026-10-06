@@ -25,9 +25,6 @@ export function useBolinhasView() {
   const { data: racha } = useRacha(id);
   const published =
     sortQuery.data?.state === "published" ? sortQuery.data : null;
-  const idByNumber = new Map(
-    (matchQuery.data?.teams ?? []).map((team) => [team.teamNumber, team.teamId])
-  );
   const isMatchOpen = (matchQuery.data?.match ?? null) !== null;
 
   const queue: TBolinhasQueueTeam[] = (published?.teams ?? [])
@@ -37,7 +34,7 @@ export function useBolinhasView() {
       teamNumber: team.teamNumber,
       queueOrder: team.queueOrder,
       activeCount: team.players.length,
-      teamId: idByNumber.get(team.teamNumber) ?? null,
+      teamId: team.teamId,
       names: team.players.map((player) => player.displayName),
     }));
   // a disponibilidade vem do banco: o botão, a tela e a RPC não divergem

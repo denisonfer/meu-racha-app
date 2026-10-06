@@ -32,6 +32,7 @@ export type TSortPlayer = TSortPerson & {
 };
 
 export type TSortTeam = {
+  teamId: string;
   teamNumber: number;
   // null: Time incompleto fora da fila de jogo
   queueOrder: number | null;
