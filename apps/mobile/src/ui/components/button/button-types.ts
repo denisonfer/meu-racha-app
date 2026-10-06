@@ -1,5 +1,6 @@
 import { TThemeColor } from "@/ui/theme";
 import { PressableProps } from "react-native";
+import type { TIconName } from "../icon";
 
 export type TButtonPreset =
   | "primary"
@@ -14,6 +15,8 @@ export type TButtonProps = PressableProps & {
   preset?: TButtonPreset;
   isLoading?: boolean;
   isDisabled?: boolean;
+  /** Antes do título, na cor dele. */
+  icon?: TIconName;
 };
 
 export type TPresetConfig = {

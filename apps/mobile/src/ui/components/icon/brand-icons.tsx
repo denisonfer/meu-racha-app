@@ -15,3 +15,11 @@ export const NotificationIcon = (props: TBrandIconProps) => (
     <Path d="M10 20a2 2 0 0 0 4 0" />
   </BrandSvg>
 );
+
+// duas bolinhas, uma cheia: o gesto do sorteio
+export const BolinhasIcon = ({ color, ...props }: TBrandIconProps) => (
+  <BrandSvg color={color} {...props}>
+    <Circle cx={8.5} cy={12} r={5} />
+    <Circle cx={15.5} cy={12} r={5} fill={color} stroke="none" />
+  </BrandSvg>
+);

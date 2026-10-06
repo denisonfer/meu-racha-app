@@ -1,7 +1,9 @@
 import type { TPlaysAs, TPosition } from "../profile";
+import { BOLINHAS_AVAILABILITY } from "../bolinhas/types";
 import { POSITION_LAYERS, type TPositionLayer } from "../racha/position-detail";
 import type { TMatchArrival } from "../match/types";
 import type {
+  TLastBolinhas,
   TPublishedSort,
   TSortAttendanceStatus,
   TSortBalance,
@@ -116,7 +118,10 @@ function layer(value: unknown): TPositionLayer | null {
   return value == null ? null : oneOf(value, POSITION_LAYERS);
 }
 
-function person(raw: TObject, photo: TPhotoResolver): TSortPerson {
+export function parseSortPerson(
+  raw: TObject,
+  photo: TPhotoResolver
+): TSortPerson {
   return {
     kind: oneOf(raw.kind, KINDS),
     profileId: strOrNull(raw.profile_id),
@@ -129,7 +134,7 @@ function person(raw: TObject, photo: TPhotoResolver): TSortPerson {
 function player(value: unknown, photo: TPhotoResolver): TSortPlayer {
   const raw = obj(value);
   return {
-    ...person(raw, photo),
+    ...parseSortPerson(raw, photo),
     stars: num(raw.stars),
     isSuperStar: bool(raw.is_super_star),
     primaryPosition: position(raw.primary_position),
@@ -151,7 +156,9 @@ function team(value: unknown, photo: TPhotoResolver): TSortTeam {
     superCount: num(raw.super_count),
     players: list(raw.players).map((item) => player(item, photo)),
     goalkeeper:
-      raw.goalkeeper == null ? null : person(obj(raw.goalkeeper), photo),
+      raw.goalkeeper == null
+        ? null
+        : parseSortPerson(obj(raw.goalkeeper), photo),
   };
 }
 
@@ -161,7 +168,7 @@ function goalkeeperQueue(
 ): TSortGoalkeeperQueueEntry[] {
   return list(value).map((item) => {
     const raw = obj(item);
-    return { ...person(raw, photo), queueOrder: num(raw.queue_order) };
+    return { ...parseSortPerson(raw, photo), queueOrder: num(raw.queue_order) };
   });
 }
 
@@ -213,9 +220,30 @@ function waiting(value: unknown, photo: TPhotoResolver): TSortWaitingPlayer {
 function leftPlayer(value: unknown, photo: TPhotoResolver): TSortLeftPlayer {
   const raw = obj(value);
   return {
-    ...person(raw, photo),
+    ...parseSortPerson(raw, photo),
     playsAs: oneOf(raw.plays_as, PLAYS_AS),
     didAttend: bool(raw.did_attend),
+  };
+}
+
+function lastBolinhas(
+  value: unknown,
+  photo: TPhotoResolver
+): TLastBolinhas | null {
+  if (value == null) return null;
+  const raw = obj(value);
+  return {
+    giverTeamNumber: num(raw.giver_team_number),
+    receiverTeamNumber: num(raw.receiver_team_number),
+    allMove: bool(raw.all_move),
+    createdAt: str(raw.created_at),
+    moved: list(raw.moved).map((item) => {
+      const moved = obj(item);
+      return {
+        ...parseSortPerson(moved, photo),
+        fromTeamNumber: num(moved.from_team_number),
+      };
+    }),
   };
 }
 
@@ -299,5 +327,10 @@ export function parsePublishedSort(
     ),
     left: list(raw.left).map((item) => leftPlayer(item, photo)),
     nextArrival: arrival(raw.next_arrival),
+    bolinhasAvailability: oneOf(
+      raw.bolinhas_availability,
+      BOLINHAS_AVAILABILITY
+    ),
+    lastBolinhas: lastBolinhas(raw.last_bolinhas, photo),
   };
 }

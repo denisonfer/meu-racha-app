@@ -162,6 +162,55 @@ describe("parsePublishedSort", () => {
     });
   });
 
+  test("published traz a disponibilidade e sem última Bolinhas", () => {
+    const sort = parsePublishedSort(PUBLISHED, photo);
+    if (sort.state !== "published") throw new Error("esperava published");
+    expect(sort.bolinhasAvailability).toBe("ok");
+    expect(sort.lastBolinhas).toBeNull();
+  });
+
+  test("published mapeia a última Bolinhas com quem mudou", () => {
+    const sort = parsePublishedSort(
+      {
+        ...PUBLISHED,
+        bolinhas_availability: "no_receiver",
+        last_bolinhas: {
+          giver_team_number: 5,
+          receiver_team_number: 4,
+          all_move: false,
+          created_at: "2026-10-05T20:00:00+00:00",
+          moved: [
+            {
+              kind: "member",
+              person_id: "1a989607-5dc4-47ee-8250-82567406d86c",
+              profile_id: "1a989607-5dc4-47ee-8250-82567406d86c",
+              guest_id: null,
+              display_name: "Jogador D",
+              avatar_path: null,
+              from_team_number: 5,
+            },
+          ],
+        },
+      },
+      photo
+    );
+    if (sort.state !== "published") throw new Error("esperava published");
+    expect(sort.bolinhasAvailability).toBe("no_receiver");
+    expect(sort.lastBolinhas).toMatchObject({
+      giverTeamNumber: 5,
+      receiverTeamNumber: 4,
+      allMove: false,
+    });
+    expect(sort.lastBolinhas?.moved).toEqual([
+      expect.objectContaining({ displayName: "Jogador D", fromTeamNumber: 5 }),
+    ]);
+  });
+
+  test("rejeita published sem bolinhas_availability", () => {
+    const { bolinhas_availability: _a, ...rest } = PUBLISHED;
+    expect(() => parsePublishedSort(rest, photo)).toThrow(SORT_PAYLOAD_INVALID);
+  });
+
   test("published mapeia field_draw sem Time", () => {
     const sort = parsePublishedSort(
       {

@@ -745,3 +745,129 @@ export const attendancePaymentNote = (
   }
   return parts.length > 0 ? parts.join(" + ") : null;
 };
+
+// --- Bolinhas ---
+export const BOLINHAS = "Bolinhas";
+export const BOLINHAS_UNAVAILABLE =
+  "Bolinhas: nenhum Time fora de campo precisa de jogador.";
+export const BOLINHAS_NO_GIVER_UNAVAILABLE =
+  "Bolinhas: nenhum Time pode ceder agora.";
+export const BOLINHAS_UNAVAILABLE_A11Y =
+  "Bolinhas, indisponível: nenhum Time fora de campo precisa de jogador";
+export const BOLINHAS_HELP =
+  "Escolha quem cede e depois quem recebe. Azul vai para quem recebe; vermelha fica onde está. Goleiro não entra no saco.";
+export const BOLINHAS_RECEIVER = "Quem recebe";
+export const BOLINHAS_GIVER = "Quem cede";
+export const BOLINHAS_PICK_GIVER_FIRST =
+  "Escolha antes quem cede. Cada Time mostra quantas azuis e vermelhas vão para o saco.";
+export const BOLINHAS_CHANGE = "Trocar";
+export const BOLINHAS_FULL = "Completo: sem vaga para receber.";
+export const BOLINHAS_ON_FIELD = "Em campo: não cede nem recebe.";
+export const BOLINHAS_IS_GIVER = "Vai ceder.";
+export const BOLINHAS_NO_OTHER_RECEIVER = "Nenhum outro Time pode receber.";
+export const BOLINHAS_DRAW = "Sortear";
+export const BOLINHAS_MOVE = "Mover jogadores";
+export const BOLINHAS_INTO_BAG = "vão para o saco";
+export const BOLINHAS_SHAKING = "Sacudindo o saco…";
+export const BOLINHAS_CLOSE = "Fechar";
+export const BOLINHAS_NO_RECEIVER_TITLE = "Nenhum Time pode receber";
+export const BOLINHAS_NO_RECEIVER_TEXT =
+  "Todos os Times fora de campo estão completos. As Bolinhas servem para completar um Time incompleto.";
+export const BOLINHAS_NO_GIVER_TITLE = "Nenhum Time pode ceder";
+export const BOLINHAS_NO_GIVER_TEXT = "Os Times com jogadores estão em campo.";
+export const BOLINHAS_BACK_TO_TEAMS = "Voltar aos Times";
+export const BOLINHAS_FAILED_TITLE = "Não deu pra sortear";
+export const BOLINHAS_FAILED_TEXT =
+  "Sem conexão. Nada mudou nos Times. Confira a internet e tente de novo.";
+export const BOLINHAS_RETRY = "Tentar de novo";
+export const BOLINHAS_CHANGED_TITLE = "A situação mudou";
+export const BOLINHAS_CHANGED_TEXT =
+  "Os Times foram atualizados. Escolha de novo quem cede e quem recebe.";
+export const BOLINHAS_NOT_CONDUCTOR_NO_NAME =
+  "Outra pessoa assumiu a condução. Nada mudou nos Times.";
+export const BOLINHAS_NOT_CONDUCTOR_TITLE = "Você não conduz mais este Evento";
+export const BOLINHAS_REMINDER_TEXT =
+  "O próximo confronto tem Time incompleto. Dá para completar antes de iniciar.";
+export const BOLINHAS_REMINDER_ACTION = "Ajustar com Bolinhas";
+export const MATCH_NEXT_MATCH = "PRÓXIMO CONFRONTO";
+export const MATCH_ON_FIELD = "EM CAMPO";
+export const bolinhasReminderTitle = (team: number, n: number, cap: number) =>
+  `Time ${team} está com ${n}/${cap}`;
+export const bolinhasReminderTitleMany = (teams: number[]) =>
+  `${teams.map((team) => `Time ${team}`).join(" e ")} estão incompletos`;
+export const bolinhasSpots = (n: number) => (n === 1 ? "1 vaga" : `${n} vagas`);
+export const bolinhasInBag = (n: number) =>
+  n === 1 ? "1 bolinha no saco" : `${n} bolinhas no saco`;
+export const bolinhasGives = (n: number) => `Cede · ${bolinhasInBag(n)}`;
+export const bolinhasBalls = (blue: number, red: number) =>
+  `${blue} ${blue === 1 ? "azul" : "azuis"} · ${red} ${red === 1 ? "vermelha" : "vermelhas"}`;
+export const bolinhasAllMoveRow = (team: number) =>
+  `Todos vão, sem sorteio · o Time ${team} sai da fila`;
+export const bolinhasSummary = (
+  giver: number,
+  receiver: number,
+  blue: number,
+  red: number
+) =>
+  `O Time ${giver} cede para o Time ${receiver} · ${blue} ${blue === 1 ? "azul" : "azuis"}, ${red} ${red === 1 ? "vermelha" : "vermelhas"}`;
+export const bolinhasAfter = (
+  receiver: number,
+  giver: number,
+  giverLeft: number,
+  cap: number
+) =>
+  `Depois: o Time ${receiver} fica com ${cap} de ${cap} e o Time ${giver} fica com ${giverLeft} de ${cap}.`;
+export const bolinhasAllMoveTitle = (
+  n: number,
+  giver: number,
+  receiver: number
+) =>
+  `Os ${n} do Time ${giver} vão para o Time ${receiver}. O Time ${giver} sai da fila.`;
+export const bolinhasAllMoveText = (
+  giver: number,
+  receiver: number,
+  total: number,
+  cap: number
+) =>
+  `Sem sorteio: o Time ${giver} tem menos jogadores que as vagas. O Time ${receiver} fica com ${total} de ${cap}.`;
+export const bolinhasMovedRow = (name: string, receiver: number) =>
+  `${name} → Time ${receiver}`;
+export const bolinhasMovedToast = (
+  names: string,
+  receiver: number,
+  plural: boolean
+) => `${names} ${plural ? "foram" : "foi"} para o Time ${receiver}.`;
+export const bolinhasGiverToReceiver = (giver: number, receiver: number) =>
+  `O Time ${giver} cede para o Time ${receiver}`;
+export const bolinhasStays = (team: number) => `Fica no Time ${team}`;
+export const bolinhasGoes = (team: number) => `Vai para o Time ${team}`;
+export const bolinhasProgress = (i: number, n: number) =>
+  `Bolinha ${i} de ${n}`;
+export const bolinhasResultTitle = (
+  names: string,
+  team: number,
+  plural: boolean
+) => `${names} ${plural ? "vão" : "vai"} para o Time ${team}`;
+export const bolinhasRevealA11y = (name: string, blue: boolean, team: number) =>
+  `${name}, ${blue ? "azul, vai para o Time" : "vermelha, fica no Time"} ${team}`;
+export const bolinhasNoteTitle = (
+  names: string,
+  team: number,
+  plural: boolean
+) => `Bolinhas: ${names} ${plural ? "foram" : "foi"} para o Time ${team}`;
+export const bolinhasNoteAllMoveTitle = (n: number, team: number) =>
+  `Bolinhas: os ${n} foram para o Time ${team}`;
+export const bolinhasNoteCaption = (giver: number, ago: string) =>
+  `O Time ${giver} cedeu · ${ago}`;
+export const bolinhasAgo = (minutes: number) =>
+  minutes < 1 ? "agora" : `há ${minutes} min`;
+export const bolinhasCameFrom = (team: number) =>
+  `Bolinhas · veio do Time ${team}`;
+export const bolinhasNotConductorText = (name: string) =>
+  `${name} assumiu a condução. Nada mudou nos Times.`;
+export const bolinhasLegend = (n: number, blue: boolean) =>
+  blue
+    ? `${n} ${n === 1 ? "AZUL" : "AZUIS"}`
+    : `${n} ${n === 1 ? "VERMELHA" : "VERMELHAS"}`;
+export const bolinhasColumnCount = (n: number, total: number) =>
+  `${n}/${total}`;

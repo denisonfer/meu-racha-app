@@ -15,7 +15,12 @@ const CONDUCTOR_OFFLINE_MS = 90_000;
  * o listener de AppState já existe em lib/supabase.ts / query-client.ts;
  * aqui ele só decide se publica presença.
  */
-export function useEventMatchLive(rachaId: string, eventId: string) {
+export function useEventMatchLive(
+  rachaId: string,
+  eventId: string,
+  // a tela de Times só escuta; quem publica presença do Condutor é a da Partida
+  { tracksPresence = true }: { tracksPresence?: boolean } = {}
+) {
   const queryClient = useQueryClient();
   const [isConductorOffline, setIsConductorOffline] = useState(false);
 
@@ -53,7 +58,9 @@ export function useEventMatchLive(rachaId: string, eventId: string) {
     async function syncTrack() {
       if (!live) return;
       const next =
-        Boolean(portrait()?.viewer.canConduct) && appState === "active";
+        tracksPresence &&
+        Boolean(portrait()?.viewer.canConduct) &&
+        appState === "active";
       if (next === wantTrack) return;
       wantTrack = next;
       if (next) await live.track();
@@ -68,10 +75,11 @@ export function useEventMatchLive(rachaId: string, eventId: string) {
     void rachaApi
       .subscribeEventMatch(eventId, {
         onMatchChanged: (seq) => {
+          // Bolinhas, Inclusão, Volta e Saída mudam os Times sem subir o seq da Partida:
+          // os Times se relêem a todo aviso; só a Partida confere o seq
+          void queryClient.invalidateQueries({ queryKey: sortKey });
           if (seq <= (portrait()?.seq ?? 0)) return;
           void queryClient.invalidateQueries({ queryKey: matchKey });
-          // Reforço, Inclusão e Volta mudam o Time de alguém: a faixa da fila lê os Times
-          void queryClient.invalidateQueries({ queryKey: sortKey });
         },
         onSubscribed: () => {
           // reconnect: o servidor pode ter avançado o seq enquanto estávamos fora
@@ -101,7 +109,7 @@ export function useEventMatchLive(rachaId: string, eventId: string) {
       if (timer) clearInterval(timer);
       live?.unsubscribe();
     };
-  }, [eventId, queryClient, rachaId]);
+  }, [eventId, queryClient, rachaId, tracksPresence]);
 
   return { isConductorOffline };
 }

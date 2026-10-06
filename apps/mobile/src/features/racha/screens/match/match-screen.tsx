@@ -45,6 +45,7 @@ export const MatchScreen = () => {
     noNext,
     queue,
     history,
+    bolinhasReminder,
   } = useMatchScreen();
 
   return (
@@ -159,6 +160,9 @@ export const MatchScreen = () => {
             </>
           ) : (
             <>
+              {bolinhasReminder ? (
+                <NoticeBanner tone="warning" {...bolinhasReminder} />
+              ) : null}
               {ready ? <MatchBetween {...ready} /> : null}
               {noNext ? (
                 <Text color="muted">{MATCH_NOT_ENOUGH_TEAMS}</Text>

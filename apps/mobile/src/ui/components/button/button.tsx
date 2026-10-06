@@ -1,4 +1,5 @@
 import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
+import { Icon } from "../icon";
 import { Text } from "../text/text";
 import { TButtonPreset, TButtonProps, TPresetConfig } from "./button-types";
 import { theme } from "@/ui/theme";
@@ -49,6 +50,7 @@ export const Button = ({
   preset = "primary",
   isLoading = false,
   isDisabled = false,
+  icon,
   style,
   ...props
 }: TButtonProps) => {
@@ -91,13 +93,18 @@ export const Button = ({
           color={theme.colors[config.titleColor]}
         />
       ) : (
-        <Text
-          preset="button"
-          color={config.titleColor}
-          style={[preset === "text" ? styles.title : undefined]}
-        >
-          {title}
-        </Text>
+        <>
+          {icon ? (
+            <Icon name={icon} size={22} color={config.titleColor} />
+          ) : null}
+          <Text
+            preset="button"
+            color={config.titleColor}
+            style={[preset === "text" ? styles.title : undefined]}
+          >
+            {title}
+          </Text>
+        </>
       )}
     </Pressable>
   );
@@ -105,6 +112,8 @@ export const Button = ({
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: "row",
+    gap: theme.space[8],
     alignItems: "center",
     justifyContent: "center",
     minHeight: theme.minTouch,

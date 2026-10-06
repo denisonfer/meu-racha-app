@@ -20,6 +20,8 @@ export type TSortTeamCardPerson = {
   overall: number;
   // vazio para o Goleiro
   detail: string;
+  // Bolinhas: quem acabou de chegar ao Time fica em destaque
+  isHighlighted?: boolean;
   stars: number | null;
   isSuperStar: boolean;
   isGoalkeeper: boolean;
@@ -48,7 +50,7 @@ export type TSortTeamCardProps = {
 };
 
 const PersonRow = ({ person }: { person: TSortTeamCardPerson }) => (
-  <View style={styles.person}>
+  <View style={[styles.person, person.isHighlighted && styles.highlighted]}>
     <View
       accessible
       accessibilityLabel={person.accessibilityLabel}
@@ -72,7 +74,11 @@ const PersonRow = ({ person }: { person: TSortTeamCardPerson }) => (
           ) : null}
         </View>
         {person.detail ? (
-          <Text preset="caption" color="muted" style={styles.detail}>
+          <Text
+            preset="caption"
+            color={person.isHighlighted ? "action" : "muted"}
+            style={styles.detail}
+          >
             {person.detail}
           </Text>
         ) : null}
@@ -241,6 +247,12 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   detail: { fontFamily: "Manrope-Bold" },
+  highlighted: {
+    backgroundColor: theme.colors.surfaceRaised,
+    borderRadius: theme.radius.control,
+    marginHorizontal: -8,
+    paddingHorizontal: 8,
+  },
   stars: { flexDirection: "row", alignItems: "center", gap: 3 },
   starsNumber: {
     ...theme.text.stat,

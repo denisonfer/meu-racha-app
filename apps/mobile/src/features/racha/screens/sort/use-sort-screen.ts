@@ -13,6 +13,7 @@ import type { TSortPublishedSection } from "../../components/sort-published-view
 import type { TSortRowAction } from "../../components/sort-team-card";
 import { useEventAttendance } from "../../hooks/use-event-attendance";
 import { useEventMatch } from "../../hooks/use-event-match";
+import { useEventMatchLive } from "../../hooks/use-event-match-live";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import {
   useEventSortDraft,
@@ -26,6 +27,12 @@ import { useRacha } from "../../hooks/use-racha";
 import type { TAttendanceTarget } from "../../racha-types";
 import {
   ATTENDANCE_QUEUE_HINT,
+  BOLINHAS_NO_GIVER_UNAVAILABLE,
+  BOLINHAS_UNAVAILABLE,
+  bolinhasAgo,
+  bolinhasNoteAllMoveTitle,
+  bolinhasNoteCaption,
+  bolinhasNoteTitle,
   POSITION_DETAIL_BLOCKED,
   POSITION_DETAIL_COMPLETE,
   POSITION_DETAIL_PENDING_GROUP,
@@ -69,6 +76,7 @@ import {
   sortPersonId,
   superWarningNames,
 } from "../../utils/sort-view";
+import { highlightMoved } from "../bolinhas/bolinhas-highlight";
 import { buildTeamCards, type TSortLeaveActionFor } from "./build-sort-views";
 
 // outro aparelho pode confirmar, mudar a lista ou conduzir: sem push, a tela relê
@@ -98,6 +106,8 @@ export function useSortScreen() {
   const eventsQuery = useOpenEvents(id);
   const sortQuery = useEventSort(id, eventId);
   const openMatch = useEventMatch(id, eventId).data?.match ?? null;
+  // os Times mudam por Bolinhas, Inclusão, Volta e Saída de outro aparelho: o aviso do canal os relê
+  useEventMatchLive(id, eventId, { tracksPresence: false });
   const event = eventsQuery.data?.find((item) => item.id === eventId);
   const published =
     sortQuery.data?.state === "published" ? sortQuery.data : null;
@@ -178,6 +188,12 @@ export function useSortScreen() {
   const pendingPeople = isPendingWatched
     ? sortPendingPeople(attendanceQuery.data?.people ?? [])
     : [];
+  // a nota diz "há N min": o relógio se atualiza de tempos em tempos
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNowMs(Date.now()), 30_000);
+    return () => clearInterval(timer);
+  }, []);
   const when = event ? formatEventWhen(event.startsOn, event.startsAt) : "";
   const place = event?.place ?? racha?.place ?? "";
 
@@ -505,13 +521,54 @@ export function useSortScreen() {
       scoreCaption: SORT_BALANCE_CONFIRMED,
       scoreAccessibilityLabel: `${sortScoreLabel(published.balance.score, published.balance.label)}. ${SORT_BALANCE_CONFIRMED}`,
       superWarnings: warnings,
-      teams: buildTeamCards(published.teams, outfieldPerTeam, leaveActionFor),
+      teams: highlightMoved(
+        buildTeamCards(published.teams, outfieldPerTeam, leaveActionFor),
+        published.lastBolinhas
+      ),
       sections,
       failureMessage: null,
       onInclude: viewer.canInclude
         ? () => router.push(`/racha/${id}/event/${eventId}/sort-include`)
         : null,
       onOpenMatch: () => router.push(`/racha/${id}/event/${eventId}/match`),
+      onOpenBolinhas: isConductor
+        ? () => router.push(`/racha/${id}/event/${eventId}/bolinhas`)
+        : null,
+      bolinhasDisabledReason: !isConductor
+        ? null
+        : published.bolinhasAvailability === "no_receiver"
+          ? BOLINHAS_UNAVAILABLE
+          : published.bolinhasAvailability === "no_giver"
+            ? BOLINHAS_NO_GIVER_UNAVAILABLE
+            : null,
+      changeNote: published.lastBolinhas
+        ? {
+            title: published.lastBolinhas.allMove
+              ? bolinhasNoteAllMoveTitle(
+                  published.lastBolinhas.moved.length,
+                  published.lastBolinhas.receiverTeamNumber
+                )
+              : bolinhasNoteTitle(
+                  joinNames(
+                    published.lastBolinhas.moved.map((p) => p.displayName)
+                  ),
+                  published.lastBolinhas.receiverTeamNumber,
+                  published.lastBolinhas.moved.length > 1
+                ),
+            caption: bolinhasNoteCaption(
+              published.lastBolinhas.giverTeamNumber,
+              bolinhasAgo(
+                Math.max(
+                  0,
+                  Math.floor(
+                    (nowMs - Date.parse(published.lastBolinhas.createdAt)) /
+                      60_000
+                  )
+                )
+              )
+            ),
+          }
+        : null,
     };
   };
 

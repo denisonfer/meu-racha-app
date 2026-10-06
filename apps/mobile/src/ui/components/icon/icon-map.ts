@@ -27,7 +27,7 @@ import {
   WifiOff,
   X,
 } from "lucide-react-native";
-import { NotificationIcon, RachaIcon } from "./brand-icons";
+import { BolinhasIcon, NotificationIcon, RachaIcon } from "./brand-icons";
 
 export const iconMap = {
   back: ChevronLeft,
@@ -37,6 +37,7 @@ export const iconMap = {
   eye: Eye,
   "eye-off": EyeOff,
   racha: RachaIcon,
+  bolinhas: BolinhasIcon,
   notification: NotificationIcon,
   profile: CircleUserRound,
   minus: Minus,

@@ -361,6 +361,8 @@ export const PUBLISHED = {
     team_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
     team_number: 3,
   },
+  bolinhas_availability: "ok",
+  last_bolinhas: null,
   waiting_for_inclusion: [
     {
       plays_as: "OUTFIELD",

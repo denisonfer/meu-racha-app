@@ -22,6 +22,9 @@ export const theme = {
     errorText: "#F06F6E", // texto de erro pequeno: o danger puro some no fundo escuro
     warning: "#F59E0B",
     warningSurface: "#343D18",
+    // Bolinhas: "fica" nunca usa danger, mesmo com o mesmo valor
+    bolinhaAzul: "#4D8DFF",
+    bolinhaVermelha: "#EF4444",
   },
   space: {
     4: 4,

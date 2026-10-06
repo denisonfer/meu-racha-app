@@ -20,6 +20,8 @@ export * from "./screens/sort/sort-screen";
 export * from "./screens/sort/confirm-sort-screen";
 export * from "./screens/sort/leave-sort-screen";
 export * from "./screens/sort/include-sort-screen";
+export * from "./screens/bolinhas/bolinhas-screen";
+export * from "./screens/bolinhas/bolinhas-reveal-screen";
 export * from "./screens/match/match-screen";
 export * from "./screens/match/match-goal-screen";
 export * from "./screens/match/match-finish-screen";

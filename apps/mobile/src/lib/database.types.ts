@@ -170,6 +170,114 @@ export type Database = {
           },
         ];
       };
+      event_bolinhas: {
+        Row: {
+          all_move: boolean;
+          created_at: string;
+          created_by: string | null;
+          event_id: string;
+          giver_team_id: string;
+          id: string;
+          receiver_team_id: string;
+        };
+        Insert: {
+          all_move: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          event_id: string;
+          giver_team_id: string;
+          id?: string;
+          receiver_team_id: string;
+        };
+        Update: {
+          all_move?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          event_id?: string;
+          giver_team_id?: string;
+          id?: string;
+          receiver_team_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_bolinhas_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_bolinhas_event_fk";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "event";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_bolinhas_giver_fk";
+            columns: ["giver_team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_bolinhas_receiver_fk";
+            columns: ["receiver_team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+        ];
+      };
+      event_bolinhas_ball: {
+        Row: {
+          bolinhas_id: string;
+          color: Database["public"]["Enums"]["event_bolinhas_color"];
+          draw_order: number;
+          guest_id: string | null;
+          id: string;
+          profile_id: string | null;
+        };
+        Insert: {
+          bolinhas_id: string;
+          color: Database["public"]["Enums"]["event_bolinhas_color"];
+          draw_order: number;
+          guest_id?: string | null;
+          id?: string;
+          profile_id?: string | null;
+        };
+        Update: {
+          bolinhas_id?: string;
+          color?: Database["public"]["Enums"]["event_bolinhas_color"];
+          draw_order?: number;
+          guest_id?: string | null;
+          id?: string;
+          profile_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_bolinhas_ball_bolinhas_id_fkey";
+            columns: ["bolinhas_id"];
+            isOneToOne: false;
+            referencedRelation: "event_bolinhas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_bolinhas_ball_guest_id_fkey";
+            columns: ["guest_id"];
+            isOneToOne: false;
+            referencedRelation: "event_guest";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_bolinhas_ball_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       event_guest: {
         Row: {
           did_attend: boolean;
@@ -1422,6 +1530,14 @@ export type Database = {
       };
       delete_event_match_goal: { Args: { p_goal_id: string }; Returns: Json };
       discard_event_match: { Args: { p_match_id: string }; Returns: Json };
+      draw_event_bolinhas: {
+        Args: {
+          p_event_id: string;
+          p_giver_team_id: string;
+          p_receiver_team_id: string;
+        };
+        Returns: Json;
+      };
       email_available: { Args: { p_email: string }; Returns: boolean };
       expel_member: {
         Args: { p_profile_id: string; p_racha_id: string };
@@ -1741,6 +1857,7 @@ export type Database = {
     };
     Enums: {
       attendance_status: "confirmed" | "waitlisted" | "cancelled" | "left";
+      event_bolinhas_color: "blue" | "red";
       event_match_lineup_entry_kind:
         "start" | "reinforcement" | "inclusion" | "return" | "goalkeeper";
       event_match_role: "OUTFIELD" | "GOALKEEPER";
@@ -1888,6 +2005,7 @@ export const Constants = {
   public: {
     Enums: {
       attendance_status: ["confirmed", "waitlisted", "cancelled", "left"],
+      event_bolinhas_color: ["blue", "red"],
       event_match_lineup_entry_kind: [
         "start",
         "reinforcement",

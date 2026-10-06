@@ -81,6 +81,12 @@ export default function AppLayout() {
         name="racha/[id]/event/[eventId]/sort-include"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
+      <Stack.Screen name="racha/[id]/event/[eventId]/bolinhas" />
+      {/* sem arrastar para voltar no meio da animação */}
+      <Stack.Screen
+        name="racha/[id]/event/[eventId]/bolinhas-reveal"
+        options={{ gestureEnabled: false }}
+      />
       <Stack.Screen
         name="racha/[id]/event/[eventId]/match-goal"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}

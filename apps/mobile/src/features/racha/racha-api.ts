@@ -3,11 +3,13 @@ import {
   initialsOf,
   normalizeInviteCode,
   OVERALL_MIN,
+  parseDrawnBolinhas,
   parseEventMatch,
   parseMatchFinishPreview,
   parsePublishedSort,
   parseSortProposal,
   toPositionLayer,
+  type TDrawnBolinhas,
   type TEventMatch,
   type TMatchFinishPreview,
   type TPositionDetail,
@@ -97,6 +99,7 @@ const RAISE_EXCEPTION_CODES = [
   "already_reinforced",
   "invalid_donor",
   "no_donor",
+  "invalid_pair",
 ];
 
 // o detail é texto com um array JSON de nomes; formato estranho não derruba a mensagem
@@ -990,6 +993,20 @@ async function returnEventSortPlayer(
   return parsePublishedSort(data, toPhotoUrl);
 }
 
+async function drawEventBolinhas(input: {
+  eventId: string;
+  giverTeamId: string;
+  receiverTeamId: string;
+}): Promise<TDrawnBolinhas> {
+  const { data, error, status } = await supabase.rpc("draw_event_bolinhas", {
+    p_event_id: input.eventId,
+    p_giver_team_id: input.giverTeamId,
+    p_receiver_team_id: input.receiverTeamId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseDrawnBolinhas(data, toPhotoUrl);
+}
+
 async function includeEventSortMember(
   eventId: string,
   profileId: string
@@ -1164,43 +1181,80 @@ export type TEventMatchLive = {
   unsubscribe: () => void;
 };
 
+type TEventMatchHandlers = {
+  onMatchChanged: (seq: number) => void;
+  onSubscribed: () => void;
+  onPresenceSync: () => void;
+};
+
+// supabase.channel() devolve o mesmo canal para o mesmo tópico (realtime-js 2.117.1,
+// RealtimeClient.channel): Times e Partida montadas juntas dividem um canal só, e ele
+// só pode sair quando a última tela soltar.
+const eventChannels = new Map<
+  string,
+  {
+    channel: ReturnType<typeof supabase.channel>;
+    subscribers: Set<TEventMatchHandlers>;
+    isSubscribed: boolean;
+  }
+>();
+
 /** Canal privado event:<id>. setAuth + private:true: tipos realtime-js 2.117.1. */
 async function subscribeEventMatch(
   eventId: string,
-  handlers: {
-    onMatchChanged: (seq: number) => void;
-    onSubscribed: () => void;
-    onPresenceSync: () => void;
-  }
+  handlers: TEventMatchHandlers
 ): Promise<TEventMatchLive> {
   await supabase.realtime.setAuth();
-  const channel = supabase.channel("event:" + eventId, {
-    config: { private: true, presence: { enabled: true } },
-  });
-  channel.on(
-    "broadcast",
-    { event: "match_changed" },
-    (message: { payload?: { seq?: unknown } }) => {
-      const seq = Number(message.payload?.seq);
-      if (Number.isFinite(seq)) handlers.onMatchChanged(seq);
-    }
-  );
-  channel.on("presence", { event: "sync" }, () => {
-    handlers.onPresenceSync();
-  });
-  channel.subscribe((status) => {
-    if (status === "SUBSCRIBED") handlers.onSubscribed();
-  });
+  const topic = "event:" + eventId;
+  let entry = eventChannels.get(topic);
+  if (!entry) {
+    const channel = supabase.channel(topic, {
+      config: { private: true, presence: { enabled: true } },
+    });
+    const created = {
+      channel,
+      subscribers: new Set<TEventMatchHandlers>(),
+      isSubscribed: false,
+    };
+    channel.on(
+      "broadcast",
+      { event: "match_changed" },
+      (message: { payload?: { seq?: unknown } }) => {
+        const seq = Number(message.payload?.seq);
+        if (!Number.isFinite(seq)) return;
+        created.subscribers.forEach((s) => s.onMatchChanged(seq));
+      }
+    );
+    channel.on("presence", { event: "sync" }, () => {
+      created.subscribers.forEach((s) => s.onPresenceSync());
+    });
+    channel.subscribe((status) => {
+      created.isSubscribed = status === "SUBSCRIBED";
+      if (created.isSubscribed) {
+        created.subscribers.forEach((s) => s.onSubscribed());
+      }
+    });
+    eventChannels.set(topic, created);
+    entry = created;
+  }
+  const shared = entry;
+  shared.subscribers.add(handlers);
+  if (shared.isSubscribed) handlers.onSubscribed();
+
   return {
-    isConductorPresent: () => Object.keys(channel.presenceState()).length > 0,
+    isConductorPresent: () =>
+      Object.keys(shared.channel.presenceState()).length > 0,
     track: async () => {
-      await channel.track({});
+      await shared.channel.track({});
     },
     untrack: async () => {
-      await channel.untrack();
+      await shared.channel.untrack();
     },
     unsubscribe: () => {
-      void supabase.removeChannel(channel);
+      shared.subscribers.delete(handlers);
+      if (shared.subscribers.size > 0) return;
+      eventChannels.delete(topic);
+      void supabase.removeChannel(shared.channel);
     },
   };
 }
@@ -1280,6 +1334,7 @@ export const rachaApi = {
   getEventSort,
   leaveEventSort,
   returnEventSortPlayer,
+  drawEventBolinhas,
   includeEventSortMember,
   includeEventSortGuest,
   getEventMatch,

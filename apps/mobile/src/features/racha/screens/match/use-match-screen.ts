@@ -16,6 +16,10 @@ import { useEventMatchLive } from "../../hooks/use-event-match-live";
 import { useEventSort } from "../../hooks/use-event-sort";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import {
+  BOLINHAS_REMINDER_ACTION,
+  BOLINHAS_REMINDER_TEXT,
+  bolinhasReminderTitle,
+  bolinhasReminderTitleMany,
   conductorName,
   MATCH_CONDUCTOR_OFFLINE,
   MATCH_LEAVE_REINFORCE,
@@ -252,7 +256,38 @@ export function useMatchScreen() {
     canConduct && !isOffline ? openCorrect : null
   );
 
+  // B2: o próximo confronto tem Time incompleto; só lembra, Iniciar segue livre
+  const incompleteNext =
+    canConduct && !match && published && portrait?.nextMatch
+      ? [portrait.nextMatch.home, portrait.nextMatch.away].flatMap((side) => {
+          const team = published.teams.find(
+            (item) => item.teamNumber === side.teamNumber
+          );
+          return team && team.players.length < published.outfieldPerTeam
+            ? [{ number: team.teamNumber, count: team.players.length }]
+            : [];
+        })
+      : [];
+  const bolinhasReminder =
+    published && incompleteNext.length > 0
+      ? {
+          title:
+            incompleteNext.length === 1
+              ? bolinhasReminderTitle(
+                  incompleteNext[0]!.number,
+                  incompleteNext[0]!.count,
+                  published.outfieldPerTeam
+                )
+              : bolinhasReminderTitleMany(incompleteNext.map((t) => t.number)),
+          text: BOLINHAS_REMINDER_TEXT,
+          actionLabel: BOLINHAS_REMINDER_ACTION,
+          // leva à tela de Times, não direto às Bolinhas
+          onAction: () => router.push(`/racha/${id}/event/${eventId}/sort`),
+        }
+      : null;
+
   return {
+    bolinhasReminder,
     isLoading: matchQuery.isPending,
     loadErrorText:
       matchQuery.isError && !portrait

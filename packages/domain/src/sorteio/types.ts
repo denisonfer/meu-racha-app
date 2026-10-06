@@ -1,3 +1,4 @@
+import type { TBolinhasAvailability } from "../bolinhas/types";
 import type { TMatchArrival } from "../match/types";
 import type { TPlaysAs, TPosition } from "../profile";
 import type { TPositionLayer } from "../racha/position-detail";
@@ -113,6 +114,16 @@ export type TSortViewer = {
   canLeaveSelf: boolean;
 };
 
+/** A última Bolinhas do Evento, só enquanto nenhuma Partida começou depois dela. */
+export type TLastBolinhas = {
+  giverTeamNumber: number;
+  receiverTeamNumber: number;
+  allMove: boolean;
+  createdAt: string;
+  // só as azuis, com o Time de onde saíram
+  moved: (TSortPerson & { fromTeamNumber: number })[];
+};
+
 export type TPublishedSort =
   | { state: "none" }
   | {
@@ -133,4 +144,6 @@ export type TPublishedSort =
       waitingForInclusion: TSortWaitingPlayer[];
       left: TSortLeftPlayer[];
       nextArrival: TMatchArrival;
+      bolinhasAvailability: TBolinhasAvailability;
+      lastBolinhas: TLastBolinhas | null;
     };
