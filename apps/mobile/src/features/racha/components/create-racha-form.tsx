@@ -19,6 +19,7 @@ export type TCreateRachaFormProps = {
   summary: string[];
   setRule: <K extends keyof TRachaRules>(key: K, value: TRachaRules[K]) => void;
   matchDurationError?: string;
+  yellowOutError?: string;
   isRulesExpanded: boolean;
   toggleRules: () => void;
 };
@@ -35,6 +36,7 @@ export const CreateRachaForm = ({
   summary,
   setRule,
   matchDurationError,
+  yellowOutError,
   isRulesExpanded,
   toggleRules,
   isDisabled,
@@ -88,6 +90,7 @@ export const CreateRachaForm = ({
       onToggle={toggleRules}
       isDisabled={isDisabled}
       matchDurationError={matchDurationError}
+      yellowOutError={yellowOutError}
       isHintVisible={isRulesHintVisible}
     />
     {children}

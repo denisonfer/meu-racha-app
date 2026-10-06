@@ -47,6 +47,24 @@ export type TMatchGoal = {
   createdAt: string;
 };
 
+export type TMatchCardColor = "yellow" | "red";
+
+/** Efeito do amarelo no Evento: sai por minutos, ou fica em campo só marcado. */
+export type TYellowCardMode = "timed" | "mark";
+
+export type TMatchCardRedReason = "direct" | "secondYellow";
+
+export type TMatchCard = {
+  id: string;
+  person: TMatchPerson;
+  teamId: string;
+  isGoalkeeper: boolean;
+  color: TMatchCardColor;
+  redReason: TMatchCardRedReason | null;
+  matchSecond: number;
+  createdAt: string;
+};
+
 export type TMatchLineupEntry = {
   teamId: string;
   role: TMatchRole;
@@ -55,6 +73,7 @@ export type TMatchLineupEntry = {
   leftAt: string | null;
   entryKind: TMatchEntryKind;
   leftBySelf: boolean;
+  leftByRed: boolean;
 };
 
 export type TMatchReinforcementDonor = {
@@ -112,11 +131,25 @@ export type TMatchArrivalEvent = {
   createdAt: string;
 };
 
+export type TMatchCardEvent = {
+  kind: "card";
+  id: string;
+  person: TMatchPerson;
+  teamId: string;
+  teamNumber: number;
+  isGoalkeeper: boolean;
+  color: TMatchCardColor;
+  redReason: TMatchCardRedReason | null;
+  matchSecond: number;
+  createdAt: string;
+};
+
 export type TMatchEvent =
   | (TMatchGoal & { kind: "goal" })
   | TMatchLeaveEvent
   | TMatchReinforcementEvent
-  | TMatchArrivalEvent;
+  | TMatchArrivalEvent
+  | TMatchCardEvent;
 
 export type TMatchItem = {
   id: string;
@@ -134,6 +167,7 @@ export type TMatchItem = {
   decidedByPenalties: boolean;
   seq: number;
   goals: TMatchGoal[];
+  cards: TMatchCard[];
   lineup: TMatchLineupEntry[];
 };
 
@@ -163,6 +197,8 @@ export type TEventMatch = {
   state: TMatchPortraitState;
   serverNow: string;
   durationMin: number | null;
+  yellowCardMode: TYellowCardMode;
+  yellowOutMin: number;
   startedAt: string | null;
   pausedAt: string | null;
   pausedSeconds: number | null;

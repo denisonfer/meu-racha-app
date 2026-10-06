@@ -316,17 +316,19 @@ export function useSortScreen() {
       isSelected: false,
       onPress: null,
       // Avulso não tem onde completar: a subdivisão dele nasce no cadastro do Evento
-      action: person.profileId
-        ? {
-            label: POSITION_DETAIL_COMPLETE,
-            accessibilityLabel: positionDetailCompleteLabel(person.name),
-            isDisabled: pending !== null,
-            onPress: () =>
-              router.push(
-                `/racha/${id}/position-detail?profileId=${person.profileId}`
-              ),
-          }
-        : null,
+      actions: person.profileId
+        ? [
+            {
+              label: POSITION_DETAIL_COMPLETE,
+              accessibilityLabel: positionDetailCompleteLabel(person.name),
+              isDisabled: pending !== null,
+              onPress: () =>
+                router.push(
+                  `/racha/${id}/position-detail?profileId=${person.profileId}`
+                ),
+            },
+          ]
+        : [],
     };
   });
 
@@ -391,7 +393,7 @@ export function useSortScreen() {
         accessibilityLabel: `${entry.person.displayName}, ${where}`,
         isSelected,
         onPress: pending ? null : () => void selectGoalkeeper(entry.id),
-        action: null,
+        actions: [],
       };
     });
     const warnings = superWarningNames(
@@ -438,7 +440,9 @@ export function useSortScreen() {
         accessibilityLabel: `${entry.displayName}, ${sortGoalkeeperQueuePosition(entry.queueOrder)}`,
         isSelected: false,
         onPress: null,
-        action: leaveActionFor(entry),
+        actions: [leaveActionFor(entry)].flatMap((item) =>
+          item ? [item] : []
+        ),
       }));
     const waitingRows: TSortPersonListRow[] = published.waitingForInclusion.map(
       (person) => {
@@ -455,17 +459,19 @@ export function useSortScreen() {
           accessibilityLabel: `${person.displayName}, ${detail}. ${destination}`,
           isSelected: false,
           onPress: null,
-          action: viewer.canInclude
-            ? {
-                label: SORT_INCLUDE,
-                accessibilityLabel: `${sortIncludeLabel(person.displayName)}, ${destination}`,
-                isDisabled: isBusy,
-                onPress: () =>
-                  void runOperation(`include:${person.profileId}`, () =>
-                    operations.includeEventSortMember(person.profileId)
-                  ),
-              }
-            : null,
+          actions: viewer.canInclude
+            ? [
+                {
+                  label: SORT_INCLUDE,
+                  accessibilityLabel: `${sortIncludeLabel(person.displayName)}, ${destination}`,
+                  isDisabled: isBusy,
+                  onPress: () =>
+                    void runOperation(`include:${person.profileId}`, () =>
+                      operations.includeEventSortMember(person.profileId)
+                    ),
+                },
+              ]
+            : [],
         };
       }
     );
@@ -480,18 +486,20 @@ export function useSortScreen() {
         accessibilityLabel: `${person.displayName}, ${SORT_LEFT_DETAIL}. ${destination}`,
         isSelected: false,
         onPress: null,
-        action:
+        actions:
           viewer.canReturn && target
-            ? {
-                label: SORT_RETURN,
-                accessibilityLabel: `${sortReturnLabel(person.displayName)}, ${destination}`,
-                isDisabled: isBusy,
-                onPress: () =>
-                  void runOperation(`return:${sortPersonId(person)}`, () =>
-                    operations.returnEventSortPlayer(target)
-                  ),
-              }
-            : null,
+            ? [
+                {
+                  label: SORT_RETURN,
+                  accessibilityLabel: `${sortReturnLabel(person.displayName)}, ${destination}`,
+                  isDisabled: isBusy,
+                  onPress: () =>
+                    void runOperation(`return:${sortPersonId(person)}`, () =>
+                      operations.returnEventSortPlayer(target)
+                    ),
+                },
+              ]
+            : [],
       };
     });
     const sections: TSortPublishedSection[] = [

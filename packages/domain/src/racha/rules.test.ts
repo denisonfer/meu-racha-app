@@ -26,13 +26,14 @@ describe("formatRulesSummary", () => {
       "Rei da Quadra",
       "Sai ambos",
       "10 min",
+      "Amarelo 2 min fora",
     ]);
   });
 
   test("Rotação não mostra a regra de empate", () => {
     expect(
       formatRulesSummary({ ...DEFAULT_RACHA_RULES, gameMode: "ROTATION" })
-    ).toEqual(["5 na linha", "Rotação", "10 min"]);
+    ).toEqual(["5 na linha", "Rotação", "10 min", "Amarelo 2 min fora"]);
   });
 
   test("Máximo de Vitórias mostra o teto", () => {
@@ -53,15 +54,27 @@ describe("formatRulesSummary", () => {
       "Sai ambos",
       "Posição no sorteio",
       "10 min",
+      "Amarelo 2 min fora",
     ]);
   });
 
   test("sem duração é sem relógio", () => {
     expect(
       formatRulesSummary({ ...DEFAULT_RACHA_RULES, matchDurationMin: null }).at(
-        -1
+        -2
       )
     ).toBe("sem relógio");
+  });
+
+  test("amarelo: minutos fora ou advertência, por último", () => {
+    expect(
+      formatRulesSummary({ ...DEFAULT_RACHA_RULES, yellowOutMin: 5 }).at(-1)
+    ).toBe("Amarelo 5 min fora");
+    expect(
+      formatRulesSummary({ ...DEFAULT_RACHA_RULES, yellowCardMode: "mark" }).at(
+        -1
+      )
+    ).toBe("Amarelo advertência");
   });
 
   const tieLabels: [TTieRule, string][] = [
@@ -94,6 +107,8 @@ describe("isSameRules", () => {
     tieReturnOrder: "TEAM_ORDER",
     considerPosition: true,
     matchDurationMin: null,
+    yellowCardMode: "mark",
+    yellowOutMin: 5,
   };
   for (const [key, value] of Object.entries(changes) as [
     keyof TRachaRules,

@@ -11,6 +11,8 @@ import {
   RACHA_NAME_MAX,
   RACHA_NAME_MIN,
   RACHA_NAME_PATTERN,
+  YELLOW_OUT_MAX,
+  YELLOW_OUT_MIN,
 } from "@meu-racha/domain";
 import { z } from "zod";
 import {
@@ -20,6 +22,8 @@ import {
   NAME_TOO_SHORT,
   PLACE_REQUIRED,
   PLACE_TOO_LONG,
+  YELLOW_OUT_INVALID,
+  yellowShorterThanMatch,
 } from "./utils/racha-messages";
 
 const rachaNameSchema = (nameRequiredMessage: string) =>
@@ -48,12 +52,33 @@ const rachaRulesSchema = z.object({
     .min(MATCH_DURATION_MIN, MATCH_DURATION_INVALID)
     .max(MATCH_DURATION_MAX, MATCH_DURATION_INVALID)
     .nullable(),
+  yellowCardMode: z.enum(["timed", "mark"]),
+  // em mark os minutos ficam guardados, mas continuam na faixa do banco
+  yellowOutMin: z
+    .number()
+    .int()
+    .min(YELLOW_OUT_MIN, YELLOW_OUT_INVALID)
+    .max(YELLOW_OUT_MAX, YELLOW_OUT_INVALID),
+});
+
+// espelha o check do banco só para mostrar o motivo nos dois campos
+const rachaRulesWithYellowCheck = rachaRulesSchema.superRefine((rules, ctx) => {
+  const { matchDurationMin, yellowCardMode, yellowOutMin } = rules;
+  if (
+    yellowCardMode === "timed" &&
+    matchDurationMin !== null &&
+    yellowOutMin >= matchDurationMin
+  ) {
+    const message = yellowShorterThanMatch(matchDurationMin);
+    ctx.addIssue({ code: "custom", message, path: ["yellowOutMin"] });
+    ctx.addIssue({ code: "custom", message, path: ["matchDurationMin"] });
+  }
 });
 
 export const buildRachaFormSchema = (nameRequiredMessage: string) =>
   z.object({
     name: rachaNameSchema(nameRequiredMessage),
-    rules: rachaRulesSchema,
+    rules: rachaRulesWithYellowCheck,
   });
 
 export const buildCreateRachaFormSchema = (nameRequiredMessage: string) =>
@@ -70,7 +95,7 @@ export const buildCreateRachaFormSchema = (nameRequiredMessage: string) =>
       .min(MIN_AGE_MIN, MIN_AGE_INVALID)
       .max(MIN_AGE_MAX, MIN_AGE_INVALID)
       .nullable(),
-    rules: rachaRulesSchema,
+    rules: rachaRulesWithYellowCheck,
   });
 
 export type TRachaForm = z.infer<ReturnType<typeof buildRachaFormSchema>>;

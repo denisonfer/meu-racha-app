@@ -2,6 +2,8 @@ import {
   ADMIN_LIMIT_FREE,
   MATCH_DURATION_MAX,
   MATCH_DURATION_MIN,
+  YELLOW_OUT_MAX,
+  YELLOW_OUT_MIN,
   MIN_AGE_MAX,
   MIN_AGE_MIN,
   RACHA_NAME_MIN,
@@ -17,6 +19,9 @@ export const NAME_REQUIRED =
 export const NAME_TOO_SHORT = `Mínimo de ${RACHA_NAME_MIN} caracteres.`;
 export const NAME_INVALID = "Use letras e números, começando por letra.";
 export const MATCH_DURATION_INVALID = `De ${MATCH_DURATION_MIN} a ${MATCH_DURATION_MAX} minutos, ou Sem relógio.`;
+export const YELLOW_OUT_INVALID = `De ${YELLOW_OUT_MIN} a ${YELLOW_OUT_MAX} minutos.`;
+export const yellowShorterThanMatch = (durationMin: number) =>
+  `O amarelo precisa ser menor que a Duração da partida (${durationMin} min).`;
 export const MIN_AGE_INVALID = `De ${MIN_AGE_MIN} a ${MIN_AGE_MAX} anos, ou Sem idade mínima.`;
 
 export const PLAN_OWNER_LIMIT =
@@ -540,6 +545,80 @@ export const matchRosterLabel = (team: number, n: number, cap: number) =>
 export const matchLeaveOnField = (team: string) => `${team} · em campo`;
 export const matchLinePlayers = (n: number, cap: number) =>
   `Na linha · ${n} de ${cap} + goleiro`;
+
+export const MATCH_CARD = "Cartão";
+export const MATCH_CARD_YELLOW = "Amarelo";
+export const MATCH_CARD_RED = "Vermelho";
+export const MATCH_CARD_NO_REINFORCE =
+  "Nenhum cartão chama Reforço: o Time joga com menos de propósito.";
+export const MATCH_CARD_MARK_NO_REINFORCE = "Nenhum cartão chama Reforço.";
+export const MATCH_CARD_KEEPER_NOTE =
+  "Nenhum cartão chama Reforço. O app não pede quem vai para o gol, e gols sofridos nesse tempo não contam para goleiro nenhum.";
+export const MATCH_CARD_MARK_KEEPER_NOTE =
+  "Nenhum cartão chama Reforço. Os gols sofridos continuam contando para o goleiro.";
+export const MATCH_CARD_REGISTER_YELLOW = "Registrar amarelo";
+export const MATCH_CARD_REGISTER_RED = "Registrar vermelho";
+export const MATCH_CARD_REGISTER_SECOND = "Registrar segundo amarelo";
+export const MATCH_CARD_SECOND_TITLE = "Amarelo · segundo, vira vermelho";
+export const MATCH_CARD_RED_TEXT =
+  "Fora do resto da Partida. Volta a jogar na próxima.";
+export const MATCH_CARD_MARK_DETAIL = "Continua em campo, marcado de amarelo";
+export const MATCH_CARD_MARK_KEEPER_DETAIL =
+  "Goleiro · continua no gol, marcado de amarelo";
+export const MATCH_CARD_MARK_ROW = "Amarelo";
+export const minutesOut = (n: number) =>
+  `${n} ${n === 1 ? "minuto" : "minutos"} fora`;
+export const MATCH_CARD_EXPELLED_ROW = "Expulso · volta na próxima Partida";
+export const matchCardTitle = (name: string) => `Cartão para ${name}`;
+export const matchCardFor = (name: string) => `Cartão para ${name}`;
+export const matchCardTarget = (team: number, isKeeper: boolean) =>
+  `Time ${team} · ${isKeeper ? "goleiro" : "em campo"}`;
+export const matchCardYellowText = (
+  outMin: number,
+  team: number,
+  n: number,
+  until: string
+) => `${minutesOut(outMin)}. O Time ${team} joga com ${n} até ${until}.`;
+export const MATCH_CARD_MARK_TEXT =
+  "Continua em campo, marcado de amarelo. O segundo amarelo nesta Partida vira vermelho.";
+export const MATCH_CARD_MARK_KEEPER_TEXT =
+  "Continua no gol, marcado de amarelo. O segundo amarelo nesta Partida vira vermelho.";
+export const matchCardRedOutfieldText = (team: number, n: number) =>
+  `Fora do resto da Partida. O Time ${team} joga com ${n} até o fim. Volta a jogar na próxima.`;
+export const matchCardKeeperYellowText = (
+  outMin: number,
+  team: number,
+  n: number,
+  until: string
+) =>
+  `${minutesOut(outMin)}. Alguém da linha cobre o gol e o Time ${team} fica com ${n} na linha até ${until}.`;
+export const matchCardKeeperRedText = (team: number, n: number) =>
+  `Fora do resto da Partida. Alguém da linha cobre o gol; o Time ${team} fica com ${n} na linha até o fim.`;
+export const matchCardHasYellow = (name: string, at: string) =>
+  `${name} já tem um amarelo nesta Partida (${at}).`;
+export const matchCardSecondText = (name: string, team: number, n: number) =>
+  `${name} fica fora do resto da Partida. O Time ${team} joga com ${n} até o fim.`;
+export const matchCardYellowRow = (
+  remaining: string | null,
+  isKeeper: boolean
+) =>
+  `${isKeeper ? "GOL · " : ""}Amarelo${remaining ? ` · volta em ${remaining}` : ""}`;
+export const matchCardBack = (name: string, isKeeper: boolean) =>
+  `${name} pode voltar${isKeeper ? " ao gol" : ""}`;
+export const matchCardPillA11y = (
+  name: string,
+  team: number,
+  remaining: string,
+  paused: boolean
+) =>
+  `${name}, Time ${team}, amarelo, volta em ${remaining}${paused ? ", parado" : ""}`;
+export const matchCardEventSecond =
+  "Segundo amarelo · fora do resto da Partida";
+export const matchCardEventDirect = "Direto · fora do resto da Partida";
+export const matchCardEventKeeper = (outMin: number) =>
+  `Goleiro · ${minutesOut(outMin)}, a linha cobre o gol`;
+export const matchRosterOnField = (line: number, keeperIn: boolean) =>
+  `Em campo agora · ${line} na linha${keeperIn ? " + goleiro" : ", a linha cobre o gol"}`;
 export const matchReinforceOptionText = (team: number, cap: number) =>
   `Um jogador de um Time da fila entra no lugar. O Time ${team} segue com ${cap}.`;
 export const matchLeaveOnlyText = (team: number, n: number, cap: number) =>

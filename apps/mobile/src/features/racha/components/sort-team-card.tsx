@@ -8,6 +8,8 @@ export type TSortRowAction = {
   label: string;
   /** Quando existe, a ação aparece só como ícone; o rótulo vira só acessibilidade. */
   icon?: TIconName;
+  /** Legenda sob o ícone. O Cartão usa 10/700 muted; sem isso o ícone fica sozinho. */
+  caption?: string;
   accessibilityLabel: string;
   onPress: () => void;
   isDisabled: boolean;

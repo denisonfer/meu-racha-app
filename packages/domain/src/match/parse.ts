@@ -2,6 +2,10 @@ import type { TPhotoResolver } from "../sorteio/parse";
 import type {
   TEventMatch,
   TMatchArrival,
+  TMatchCard,
+  TMatchCardColor,
+  TMatchCardEvent,
+  TMatchCardRedReason,
   TMatchEntryKind,
   TMatchEvent,
   TMatchEventStatus,
@@ -14,6 +18,7 @@ import type {
   TMatchPendingReinforcement,
   TMatchPerson,
   TMatchPortraitState,
+  TYellowCardMode,
   TMatchReinforcementDonor,
   TMatchRole,
   TMatchSide,
@@ -83,6 +88,10 @@ const PORTRAIT_STATES = [
   "open",
   "ready",
 ] as const satisfies readonly TMatchPortraitState[];
+const YELLOW_CARD_MODES = [
+  "timed",
+  "mark",
+] as const satisfies readonly TYellowCardMode[];
 const MATCH_STATUS = [
   "open",
   "finished",
@@ -105,7 +114,13 @@ const EVENT_KINDS = [
   "reinforcement",
   "inclusion",
   "return",
+  "card",
 ] as const;
+const CARD_COLORS = [
+  "yellow",
+  "red",
+] as const satisfies readonly TMatchCardColor[];
+const RED_REASONS = ["direct", "second_yellow"] as const;
 const ARRIVAL_KINDS = [
   "field",
   "field_draw",
@@ -180,6 +195,35 @@ function lineupEntry(value: unknown, photo: TPhotoResolver): TMatchLineupEntry {
     leftAt: strOrNull(raw.left_at),
     entryKind: oneOf(raw.entry_kind, ENTRY_KINDS),
     leftBySelf: bool(raw.left_by_self),
+    leftByRed: bool(raw.left_by_red),
+  };
+}
+
+function cardReason(
+  color: TMatchCardColor,
+  value: unknown
+): TMatchCardRedReason | null {
+  if (value == null) {
+    if (color === "red") throw invalid();
+    return null;
+  }
+  const raw = oneOf(value, RED_REASONS);
+  if (color !== "red") throw invalid();
+  return raw === "second_yellow" ? "secondYellow" : "direct";
+}
+
+function matchCard(value: unknown, photo: TPhotoResolver): TMatchCard {
+  const raw = obj(value);
+  const color = oneOf(raw.color, CARD_COLORS);
+  return {
+    id: str(raw.id),
+    person: person(raw.person, photo),
+    teamId: str(raw.team_id),
+    isGoalkeeper: bool(raw.is_goalkeeper),
+    color,
+    redReason: cardReason(color, raw.red_reason),
+    matchSecond: num(raw.match_second),
+    createdAt: str(raw.created_at),
   };
 }
 
@@ -244,6 +288,22 @@ function matchEvent(value: unknown, photo: TPhotoResolver): TMatchEvent {
       createdAt: str(raw.created_at),
     };
   }
+  if (kind === "card") {
+    const color = oneOf(raw.color, CARD_COLORS);
+    const event: TMatchCardEvent = {
+      kind,
+      id: str(raw.id),
+      person: person(raw.person, photo),
+      teamId: str(raw.team_id),
+      teamNumber: num(raw.team_number),
+      isGoalkeeper: bool(raw.is_goalkeeper),
+      color,
+      redReason: cardReason(color, raw.red_reason),
+      matchSecond: num(raw.match_second),
+      createdAt: str(raw.created_at),
+    };
+    return event;
+  }
   if (kind === "reinforcement") {
     return {
       kind,
@@ -286,6 +346,7 @@ function matchItem(value: unknown, photo: TPhotoResolver): TMatchItem {
     decidedByPenalties: bool(raw.decided_by_penalties),
     seq: num(raw.seq),
     goals: list(raw.goals).map((item) => goal(item, photo)),
+    cards: list(raw.cards).map((item) => matchCard(item, photo)),
     lineup: list(raw.lineup).map((item) => lineupEntry(item, photo)),
   };
 }
@@ -334,6 +395,8 @@ export function parseEventMatch(
     state: oneOf(raw.state, PORTRAIT_STATES),
     serverNow: str(raw.server_now),
     durationMin: numOrNull(raw.duration_min),
+    yellowCardMode: oneOf(raw.yellow_card_mode, YELLOW_CARD_MODES),
+    yellowOutMin: num(raw.yellow_out_min),
     startedAt: strOrNull(raw.started_at),
     pausedAt: strOrNull(raw.paused_at),
     pausedSeconds: numOrNull(raw.paused_seconds),

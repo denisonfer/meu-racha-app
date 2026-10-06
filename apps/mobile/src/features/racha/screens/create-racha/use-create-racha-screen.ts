@@ -9,6 +9,7 @@ import {
   isPlanOwnerLimit,
   NAME_REQUIRED,
   PLAN_OWNER_LIMIT,
+  yellowShorterThanMatch,
 } from "../../utils/racha-messages";
 
 export function useCreateRachaScreen() {
@@ -45,7 +46,9 @@ export function useCreateRachaScreen() {
     blockedMessage: PLAN_OWNER_LIMIT,
     failureMessage:
       errorCode && !isPlanOwnerLimit(errorCode) && !isSubmitting
-        ? CREATE_RACHA_FAILED
+        ? errorCode === "yellow_shorter_than_match"
+          ? yellowShorterThanMatch(form.rules.matchDurationMin ?? 0)
+          : CREATE_RACHA_FAILED
         : null,
     submit: () => {
       if (isBlocked) return;

@@ -6,6 +6,7 @@ import {
 } from "./parse";
 import {
   MATCH_OPEN,
+  MATCH_OPEN_CARD,
   MATCH_OPEN_DONOR,
   MATCH_OPEN_EVENTS,
   MATCH_OPEN_FIELD_DRAW,
@@ -24,6 +25,8 @@ describe("parseEventMatch", () => {
       eventStatus: "active",
       state: "open",
       durationMin: 7,
+      yellowCardMode: "timed",
+      yellowOutMin: 2,
       pausedSeconds: 12,
       seq: 41,
       viewer: { canConduct: true },
@@ -58,8 +61,10 @@ describe("parseEventMatch", () => {
       person: { displayName: "Lucas M." },
       entryKind: "start",
       leftBySelf: false,
+      leftByRed: false,
       leftAt: null,
     });
+    expect(portrait.match?.cards).toEqual([]);
     expect(portrait.match?.lineup[0]).toMatchObject({
       role: "GOALKEEPER",
       entryKind: "goalkeeper",
@@ -80,6 +85,8 @@ describe("parseEventMatch", () => {
     expect(portrait.state).toBe("ready");
     expect(portrait.match).toBeNull();
     expect(portrait.durationMin).toBeNull();
+    expect(portrait.yellowCardMode).toBe("mark");
+    expect(portrait.yellowOutMin).toBe(7);
     expect(portrait.pausedSeconds).toBeNull();
     expect(portrait.nextMatch).toMatchObject({
       isRematch: true,
@@ -140,6 +147,33 @@ describe("parseEventMatch", () => {
     });
   });
 
+  test("cartão no retrato e lance de cartão", () => {
+    const portrait = parseEventMatch(MATCH_OPEN_CARD, photo);
+    expect(portrait.match?.cards[0]).toMatchObject({
+      id: "12121212-1212-1212-1212-121212121212",
+      color: "yellow",
+      redReason: null,
+      isGoalkeeper: false,
+      matchSecond: 340,
+      person: { displayName: "Lucas M." },
+      teamId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    });
+    expect(portrait.match?.home.lineup[0]?.leftByRed).toBe(false);
+    expect(portrait.match?.lineup[0]).toMatchObject({
+      leftByRed: true,
+      leftAt: "2026-10-04T15:06:40+00:00",
+    });
+    expect(portrait.events[0]).toMatchObject({
+      kind: "card",
+      color: "red",
+      redReason: "secondYellow",
+      isGoalkeeper: true,
+      matchSecond: 400,
+      teamNumber: 1,
+      person: { displayName: "Caio" },
+    });
+  });
+
   test("lista de lances com os cinco kinds", () => {
     const portrait = parseEventMatch(MATCH_OPEN_EVENTS, photo);
     expect(portrait.events.map((item) => item.kind)).toEqual([
@@ -187,6 +221,38 @@ describe("parseEventMatch", () => {
     ],
     ["sem donors", { ...MATCH_OPEN, reinforcement_donors: undefined }],
     ["sem events", { ...MATCH_OPEN, events: undefined }],
+    [
+      "sem cards",
+      { ...MATCH_OPEN, match: { ...MATCH_OPEN.match, cards: undefined } },
+    ],
+    [
+      "vermelho sem motivo",
+      {
+        ...MATCH_OPEN,
+        match: {
+          ...MATCH_OPEN.match,
+          cards: [
+            {
+              id: "x",
+              person: {
+                kind: "member",
+                person_id: "p",
+                profile_id: "p",
+                guest_id: null,
+                display_name: "A",
+                avatar_path: null,
+              },
+              team_id: "t",
+              is_goalkeeper: false,
+              color: "red",
+              red_reason: null,
+              match_second: 1,
+              created_at: "2026-10-04T15:00:00+00:00",
+            },
+          ],
+        },
+      },
+    ],
     ["sem next_arrival", { ...MATCH_OPEN, next_arrival: undefined }],
     [
       "kind de lance desconhecido",

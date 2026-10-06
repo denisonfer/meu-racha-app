@@ -23,3 +23,4 @@ export * from "./option-list";
 export * from "./notice-banner";
 export * from "./bolinha/bolinha";
 export * from "./bolinha/bolinha-mark";
+export * from "./penalty-card/penalty-card";

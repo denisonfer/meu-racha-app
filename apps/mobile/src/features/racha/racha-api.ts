@@ -17,6 +17,7 @@ import {
   type TRachaRules,
   type TSortProposal,
 } from "@meu-racha/domain";
+import type { Database } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 import { AVATAR_BUCKET } from "@/lib/storage-buckets";
 import {
@@ -194,6 +195,15 @@ function toAttendanceStatus(value: string | null): TAttendanceStatus | null {
     : null;
 }
 
+function throwYellowCheckViolation(error: PostgrestError): void {
+  if (
+    error.code === "23514" &&
+    error.message.includes("racha_yellow_shorter_than_match")
+  ) {
+    throw new Error("yellow_shorter_than_match");
+  }
+}
+
 function throwSpotLimitCheckViolation(error: PostgrestError): void {
   if (
     error.code === "23514" &&
@@ -258,8 +268,13 @@ async function createRacha(
       ? {}
       : { p_match_duration_min: rules.matchDurationMin }),
     ...(minAge === null ? {} : { p_min_age: minAge }),
+    p_yellow_card_mode: rules.yellowCardMode,
+    p_yellow_out_min: rules.yellowOutMin,
   });
-  if (error) throw toCodedError(error, status);
+  if (error) {
+    throwYellowCheckViolation(error);
+    throw toCodedError(error, status);
+  }
 
   const created = data[0];
   if (!created) throw new Error("create_racha_empty");
@@ -290,7 +305,7 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
   const { data, error, status } = await supabase
     .from("racha")
     .select(
-      "id, name, invite_code, place, weekday, kickoff_time, is_paid, price, monthly_price, spot_limit, payer_target, outfield_per_team, game_mode, max_consecutive_wins, tie_rule, tie_return_order, consider_position, match_duration_min, min_age, members:member(count), me:member(role), pending:join_request(count)"
+      "id, name, invite_code, place, weekday, kickoff_time, is_paid, price, monthly_price, spot_limit, payer_target, outfield_per_team, game_mode, max_consecutive_wins, tie_rule, tie_return_order, consider_position, match_duration_min, yellow_card_mode, yellow_out_min, min_age, members:member(count), me:member(role), pending:join_request(count)"
     )
     .eq("id", id)
     .eq("members.is_active", true)
@@ -330,6 +345,8 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
       tieReturnOrder: data.tie_return_order,
       considerPosition: data.consider_position,
       matchDurationMin: data.match_duration_min,
+      yellowCardMode: data.yellow_card_mode,
+      yellowOutMin: data.yellow_out_min,
     },
   };
 }
@@ -499,11 +516,14 @@ async function updateRacha(
       tie_return_order: settings.rules.tieReturnOrder,
       consider_position: settings.rules.considerPosition,
       match_duration_min: settings.rules.matchDurationMin,
+      yellow_card_mode: settings.rules.yellowCardMode,
+      yellow_out_min: settings.rules.yellowOutMin,
     })
     .eq("id", id)
     .select("id");
   if (error) {
     throwSpotLimitCheckViolation(error);
+    throwYellowCheckViolation(error);
     throw toCodedError(error, status);
   }
   // a RLS filtra quem não é Dono: 0 linhas, sem erro
@@ -1095,6 +1115,35 @@ async function updateEventMatchGoal(
   return parseMatchJson(data);
 }
 
+async function addEventMatchCard(
+  matchId: string,
+  person: { profileId: string | null; guestId: string | null },
+  color: "yellow" | "red"
+): Promise<TEventMatch> {
+  // O tipo gerado marca os dois ids como string obrigatória: a RPC não tem default null.
+  const args = {
+    p_match_id: matchId,
+    p_profile_id: person.profileId,
+    p_guest_id: person.guestId,
+    p_color: color,
+  } as Database["public"]["Functions"]["add_event_match_card"]["Args"];
+  const { data, error, status } = await supabase.rpc(
+    "add_event_match_card",
+    args
+  );
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
+async function deleteEventMatchCard(cardId: string): Promise<TEventMatch> {
+  const { data, error, status } = await supabase.rpc(
+    "delete_event_match_card",
+    { p_card_id: cardId }
+  );
+  if (error) throw toCodedError(error, status);
+  return parseMatchJson(data);
+}
+
 async function deleteEventMatchGoal(goalId: string): Promise<TEventMatch> {
   const { data, error, status } = await supabase.rpc(
     "delete_event_match_goal",
@@ -1343,6 +1392,8 @@ export const rachaApi = {
   resumeEventMatch,
   addEventMatchGoal,
   updateEventMatchGoal,
+  addEventMatchCard,
+  deleteEventMatchCard,
   deleteEventMatchGoal,
   swapEventMatchGoalkeeper,
   previewFinishEventMatch,

@@ -29,6 +29,7 @@ import { MatchEventList } from "./match-event-list";
 import { MatchHistory } from "./match-history";
 import { MatchQueue } from "./match-queue";
 import { MatchQueueStrip } from "./match-queue-strip";
+import { MatchCardStrip } from "./match-card-strip";
 import { MatchScoreboard } from "./match-scoreboard";
 import { TeamRosterButton } from "./team-roster-button";
 import { useMatchScreen } from "./use-match-screen";
@@ -95,6 +96,7 @@ export const MatchScreen = () => {
             <>
               <MatchClock {...open.clock} />
               <MatchScoreboard {...open.scoreboard} />
+              <MatchCardStrip pills={open.cardPills} />
               {open.rosters ? (
                 <View style={styles.swaps}>
                   <TeamRosterButton {...open.rosters.home} />

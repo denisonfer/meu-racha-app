@@ -1,5 +1,19 @@
-import type { TEventMatch, TMatchEvent, TMatchGoal } from "@meu-racha/domain";
+import type {
+  TEventMatch,
+  TMatchCardEvent,
+  TMatchEvent,
+  TMatchGoal,
+  TYellowCardMode,
+} from "@meu-racha/domain";
 import {
+  MATCH_CARD_RED,
+  MATCH_CARD_YELLOW,
+  MATCH_CARD_MARK_DETAIL,
+  MATCH_CARD_MARK_KEEPER_DETAIL,
+  minutesOut,
+  matchCardEventDirect,
+  matchCardEventKeeper,
+  matchCardEventSecond,
   MATCH_EVENT_INCLUSION,
   MATCH_EVENT_LEAVE,
   MATCH_EVENT_REINFORCEMENT,
@@ -92,9 +106,36 @@ export type TRosterEventCopy = {
   label: string;
 };
 
+/** Textos de Últimos lances para o cartão. O apagar usa `label` sem o detalhe. */
+export function cardEventCopy(
+  event: TMatchCardEvent,
+  yellow: { mode: TYellowCardMode; outMin: number }
+) {
+  const title = event.color === "yellow" ? MATCH_CARD_YELLOW : MATCH_CARD_RED;
+  const text = `${event.person.displayName} · ${sortTeamTitle(event.teamNumber)}`;
+  const detail =
+    event.color === "yellow"
+      ? yellow.mode === "mark"
+        ? event.isGoalkeeper
+          ? MATCH_CARD_MARK_KEEPER_DETAIL
+          : MATCH_CARD_MARK_DETAIL
+        : event.isGoalkeeper
+          ? matchCardEventKeeper(yellow.outMin)
+          : minutesOut(yellow.outMin)
+      : event.redReason === "secondYellow"
+        ? matchCardEventSecond
+        : matchCardEventDirect;
+  return {
+    title,
+    text,
+    detail,
+    label: `${title} · ${event.person.displayName} · ${sortTeamTitle(event.teamNumber)}`,
+  };
+}
+
 /** Textos de Últimos lances para mudanças de elenco; Gol reusa goalLine. */
 export function rosterEventCopy(
-  event: Exclude<TMatchEvent, { kind: "goal" }>
+  event: Exclude<TMatchEvent, { kind: "goal" | "card" }>
 ): TRosterEventCopy {
   if (event.kind === "reinforcement") {
     const text = matchEventReinforceText(

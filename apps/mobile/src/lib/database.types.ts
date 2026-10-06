@@ -58,6 +58,8 @@ export type Database = {
           status: Database["public"]["Enums"]["event_status"];
           tie_return_order: Database["public"]["Enums"]["tie_return_order"];
           tie_rule: Database["public"]["Enums"]["tie_rule"];
+          yellow_card_mode: Database["public"]["Enums"]["yellow_card_mode"];
+          yellow_out_min: number;
         };
         Insert: {
           conductor_id?: string | null;
@@ -82,6 +84,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["event_status"];
           tie_return_order: Database["public"]["Enums"]["tie_return_order"];
           tie_rule: Database["public"]["Enums"]["tie_rule"];
+          yellow_card_mode?: Database["public"]["Enums"]["yellow_card_mode"];
+          yellow_out_min?: number;
         };
         Update: {
           conductor_id?: string | null;
@@ -106,6 +110,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["event_status"];
           tie_return_order?: Database["public"]["Enums"]["tie_return_order"];
           tie_rule?: Database["public"]["Enums"]["tie_rule"];
+          yellow_card_mode?: Database["public"]["Enums"]["yellow_card_mode"];
+          yellow_out_min?: number;
         };
         Relationships: [
           {
@@ -456,6 +462,93 @@ export type Database = {
           },
         ];
       };
+      event_match_card: {
+        Row: {
+          color: Database["public"]["Enums"]["event_match_card_color"];
+          created_at: string;
+          created_by: string;
+          event_id: string;
+          guest_id: string | null;
+          id: string;
+          is_goalkeeper: boolean;
+          match_id: string;
+          match_second: number;
+          person_id: string | null;
+          profile_id: string | null;
+          red_reason:
+            Database["public"]["Enums"]["event_match_card_red_reason"] | null;
+          team_id: string;
+        };
+        Insert: {
+          color: Database["public"]["Enums"]["event_match_card_color"];
+          created_at?: string;
+          created_by: string;
+          event_id: string;
+          guest_id?: string | null;
+          id?: string;
+          is_goalkeeper: boolean;
+          match_id: string;
+          match_second: number;
+          person_id?: string | null;
+          profile_id?: string | null;
+          red_reason?:
+            Database["public"]["Enums"]["event_match_card_red_reason"] | null;
+          team_id: string;
+        };
+        Update: {
+          color?: Database["public"]["Enums"]["event_match_card_color"];
+          created_at?: string;
+          created_by?: string;
+          event_id?: string;
+          guest_id?: string | null;
+          id?: string;
+          is_goalkeeper?: boolean;
+          match_id?: string;
+          match_second?: number;
+          person_id?: string | null;
+          profile_id?: string | null;
+          red_reason?:
+            Database["public"]["Enums"]["event_match_card_red_reason"] | null;
+          team_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_match_card_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_card_guest_id_fkey";
+            columns: ["guest_id"];
+            isOneToOne: false;
+            referencedRelation: "event_guest";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_card_match_fk";
+            columns: ["match_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_match";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_match_card_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_match_card_team_fk";
+            columns: ["team_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_sort_team";
+            referencedColumns: ["id", "event_id"];
+          },
+        ];
+      };
       event_match_goal: {
         Row: {
           assist_guest_id: string | null;
@@ -578,6 +671,7 @@ export type Database = {
           guest_id: string | null;
           id: string;
           left_at: string | null;
+          left_by_red: boolean;
           left_by_self: boolean;
           match_id: string;
           person_id: string | null;
@@ -592,6 +686,7 @@ export type Database = {
           guest_id?: string | null;
           id?: string;
           left_at?: string | null;
+          left_by_red?: boolean;
           left_by_self?: boolean;
           match_id: string;
           person_id?: string | null;
@@ -606,6 +701,7 @@ export type Database = {
           guest_id?: string | null;
           id?: string;
           left_at?: string | null;
+          left_by_red?: boolean;
           left_by_self?: boolean;
           match_id?: string;
           person_id?: string | null;
@@ -1239,6 +1335,8 @@ export type Database = {
           tie_return_order: Database["public"]["Enums"]["tie_return_order"];
           tie_rule: Database["public"]["Enums"]["tie_rule"];
           weekday: number | null;
+          yellow_card_mode: Database["public"]["Enums"]["yellow_card_mode"];
+          yellow_out_min: number;
         };
         Insert: {
           consider_position?: boolean;
@@ -1262,6 +1360,8 @@ export type Database = {
           tie_return_order?: Database["public"]["Enums"]["tie_return_order"];
           tie_rule?: Database["public"]["Enums"]["tie_rule"];
           weekday?: number | null;
+          yellow_card_mode?: Database["public"]["Enums"]["yellow_card_mode"];
+          yellow_out_min?: number;
         };
         Update: {
           consider_position?: boolean;
@@ -1285,6 +1385,8 @@ export type Database = {
           tie_return_order?: Database["public"]["Enums"]["tie_return_order"];
           tie_rule?: Database["public"]["Enums"]["tie_rule"];
           weekday?: number | null;
+          yellow_card_mode?: Database["public"]["Enums"]["yellow_card_mode"];
+          yellow_out_min?: number;
         };
         Relationships: [];
       };
@@ -1457,6 +1559,15 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_event_match_card: {
+        Args: {
+          p_color: Database["public"]["Enums"]["event_match_card_color"];
+          p_guest_id: string;
+          p_match_id: string;
+          p_profile_id: string;
+        };
+        Returns: Json;
+      };
       add_event_match_goal: {
         Args: {
           p_assist?: string;
@@ -1522,12 +1633,15 @@ export type Database = {
           p_place: string;
           p_tie_return_order: Database["public"]["Enums"]["tie_return_order"];
           p_tie_rule: Database["public"]["Enums"]["tie_rule"];
+          p_yellow_card_mode?: Database["public"]["Enums"]["yellow_card_mode"];
+          p_yellow_out_min?: number;
         };
         Returns: {
           id: string;
           invite_code: string;
         }[];
       };
+      delete_event_match_card: { Args: { p_card_id: string }; Returns: Json };
       delete_event_match_goal: { Args: { p_goal_id: string }; Returns: Json };
       discard_event_match: { Args: { p_match_id: string }; Returns: Json };
       draw_event_bolinhas: {
@@ -1858,6 +1972,8 @@ export type Database = {
     Enums: {
       attendance_status: "confirmed" | "waitlisted" | "cancelled" | "left";
       event_bolinhas_color: "blue" | "red";
+      event_match_card_color: "yellow" | "red";
+      event_match_card_red_reason: "direct" | "second_yellow";
       event_match_lineup_entry_kind:
         "start" | "reinforcement" | "inclusion" | "return" | "goalkeeper";
       event_match_role: "OUTFIELD" | "GOALKEEPER";
@@ -1874,6 +1990,7 @@ export type Database = {
       racha_notice_kind: "RACHA_DELETED" | "REMOVED" | "OWNERSHIP_RECEIVED";
       tie_return_order: "RANDOM" | "TEAM_ORDER";
       tie_rule: "BOTH_OUT" | "BOTH_STAY" | "PENALTIES" | "CHALLENGER_WINS";
+      yellow_card_mode: "timed" | "mark";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -2006,6 +2123,8 @@ export const Constants = {
     Enums: {
       attendance_status: ["confirmed", "waitlisted", "cancelled", "left"],
       event_bolinhas_color: ["blue", "red"],
+      event_match_card_color: ["yellow", "red"],
+      event_match_card_red_reason: ["direct", "second_yellow"],
       event_match_lineup_entry_kind: [
         "start",
         "reinforcement",
@@ -2031,6 +2150,7 @@ export const Constants = {
       racha_notice_kind: ["RACHA_DELETED", "REMOVED", "OWNERSHIP_RECEIVED"],
       tie_return_order: ["RANDOM", "TEAM_ORDER"],
       tie_rule: ["BOTH_OUT", "BOTH_STAY", "PENALTIES", "CHALLENGER_WINS"],
+      yellow_card_mode: ["timed", "mark"],
     },
   },
 } as const;

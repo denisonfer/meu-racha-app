@@ -1,3 +1,5 @@
+import type { TYellowCardMode } from "../match/types";
+
 export type TGameMode = "WINNER_STAYS" | "ROTATION" | "MAX_WINS";
 export type TTieRule =
   "BOTH_OUT" | "BOTH_STAY" | "PENALTIES" | "CHALLENGER_WINS";
@@ -11,6 +13,8 @@ export type TRachaRules = {
   tieReturnOrder: TTieReturnOrder; // só vale em BOTH_OUT
   considerPosition: boolean;
   matchDurationMin: number | null; // null = sem relógio
+  yellowCardMode: TYellowCardMode;
+  yellowOutMin: number; // só vale em timed, mas fica guardado
 };
 
 // faixas espelham os checks da tabela racha: o banco é quem garante
@@ -20,6 +24,8 @@ export const MAX_WINS_MIN = 2;
 export const MAX_WINS_MAX = 10;
 export const MATCH_DURATION_MIN = 1;
 export const MATCH_DURATION_MAX = 90;
+export const YELLOW_OUT_MIN = 1;
+export const YELLOW_OUT_MAX = 90;
 export const RACHA_NAME_MIN = 2;
 export const RACHA_NAME_MAX = 40;
 export const RACHA_NAME_PATTERN = /^\p{L}[\p{L}\d '.-]*$/u;
@@ -47,6 +53,8 @@ export const DEFAULT_RACHA_RULES: TRachaRules = {
   tieReturnOrder: "RANDOM",
   considerPosition: false,
   matchDurationMin: 10,
+  yellowCardMode: "timed",
+  yellowOutMin: 2,
 };
 
 const TIE_RULE_LABEL: Record<TTieRule, string> = {
@@ -71,6 +79,11 @@ export function formatRulesSummary(rules: TRachaRules): string[] {
   if (rules.considerPosition) parts.push("Posição no sorteio");
   parts.push(
     rules.matchDurationMin ? `${rules.matchDurationMin} min` : "sem relógio"
+  );
+  parts.push(
+    rules.yellowCardMode === "timed"
+      ? `Amarelo ${rules.yellowOutMin} min fora`
+      : "Amarelo advertência"
   );
 
   return parts;

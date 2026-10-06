@@ -28,10 +28,14 @@ import {
   NOT_OWNER,
   RACHA_SAVED,
   SAVE_RACHA_FAILED,
+  yellowShorterThanMatch,
 } from "../../utils/racha-messages";
 
 type TSaveFailureReason =
-  "generic" | "spot_limit_fits_two_teams" | "event_active";
+  | "generic"
+  | "spot_limit_fits_two_teams"
+  | "event_active"
+  | "yellow_shorter_than_match";
 
 function hasActiveEvent(events: TOpenEvent[] | undefined): boolean {
   return Boolean(events?.some((event) => event.status === "active"));
@@ -153,7 +157,9 @@ export function useRachaSettingsForm(racha: TRacha) {
               ? "spot_limit_fits_two_teams"
               : code === "event_active"
                 ? "event_active"
-                : "generic"
+                : code === "yellow_shorter_than_match"
+                  ? "yellow_shorter_than_match"
+                  : "generic"
           );
         }
         return;
@@ -167,7 +173,9 @@ export function useRachaSettingsForm(racha: TRacha) {
       ? LINE_TOO_BIG_FOR_SPOT_LIMIT
       : saveFailureReason === "event_active"
         ? MOTOR_LOCKED
-        : SAVE_RACHA_FAILED
+        : saveFailureReason === "yellow_shorter_than_match"
+          ? yellowShorterThanMatch(failedValues?.rules.matchDurationMin ?? 0)
+          : SAVE_RACHA_FAILED
     : null;
 
   const openDelete = async () => {

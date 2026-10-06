@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Text } from "../text/text";
 import { theme } from "@/ui/theme";
@@ -6,6 +7,7 @@ export type TOptionListOption<V extends string> = {
   value: V;
   title: string;
   description?: string;
+  leading?: ReactNode;
 };
 
 export type TOptionListProps<V extends string> = {
@@ -53,6 +55,10 @@ export function OptionList<V extends string>({
             >
               {isChecked ? <View style={styles.dot} /> : null}
             </View>
+
+            {option.leading ? (
+              <View style={styles.leading}>{option.leading}</View>
+            ) : null}
 
             <View style={styles.texts}>
               <Text style={styles.title}>{option.title}</Text>
@@ -106,6 +112,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.pill,
     backgroundColor: theme.colors.action,
   },
+  leading: { marginTop: 1 },
   texts: {
     flex: 1,
     gap: 2,

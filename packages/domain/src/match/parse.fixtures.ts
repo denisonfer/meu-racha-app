@@ -71,6 +71,7 @@ const HOME_SIDE = {
       left_at: null,
       entry_kind: "start",
       left_by_self: false,
+      left_by_red: false,
     },
   ],
 };
@@ -112,8 +113,10 @@ export const MATCH_ITEM_OPEN = {
       left_at: null,
       entry_kind: "goalkeeper",
       left_by_self: false,
+      left_by_red: false,
     },
   ],
+  cards: [],
 };
 
 const PORTRAIT_BASE = {
@@ -121,6 +124,8 @@ const PORTRAIT_BASE = {
   event_status: "active",
   server_now: "2026-10-04T15:05:00+00:00",
   duration_min: 7,
+  yellow_card_mode: "timed",
+  yellow_out_min: 2,
   started_at: "2026-10-04T15:00:00+00:00",
   paused_at: null,
   paused_seconds: 12,
@@ -164,6 +169,8 @@ export const MATCH_READY = {
   state: "ready",
   server_now: "2026-10-04T15:20:00+00:00",
   duration_min: null,
+  yellow_card_mode: "mark",
+  yellow_out_min: 7,
   started_at: null,
   paused_at: null,
   paused_seconds: null,
@@ -288,6 +295,30 @@ const INCLUSION_EVENT = {
   created_at: "2026-10-04T15:01:00+00:00",
 };
 
+const YELLOW_CARD = {
+  id: "12121212-1212-1212-1212-121212121212",
+  person: LUCAS,
+  team_id: TEAM1,
+  is_goalkeeper: false,
+  color: "yellow",
+  red_reason: null,
+  match_second: 340,
+  created_at: "2026-10-04T15:05:40+00:00",
+};
+
+const CARD_EVENT = {
+  kind: "card",
+  id: "13131313-1313-1313-1313-131313131313",
+  person: MEMBER,
+  team_id: TEAM1,
+  team_number: 1,
+  is_goalkeeper: true,
+  color: "red",
+  red_reason: "second_yellow",
+  match_second: 400,
+  created_at: "2026-10-04T15:06:40+00:00",
+};
+
 const RETURN_EVENT = {
   kind: "return",
   id: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
@@ -307,6 +338,23 @@ export const MATCH_OPEN_EVENTS = {
     INCLUSION_EVENT,
     RETURN_EVENT,
   ],
+};
+
+/** Cartão no retrato e lance de segundo amarelo; elenco completo marca saída por vermelho. */
+export const MATCH_OPEN_CARD = {
+  ...MATCH_OPEN,
+  match: {
+    ...MATCH_ITEM_OPEN,
+    cards: [YELLOW_CARD],
+    lineup: [
+      {
+        ...MATCH_ITEM_OPEN.lineup[0],
+        left_by_red: true,
+        left_at: "2026-10-04T15:06:40+00:00",
+      },
+    ],
+  },
+  events: [CARD_EVENT],
 };
 
 export const MATCH_PREVIEW = {

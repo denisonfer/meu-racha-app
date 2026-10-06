@@ -3,6 +3,7 @@ import {
   score,
   type Goal,
   type TEventMatch,
+  type TMatchCardColor,
 } from "@meu-racha/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { rachaApi } from "../racha-api";
@@ -195,6 +196,26 @@ export function useEventMatchActions(rachaId: string, eventId: string) {
     onSettled: settle,
   });
 
+  const addCard = useMutation({
+    mutationFn: (vars: {
+      matchId: string;
+      profileId: string | null;
+      guestId: string | null;
+      color: TMatchCardColor;
+    }) =>
+      rachaApi.addEventMatchCard(
+        vars.matchId,
+        { profileId: vars.profileId, guestId: vars.guestId },
+        vars.color
+      ),
+    onSettled: settle,
+  });
+
+  const deleteCard = useMutation({
+    mutationFn: (cardId: string) => rachaApi.deleteEventMatchCard(cardId),
+    onSettled: settle,
+  });
+
   const deleteGoal = useMutation({
     mutationFn: (goalId: string) => rachaApi.deleteEventMatchGoal(goalId),
     onSettled: settle,
@@ -247,6 +268,8 @@ export function useEventMatchActions(rachaId: string, eventId: string) {
     resumeEventMatch: resume.mutateAsync,
     addEventMatchGoal: addGoal.mutateAsync,
     updateEventMatchGoal: updateGoal.mutateAsync,
+    addEventMatchCard: addCard.mutateAsync,
+    deleteEventMatchCard: deleteCard.mutateAsync,
     deleteEventMatchGoal: deleteGoal.mutateAsync,
     swapEventMatchGoalkeeper: swapGoalkeeper.mutateAsync,
     previewFinishEventMatch: previewFinish.mutateAsync,

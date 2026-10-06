@@ -68,6 +68,7 @@ export function useRachaForm(options: {
     summary: formatRulesSummary(rules),
     setRule,
     matchDurationError: errors.rules?.matchDurationMin?.message,
+    yellowOutError: errors.rules?.yellowOutMin?.message,
     isRulesExpanded,
     toggleRules: () => setIsRulesExpanded((isOpen) => !isOpen),
   };
@@ -146,6 +147,7 @@ export function useCreateRachaForm(options: {
     summary: formatRulesSummary(rules),
     setRule,
     matchDurationError: errors.rules?.matchDurationMin?.message,
+    yellowOutError: errors.rules?.yellowOutMin?.message,
     isRulesExpanded,
     toggleRules: () => setIsRulesExpanded((isOpen) => !isOpen),
   };

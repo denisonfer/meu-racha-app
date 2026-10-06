@@ -8,6 +8,9 @@ import {
   TRachaRules,
   TTieReturnOrder,
   TTieRule,
+  TYellowCardMode,
+  YELLOW_OUT_MAX,
+  YELLOW_OUT_MIN,
 } from "@meu-racha/domain";
 import { Pressable, StyleSheet, Switch, View } from "react-native";
 import { ChipGroup, Icon, OptionList, Stepper, Text } from "@/ui/components";
@@ -52,6 +55,25 @@ const gameModeOptions = (maxWins: number) => [
   },
 ];
 
+const YELLOW_CARD_OPTIONS: {
+  value: TYellowCardMode;
+  title: string;
+  description: string;
+}[] = [
+  {
+    value: "timed",
+    title: "Minutos fora",
+    description:
+      "Sai pelo relógio da Partida e volta sozinha. Nenhum cartão chama Reforço.",
+  },
+  {
+    value: "mark",
+    title: "Advertência",
+    description:
+      "Continua em campo, marcada de amarelo. O segundo amarelo na mesma Partida vira vermelho.",
+  },
+];
+
 type TRulesSectionProps = {
   rules: TRachaRules;
   summary: string[];
@@ -63,6 +85,7 @@ type TRulesSectionProps = {
   onToggle: () => void;
   isDisabled: boolean;
   matchDurationError?: string;
+  yellowOutError?: string;
   isHintVisible?: boolean;
   lockMessage?: string | null;
 };
@@ -75,6 +98,7 @@ export const RulesSection = ({
   onToggle,
   isDisabled,
   matchDurationError,
+  yellowOutError,
   isHintVisible = true,
   lockMessage = null,
 }: TRulesSectionProps) => {
@@ -213,6 +237,28 @@ export const RulesSection = ({
               accessibilityLabel="Duração da partida, em minutos"
               isOptional
             />
+          </View>
+
+          <View style={[styles.field, styles.divided, styles.stack]}>
+            <Text style={styles.bold}>Cartão amarelo</Text>
+            <OptionList
+              options={YELLOW_CARD_OPTIONS}
+              value={rules.yellowCardMode}
+              onChange={(value) => onChange("yellowCardMode", value)}
+              isDisabled={isDisabled}
+            />
+            {rules.yellowCardMode === "timed" ? (
+              <OptionalNumberField
+                // vazio vira 0: o schema recusa e o campo mostra a faixa
+                value={rules.yellowOutMin || null}
+                onChange={(value) => onChange("yellowOutMin", value ?? 0)}
+                unit="min"
+                hint={`De ${YELLOW_OUT_MIN} a ${YELLOW_OUT_MAX} minutos fora, menos que a Duração da partida.`}
+                error={yellowOutError}
+                isDisabled={isDisabled}
+                accessibilityLabel="Minutos fora com o amarelo"
+              />
+            ) : null}
           </View>
         </View>
       ) : null}

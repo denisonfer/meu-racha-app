@@ -30,6 +30,7 @@ export * from "./screens/match/match-goalkeeper-screen";
 export * from "./screens/match/match-roster-screen";
 export * from "./screens/match/match-queue-screen";
 export * from "./screens/match/match-leave-screen";
+export * from "./screens/match/match-card-screen";
 export * from "./screens/match/match-reinforcement-screen";
 export * from "./screens/edit-member/edit-member-screen";
 export * from "./screens/position-detail/position-detail-screen";

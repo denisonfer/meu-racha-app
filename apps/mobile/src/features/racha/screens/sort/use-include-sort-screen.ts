@@ -108,12 +108,14 @@ export function useIncludeSortScreen() {
         : sortIncludeLabel(member.displayName),
       isSelected: false,
       onPress: null,
-      action: {
-        label: SORT_INCLUDE,
-        accessibilityLabel: sortIncludeLabel(member.displayName),
-        isDisabled: busyId !== null,
-        onPress: () => void include(member.profileId),
-      },
+      actions: [
+        {
+          label: SORT_INCLUDE,
+          accessibilityLabel: sortIncludeLabel(member.displayName),
+          isDisabled: busyId !== null,
+          onPress: () => void include(member.profileId),
+        },
+      ],
     }));
 
   const asksDetail =

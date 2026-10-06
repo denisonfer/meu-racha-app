@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View } from "react-native";
-import { Icon, Text, type TIconName } from "@/ui/components";
+import { Icon, PenaltyCard, Text, type TIconName } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { MatchGoalText } from "./match-goal-text";
 import {
@@ -26,7 +26,19 @@ export type TMatchRosterEventRow = {
   icon: TIconName;
 };
 
-export type TMatchEventRow = TMatchGoalEventRow | TMatchRosterEventRow;
+export type TMatchCardEventRow = {
+  kind: "card";
+  id: string;
+  color: "yellow" | "red";
+  title: string;
+  text: string;
+  detail: string;
+  label: string;
+  onDelete: (() => void) | null;
+};
+
+export type TMatchEventRow =
+  TMatchGoalEventRow | TMatchRosterEventRow | TMatchCardEventRow;
 
 type TMatchEventListProps = {
   events: TMatchEventRow[];
@@ -46,6 +58,37 @@ export const MatchEventList = ({ events }: TMatchEventListProps) => (
             label={event.label}
             preset="body"
           />
+          {event.onDelete ? (
+            <Pressable
+              onPress={event.onDelete}
+              accessibilityRole="button"
+              accessibilityLabel={`${MATCH_DELETE_GOAL} ${event.label}`}
+              style={styles.delete}
+            >
+              <Text preset="caption" color="danger">
+                {MATCH_DELETE_GOAL}
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : event.kind === "card" ? (
+        <View key={event.id} style={styles.row}>
+          <PenaltyCard color={event.color} size="md" />
+          <View
+            accessible
+            accessibilityLabel={`${event.label}. ${event.detail}`}
+            style={styles.texts}
+          >
+            <Text preset="body">
+              <Text preset="body" style={styles.term}>
+                {event.title}
+              </Text>
+              {` · ${event.text}`}
+            </Text>
+            <Text preset="caption" color="muted">
+              {event.detail}
+            </Text>
+          </View>
           {event.onDelete ? (
             <Pressable
               onPress={event.onDelete}

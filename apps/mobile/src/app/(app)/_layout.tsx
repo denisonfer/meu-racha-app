@@ -116,6 +116,10 @@ export default function AppLayout() {
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
       <Stack.Screen
+        name="racha/[id]/event/[eventId]/match-card"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
         name="racha/[id]/event/[eventId]/match-reinforcement"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
