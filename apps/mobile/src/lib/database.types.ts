@@ -1669,6 +1669,7 @@ export type Database = {
         Returns: Json;
       };
       get_event_match: { Args: { p_event_id: string }; Returns: Json };
+      get_event_resenha: { Args: { p_event_id: string }; Returns: Json };
       get_event_sort: { Args: { p_event_id: string }; Returns: Json };
       get_event_sort_proposal: { Args: { p_event_id: string }; Returns: Json };
       get_invite: {
@@ -1683,6 +1684,7 @@ export type Database = {
           racha_id: string;
         }[];
       };
+      get_racha_last_resenha: { Args: { p_racha_id: string }; Returns: Json };
       include_event_sort_guest: {
         Args: {
           p_display_name: string;

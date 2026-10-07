@@ -89,6 +89,8 @@ PODS:
   - ExpoRouter (57.0.22):
     - ExpoModulesCore
     - RNScreens
+  - ExpoSharing (57.0.22):
+    - ExpoModulesCore
   - ExpoSplashScreen (57.0.9):
     - ExpoModulesCore
   - ExpoSymbols (57.0.3):
@@ -1597,6 +1599,28 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - react-native-view-shot (5.1.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - React-NativeModulesApple (0.86.3):
     - hermes-engine
     - React-callinvoker
@@ -2344,6 +2368,7 @@ DEPENDENCIES:
   - "ExpoModulesWorklets (from `../../../node_modules/.bun/expo-modules-core@57.0.18+cdd610714c1c475e/node_modules/expo-modules-core/ExpoModulesWorklets.podspec`)"
   - "ExpoModulesWorkletsAdapter (from `../../../node_modules/.bun/expo-modules-core@57.0.18+cdd610714c1c475e/node_modules/expo-modules-core`)"
   - "ExpoRouter (from `../../../node_modules/.bun/expo-router@57.0.22+98eb76bee35bbdb3/node_modules/expo-router/ios`)"
+  - "ExpoSharing (from `../../../node_modules/.bun/expo-sharing@57.0.22+180bd3df5e4f42a6/node_modules/expo-sharing/ios`)"
   - "ExpoSplashScreen (from `../../../node_modules/.bun/expo-splash-screen@57.0.9+180bd3df5e4f42a6/node_modules/expo-splash-screen/ios`)"
   - "ExpoSymbols (from `../../../node_modules/.bun/expo-symbols@57.0.3+dfac48692a73001f/node_modules/expo-symbols/ios`)"
   - "ExpoSystemUI (from `../../../node_modules/.bun/expo-system-ui@57.0.4+180bd3df5e4f42a6/node_modules/expo-system-ui/ios`)"
@@ -2390,6 +2415,7 @@ DEPENDENCIES:
   - "React-microtasksnativemodule (from `../../../node_modules/.bun/react-native@0.86.3+e1b28b7868edb454/node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)"
   - "React-mutationobservernativemodule (from `../../../node_modules/.bun/react-native@0.86.3+e1b28b7868edb454/node_modules/react-native/ReactCommon/react/nativemodule/mutationobserver`)"
   - "react-native-safe-area-context (from `../../../node_modules/.bun/react-native-safe-area-context@5.7.0+e1b28b7868edb454/node_modules/react-native-safe-area-context`)"
+  - "react-native-view-shot (from `../../../node_modules/.bun/react-native-view-shot@5.1.0+e1b28b7868edb454/node_modules/react-native-view-shot`)"
   - "React-NativeModulesApple (from `../../../node_modules/.bun/react-native@0.86.3+e1b28b7868edb454/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)"
   - "React-networking (from `../../../node_modules/.bun/react-native@0.86.3+e1b28b7868edb454/node_modules/react-native/ReactCommon/react/networking`)"
   - "React-oscompat (from `../../../node_modules/.bun/react-native@0.86.3+e1b28b7868edb454/node_modules/react-native/ReactCommon/oscompat`)"
@@ -2473,6 +2499,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/.bun/expo-modules-core@57.0.18+cdd610714c1c475e/node_modules/expo-modules-core"
   ExpoRouter:
     :path: "../../../node_modules/.bun/expo-router@57.0.22+98eb76bee35bbdb3/node_modules/expo-router/ios"
+  ExpoSharing:
+    :path: "../../../node_modules/.bun/expo-sharing@57.0.22+180bd3df5e4f42a6/node_modules/expo-sharing/ios"
   ExpoSplashScreen:
     :path: "../../../node_modules/.bun/expo-splash-screen@57.0.9+180bd3df5e4f42a6/node_modules/expo-splash-screen/ios"
   ExpoSymbols:
@@ -2564,6 +2592,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/.bun/react-native@0.86.3+e1b28b7868edb454/node_modules/react-native/ReactCommon/react/nativemodule/mutationobserver"
   react-native-safe-area-context:
     :path: "../../../node_modules/.bun/react-native-safe-area-context@5.7.0+e1b28b7868edb454/node_modules/react-native-safe-area-context"
+  react-native-view-shot:
+    :path: "../../../node_modules/.bun/react-native-view-shot@5.1.0+e1b28b7868edb454/node_modules/react-native-view-shot"
   React-NativeModulesApple:
     :path: "../../../node_modules/.bun/react-native@0.86.3+e1b28b7868edb454/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-networking:
@@ -2671,6 +2701,7 @@ SPEC CHECKSUMS:
   ExpoModulesWorklets: 986cf72c18400743869b4642d243115f831e404d
   ExpoModulesWorkletsAdapter: 0d41b29061763ba4b205a6d99cc9bc9e51bec6dd
   ExpoRouter: 3a8e63a51be53961b03f331c33108629090cf667
+  ExpoSharing: 5cc46810cfba71e331f649d947660213082094c1
   ExpoSplashScreen: e771da4f26d550ea4fd067d8fb942657e47bb846
   ExpoSymbols: 37a3a6e5847edb08b83a5ee04d3b46525e205f00
   ExpoSystemUI: 05ee8d4aaba1b6af330f3621e19b39ff9f21e718
@@ -2716,6 +2747,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 97a771dbbb4315c71579995b53e4e3e351a99d89
   React-mutationobservernativemodule: 530bff1bba9511a5133e3cf8170e3b2c0df49e89
   react-native-safe-area-context: 6b4966397ada0f7dd481e4486a2ef936834861a1
+  react-native-view-shot: 5bf17256c542d46c02a6f2d2752fe88eb3a8d058
   React-NativeModulesApple: 2b658272ca69df0694cf5d54f9510aa7c33977bc
   React-networking: 6be0b80e18e710dd30e77b04838ec46666a7bb78
   React-oscompat: cea7c66df8076bd97e95885d7f584b86afffde41

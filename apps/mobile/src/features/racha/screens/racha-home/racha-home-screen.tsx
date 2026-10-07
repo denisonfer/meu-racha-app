@@ -15,6 +15,7 @@ import {
 } from "../../utils/racha-messages";
 import { EventCard } from "./event-card";
 import { InviteCard } from "./invite-card";
+import { ResenhaCard } from "./resenha-card";
 import { useRachaHomeScreen } from "./use-racha-home-screen";
 
 export const RachaHomeScreen = () => {
@@ -30,6 +31,7 @@ export const RachaHomeScreen = () => {
     openSettings,
     openLogistics,
     eventCard,
+    resenhaCard,
     selfPositionNotice,
     showEmptyEvent,
     showCreateEvent,
@@ -142,6 +144,8 @@ export const RachaHomeScreen = () => {
               ) : null}
             </View>
           ) : null}
+
+          {resenhaCard ? <ResenhaCard {...resenhaCard} /> : null}
 
           {racha.isOwner ? (
             <InviteCard code={racha.inviteCode} onShare={shareInvite} />

@@ -82,6 +82,7 @@ export default function AppLayout() {
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
       <Stack.Screen name="racha/[id]/event/[eventId]/bolinhas" />
+      <Stack.Screen name="racha/[id]/event/[eventId]/resenha" />
       {/* sem arrastar para voltar no meio da animação */}
       <Stack.Screen
         name="racha/[id]/event/[eventId]/bolinhas-reveal"

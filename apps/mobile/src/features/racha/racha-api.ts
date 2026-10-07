@@ -5,8 +5,10 @@ import {
   OVERALL_MIN,
   parseDrawnBolinhas,
   parseEventMatch,
+  parseEventResenha,
   parseMatchFinishPreview,
   parsePublishedSort,
+  parseRachaLastResenha,
   parseSortProposal,
   toPositionLayer,
   type TDrawnBolinhas,
@@ -15,6 +17,8 @@ import {
   type TPositionDetail,
   type TPublishedSort,
   type TRachaRules,
+  type TResenha,
+  type TResenhaSummary,
   type TSortProposal,
 } from "@meu-racha/domain";
 import type { Database } from "@/lib/database.types";
@@ -1047,6 +1051,24 @@ async function getEventMatch(eventId: string): Promise<TEventMatch> {
   return parseMatchJson(data);
 }
 
+async function getEventResenha(eventId: string): Promise<TResenha> {
+  const { data, error, status } = await supabase.rpc("get_event_resenha", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseEventResenha(data, toPhotoUrl);
+}
+
+async function getRachaLastResenha(
+  rachaId: string
+): Promise<TResenhaSummary | null> {
+  const { data, error, status } = await supabase.rpc("get_racha_last_resenha", {
+    p_racha_id: rachaId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseRachaLastResenha(data, toPhotoUrl);
+}
+
 async function startEventMatch(
   eventId: string,
   homeGoalkeeperId?: string | null,
@@ -1387,6 +1409,8 @@ export const rachaApi = {
   includeEventSortMember,
   includeEventSortGuest,
   getEventMatch,
+  getEventResenha,
+  getRachaLastResenha,
   startEventMatch,
   pauseEventMatch,
   resumeEventMatch,

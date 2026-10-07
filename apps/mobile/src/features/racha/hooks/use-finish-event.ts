@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { rachaApi } from "../racha-api";
 import { openEventsKey } from "./use-open-events";
 import { myRachaEventsKey } from "./use-my-racha-events";
+import { rachaLastResenhaKey } from "./use-racha-last-resenha";
 
 export function useFinishEvent(rachaId: string) {
   const queryClient = useQueryClient();
@@ -29,6 +30,9 @@ export function useFinishEvent(rachaId: string) {
       return Promise.all([
         refreshList,
         queryClient.invalidateQueries({ queryKey: openEventsKey(rachaId) }),
+        queryClient.invalidateQueries({
+          queryKey: rachaLastResenhaKey(rachaId),
+        }),
       ]);
     },
   });

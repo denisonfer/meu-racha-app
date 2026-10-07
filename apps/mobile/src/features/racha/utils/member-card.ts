@@ -7,7 +7,10 @@ const ZERO_KEEPER = { wins: 0, cleanSheets: 0, goals: 0, games: 0 };
 
 /** Carta do Membro no Racha; sem Partidas ainda, estatísticas zeradas e Overall de entrada. */
 export const memberCardProps = (
-  member: TRachaMember,
+  member: Pick<
+    TRachaMember,
+    "displayName" | "photoUrl" | "playsAs" | "primaryPosition"
+  >,
   isSuperStar: boolean
 ) => ({
   overall: OVERALL_MIN,

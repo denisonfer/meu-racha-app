@@ -22,6 +22,7 @@ import {
   Star,
   Ticket,
   TriangleAlert,
+  Trophy,
   User,
   UserRoundPlus,
   Users,
@@ -62,6 +63,7 @@ export const iconMap = {
   edit: Pencil,
   flag: Flag,
   leave: LogOut,
+  trophy: Trophy,
 } as const;
 
 export type TIconName = keyof typeof iconMap;

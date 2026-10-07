@@ -956,3 +956,44 @@ export const bolinhasLegend = (n: number, blue: boolean) =>
     : `${n} ${n === 1 ? "VERMELHA" : "VERMELHAS"}`;
 export const bolinhasColumnCount = (n: number, total: number) =>
   `${n}/${total}`;
+
+export const RESENHA = "Resenha";
+export const RESENHA_SHARE = "Compartilhar";
+export const RESENHA_SHARE_DIALOG = "Compartilhar Resenha";
+export const RESENHA_GENERATING = "Gerando imagem…";
+export const RESENHA_SHARE_FAILED =
+  "Não deu para gerar a imagem. Tente de novo.";
+export const RESENHA_NO_MATCH = "Nenhuma Partida jogada";
+export const RESENHA_NO_MATCH_TEXT =
+  "O Evento foi encerrado sem Partidas. Não há o que compartilhar.";
+export const RESENHA_TOP_SCORER = "ARTILHEIRO";
+export const RESENHA_TOP_ASSIST = "GARÇOM";
+export const RESENHA_NO_GOALS = "Sem gols";
+export const RESENHA_NO_ASSISTS = "Sem assistências";
+export const RESENHA_TOP_TEAM = "TIME MAIS VITORIOSO";
+export const RESENHA_NO_TEAM = "Sem vencedor";
+export const RESENHA_ONLY_DRAWS = "Só empates";
+export const resenhaOfMatches = (n: number) => `em ${n} Partidas`;
+export const RESENHA_CARDS = "Cartões do dia";
+export const RESENHA_POSTER_FOOTER = "Resenha gerada no app Meu Racha";
+export const RESENHA_POSTER_TOP_SCORER = "ARTILHEIRO DO DIA";
+export const RESENHA_POSTER_NO_GOALS = "DIA SEM GOLS";
+export const RESENHA_POSTER_NOBODY = "Ninguém marcou";
+export const resenhaSummary = (
+  n: number,
+  scorers: string | null,
+  count: number
+) =>
+  n === 0
+    ? RESENHA_NO_MATCH
+    : `${n} Partidas · ${scorers ? `artilheiro ${scorers}, ${count} ${count === 1 ? "gol" : "gols"}` : "sem gols"}`;
+export const resenhaMatchCount = (n: number) =>
+  n === 0 ? RESENHA_NO_MATCH : `${n} Partidas`;
+export const RESENHA_LOAD_FAILED_TITLE = "Não deu pra abrir a Resenha";
+export const RESENHA_YELLOW = "Amarelo";
+export const RESENHA_RED = "Vermelho";
+export const resenhaGoalUnit = (n: number) => (n === 1 ? "gol" : "gols");
+export const resenhaAssistUnit = (n: number) =>
+  n === 1 ? "assistência" : "assistências";
+export const resenhaWinUnit = (n: number) => (n === 1 ? "Vitória" : "Vitórias");
+export const resenhaTeamName = (n: number) => `Time ${n}`;

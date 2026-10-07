@@ -3,8 +3,10 @@ import {
   asksPositionDetail,
   canLeaveRacha,
   formatEventWhen,
+  formatResenhaCivilDate,
   formatRulesSummary,
   isLayerPending,
+  namesLine,
 } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -15,6 +17,7 @@ import { useEventAttendance } from "../../hooks/use-event-attendance";
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import { useRacha } from "../../hooks/use-racha";
+import { useRachaLastResenha } from "../../hooks/use-racha-last-resenha";
 import { TOpenEvent } from "../../racha-types";
 import {
   eventKicker,
@@ -27,6 +30,7 @@ import {
   POSITION_DETAIL_COMPLETE,
   POSITION_DETAIL_SELF_TITLE,
   positionDetailSelfText,
+  resenhaSummary,
 } from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 import { TEventCardAction } from "./event-card";
@@ -42,6 +46,7 @@ export function useRachaHomeScreen() {
     isRefetching,
   } = useRacha(id);
   const eventsQuery = useOpenEvents(id);
+  const lastResenhaQuery = useRachaLastResenha(id);
   const { session } = useSession();
   const { assumeEventConduction } = useAssumeEventConduction(id);
   const showToast = useToast();
@@ -200,6 +205,34 @@ export function useRachaHomeScreen() {
     racha && isOwnerOrAdmin && hasEventsData && !upcomingEvent
   );
 
+  const lastResenha = lastResenhaQuery.data ?? null;
+  // Sem data dos Eventos abertos, ou se a leitura falhou, não dá para saber se
+  // há um Evento active — o cartão não aparece para não piscar nem mentir.
+  const hasActiveEvent = Boolean(
+    events?.some((event) => event.status === "active")
+  );
+  const lastCivil = lastResenha
+    ? formatResenhaCivilDate(lastResenha.startsOn)
+    : null;
+  const resenhaCard =
+    racha &&
+    hasEventsData &&
+    !eventsQuery.isError &&
+    !hasActiveEvent &&
+    lastResenha &&
+    lastCivil
+      ? {
+          title: `Resenha · ${lastCivil.weekdayShort} ${lastCivil.dayMonth}`,
+          summary: resenhaSummary(
+            lastResenha.matchCount,
+            lastResenha.scorers.length ? namesLine(lastResenha.scorers) : null,
+            lastResenha.topGoals
+          ),
+          onOpen: () =>
+            router.push(`/racha/${id}/event/${lastResenha.eventId}/resenha`),
+        }
+      : null;
+
   return {
     racha: racha && {
       name: racha.name,
@@ -259,6 +292,7 @@ export function useRachaHomeScreen() {
         : null,
     },
     selfPositionNotice,
+    resenhaCard,
     showEmptyEvent: Boolean(racha && hasEventsData && !shownEvent),
     showCreateEvent,
     eventsMissing: eventsQuery.isError && events === undefined,
@@ -270,6 +304,7 @@ export function useRachaHomeScreen() {
     retry: () => {
       void refetch();
       void eventsQuery.refetch();
+      void lastResenhaQuery.refetch();
     },
     isRetrying: isRefetching || eventsQuery.isRefetching,
     shareInvite: () => racha && shareInvite(racha.name, racha.inviteCode),

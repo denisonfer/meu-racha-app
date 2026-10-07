@@ -5,3 +5,4 @@ export * from "./card";
 export * from "./racha";
 export * from "./sorteio";
 export * from "./bolinhas";
+export * from "./resenha";
