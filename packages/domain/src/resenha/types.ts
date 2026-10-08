@@ -1,3 +1,4 @@
+import type { TMemberCardStats } from "../card";
 import type { TPlaysAs, TPosition } from "../profile";
 import type { TMatchPerson } from "../match/types";
 
@@ -27,7 +28,7 @@ export type TResenhaScorerCard = {
   playsAs: TPlaysAs;
   primaryPosition: TPosition | null;
   isSuperStar: boolean;
-};
+} & TMemberCardStats;
 
 export type TResenha = {
   startsOn: string;

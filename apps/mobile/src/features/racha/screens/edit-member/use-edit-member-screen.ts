@@ -18,6 +18,7 @@ import { useToast } from "@/ui/components";
 import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useRacha } from "../../hooks/use-racha";
+import { useRachaCards } from "../../hooks/use-racha-cards";
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import { useSetMemberPositionDetails } from "../../hooks/use-set-member-position-details";
 import { useUpdateMember } from "../../hooks/use-update-member";
@@ -47,6 +48,7 @@ export function useEditMemberScreen() {
   const { session } = useSession();
   const showToast = useToast();
   const membersQuery = useRachaMembers(id);
+  const cardsQuery = useRachaCards(id);
   const rachaQuery = useRacha(id);
 
   const racha = rachaQuery.data;
@@ -64,8 +66,13 @@ export function useEditMemberScreen() {
     noAccessQuery.fetchStatus,
     id
   );
-  const isLoading = membersQuery.isPending || rachaQuery.isPending;
-  const isError = membersQuery.isLoadingError || rachaQuery.isLoadingError;
+  const isLoading =
+    membersQuery.isPending || rachaQuery.isPending || cardsQuery.isLoading;
+  // Sem a carta, o piso 40 parece Overall de verdade.
+  const isError =
+    membersQuery.isLoadingError ||
+    rachaQuery.isLoadingError ||
+    cardsQuery.isError;
 
   const canOpen =
     racha && member
@@ -97,15 +104,24 @@ export function useEditMemberScreen() {
     racha: isOpen ? racha : undefined,
     member: isOpen ? member : undefined,
     viewMember: isViewOnly ? member : undefined,
+    viewCard:
+      isViewOnly && member
+        ? (cardsQuery.data?.get(member.profileId) ?? null)
+        : null,
+    rachaName: rachaQuery.data?.name ?? "",
     adminCount: (membersQuery.data ?? []).filter((m) => m.role === "ADMIN")
       .length,
     isLoading: isLoading || isNoAccess || isGone,
     isError: isError && !isNoAccess,
     retry: () => {
       void membersQuery.refetch();
+      void cardsQuery.refetch();
       void rachaQuery.refetch();
     },
-    isRetrying: membersQuery.isRefetching || rachaQuery.isRefetching,
+    isRetrying:
+      membersQuery.isRefetching ||
+      cardsQuery.isRefetching ||
+      rachaQuery.isRefetching,
   };
 }
 
@@ -131,6 +147,8 @@ export function useEditMemberForm({
   const { updateMember } = useUpdateMember(rachaId);
   const { setMemberPositionDetails } = useSetMemberPositionDetails(rachaId);
   const hasRachaAccess = useHasRachaAccess(rachaId);
+  const cardsQuery = useRachaCards(rachaId);
+  const rachaQuery = useRacha(rachaId);
 
   const isGoalkeeper = member.playsAs === "GOALKEEPER";
   const permissions = memberPermissions(
@@ -263,7 +281,12 @@ export function useEditMemberForm({
     hasCard,
     isGoalkeeper,
     // a Super Estrela da carta acompanha o toggle, antes mesmo de salvar
-    card: memberCardProps(member, isSuperStar),
+    card: memberCardProps(
+      member,
+      isSuperStar,
+      cardsQuery.data?.get(member.profileId) ?? null,
+      rachaQuery.data?.name
+    ),
     stars,
     onStarsChange: change(setStars),
     isSuperStar,

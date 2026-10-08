@@ -22,6 +22,7 @@ import {
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { openEventsKey, useOpenEvents } from "../../hooks/use-open-events";
 import { useRacha } from "../../hooks/use-racha";
+import { cardOverall, useRachaCards } from "../../hooks/use-racha-cards";
 import {
   TAttendancePerson,
   TAttendanceTarget,
@@ -115,6 +116,8 @@ export function useAttendanceScreen() {
     isRefetching: isRachaRefetching,
   } = useRacha(id);
   const eventsQuery = useOpenEvents(id);
+  // a carta é só visual aqui: sem ela, a mini mostra 40 e a Presença segue
+  const cardsQuery = useRachaCards(id);
   const attendanceQuery = useEventAttendance(id, eventId);
   const admin = useAttendanceAdmin(id, eventId);
   const { confirmAttendance, cancelAttendance, isAttendanceBusy } =
@@ -301,7 +304,7 @@ export function useAttendanceScreen() {
       name: person.name,
       initials: person.initials,
       photoUrl: person.photoUrl,
-      overall: person.overall,
+      overall: cardOverall(cardsQuery.data, person.profileId),
       chip:
         person.kind === "guest"
           ? ("guest" as const)
@@ -503,6 +506,7 @@ export function useAttendanceScreen() {
     retry: () => {
       void refetchRacha();
       void eventsQuery.refetch();
+      void cardsQuery.refetch();
       void attendanceQuery.refetch();
     },
     isRetrying:

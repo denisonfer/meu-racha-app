@@ -1,3 +1,4 @@
+import { CARD_PAYLOAD_INVALID, parseCardStats } from "../card";
 import type { TPlaysAs, TPosition } from "../profile";
 import type { TPhotoResolver } from "../sorteio/parse";
 import type { TMatchPerson } from "../match/types";
@@ -118,15 +119,29 @@ function scorerCard(
 ): TResenhaScorerCard | null {
   if (value == null) return null;
   const raw = obj(value);
+  // A carta do artilheiro usa o mesmo JSON da carta do Racha, sem profile_id.
+  // Erro de carta vira erro da Resenha: uma RPC, um código.
+  let stats;
+  try {
+    stats = parseCardStats(raw);
+  } catch (error) {
+    if (error instanceof Error && error.message === CARD_PAYLOAD_INVALID) {
+      throw invalid();
+    }
+    throw error;
+  }
   return {
     displayName: str(raw.display_name),
     photoUrl: photo(strOrNull(raw.avatar_path)),
+    isSuperStar: bool(raw.is_super_star),
+    ...stats,
+    // O cartaz já trazia Onde joga e posição. Ficam por cima da carta
+    // para a sigla do artilheiro não depender só do corpo novo.
     playsAs: oneOf(raw.plays_as, PLAYS_AS),
     primaryPosition:
       raw.primary_position == null
         ? null
         : oneOf(raw.primary_position, POSITIONS),
-    isSuperStar: bool(raw.is_super_star),
   };
 }
 

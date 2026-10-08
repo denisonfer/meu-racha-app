@@ -66,6 +66,11 @@ const VALID = {
     plays_as: "OUTFIELD",
     primary_position: "FORWARD",
     is_super_star: true,
+    shown_role: "LINE",
+    overall: 64,
+    line: { matches: 5, goals: 3, assists: 1, wins: 2 },
+    keeper: { matches: 0, wins: 0, clean_sheets: 0, goals: 0 },
+    season_year: 2026,
   },
 };
 
@@ -115,7 +120,42 @@ describe("parseEventResenha", () => {
       playsAs: "OUTFIELD",
       primaryPosition: "FORWARD",
       isSuperStar: true,
+      shownRole: "LINE",
+      overall: 64,
+      line: { matches: 5, goals: 3, assists: 1, wins: 2 },
+      keeper: { matches: 0, wins: 0, cleanSheets: 0, goals: 0 },
+      seasonYear: 2026,
     });
+  });
+
+  test("preserva gols zerados do goleiro na carta do artilheiro", () => {
+    const resenha = parseEventResenha(
+      {
+        ...VALID,
+        scorer_card: {
+          ...VALID.scorer_card,
+          plays_as: "GOALKEEPER",
+          primary_position: null,
+          shown_role: "GOALKEEPER",
+          keeper: { matches: 4, wins: 2, clean_sheets: 3, goals: 0 },
+        },
+      },
+      photo
+    );
+    expect(resenha.scorerCard).toMatchObject({
+      shownRole: "GOALKEEPER",
+      keeper: { matches: 4, wins: 2, cleanSheets: 3, goals: 0 },
+    });
+  });
+
+  test("rejeita papel mostrado desconhecido na carta do artilheiro", () => {
+    const bad = {
+      ...VALID,
+      scorer_card: { ...VALID.scorer_card, shown_role: "OUTFIELD" },
+    };
+    expect(() => parseEventResenha(bad, photo)).toThrow(
+      RESENHA_PAYLOAD_INVALID
+    );
   });
 
   test("aceita scorer_card nulo", () => {

@@ -1,8 +1,4 @@
-import {
-  asksPositionDetail,
-  formatPlaysAs,
-  OVERALL_MIN,
-} from "@meu-racha/domain";
+import { asksPositionDetail, formatPlaysAs } from "@meu-racha/domain";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { useBottomSheetClose, useToast } from "@/ui/components";
@@ -11,6 +7,7 @@ import {
   useEventSort,
   useEventSortOperations,
 } from "../../hooks/use-event-sort";
+import { cardOverall, useRachaCards } from "../../hooks/use-racha-cards";
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import {
   SORT_INCLUDE,
@@ -32,6 +29,7 @@ export function useIncludeSortScreen() {
   }>();
   const sortQuery = useEventSort(id, eventId);
   const membersQuery = useRachaMembers(id);
+  const cardsQuery = useRachaCards(id);
   const { includeEventSortMember, includeEventSortGuest } =
     useEventSortOperations(id, eventId);
   const navigation = useNavigation();
@@ -97,7 +95,7 @@ export function useIncludeSortScreen() {
       key: member.profileId,
       name: member.displayName,
       photoUrl: member.photoUrl,
-      overall: OVERALL_MIN,
+      overall: cardOverall(cardsQuery.data, member.profileId),
       detail: formatPlaysAs(
         member.playsAs,
         member.primaryPosition,

@@ -2,8 +2,8 @@ import {
   asksPositionDetail,
   groupInOrder,
   LAYER_GROUPS,
-  OVERALL_MIN,
   type TLayerGroupKey,
+  type TMemberCard,
   type TSortPerson,
   type TSortPlayer,
   type TSortTeam,
@@ -13,6 +13,7 @@ import type {
   TSortTeamCardPerson,
 } from "../../components/sort-team-card";
 import type { TSortTeamsProps } from "../../components/sort-teams";
+import { cardOverall } from "../../utils/member-card";
 import { starsLabel } from "../../utils/racha-labels";
 import {
   sortMissingToComplete,
@@ -31,14 +32,15 @@ export type TSortLeaveActionFor = (
 
 const playerView = (
   player: TSortPlayer,
-  leaveActionFor: TSortLeaveActionFor
+  leaveActionFor: TSortLeaveActionFor,
+  cards: ReadonlyMap<string, TMemberCard> | undefined
 ): TSortTeamCardPerson => {
   const detail = sortPositionText(player);
   return {
     key: sortPersonId(player),
     name: player.displayName,
     photoUrl: player.photoUrl,
-    overall: OVERALL_MIN,
+    overall: cardOverall(cards, player.profileId),
     detail,
     stars: player.stars,
     isSuperStar: player.isSuperStar,
@@ -57,12 +59,13 @@ const playerView = (
 
 const goalkeeperView = (
   person: TSortPerson,
-  leaveActionFor: TSortLeaveActionFor
+  leaveActionFor: TSortLeaveActionFor,
+  cards: ReadonlyMap<string, TMemberCard> | undefined
 ): TSortTeamCardPerson => ({
   key: `gk:${sortPersonId(person)}`,
   name: person.displayName,
   photoUrl: person.photoUrl,
-  overall: OVERALL_MIN,
+  overall: cardOverall(cards, person.profileId),
   detail: "Goleiro",
   stars: null,
   isSuperStar: false,
@@ -77,7 +80,8 @@ const playersWord = (count: number) =>
 // a ordem do banco (Estrelas) continua dentro de cada camada
 const layerGroups = (
   players: TSortPlayer[],
-  leaveActionFor: TSortLeaveActionFor
+  leaveActionFor: TSortLeaveActionFor,
+  cards: ReadonlyMap<string, TMemberCard> | undefined
 ) =>
   groupInOrder(
     players,
@@ -86,14 +90,17 @@ const layerGroups = (
   ).map((group) => ({
     key: group.key,
     title: `${group.label} · ${group.members.length}`,
-    players: group.members.map((player) => playerView(player, leaveActionFor)),
+    players: group.members.map((player) =>
+      playerView(player, leaveActionFor, cards)
+    ),
   }));
 
 /** Cartões de Time: a mesma conta para a proposta e para os Times publicados. */
 export function buildTeamCards(
   teams: TSortTeam[],
   outfieldPerTeam: number | null,
-  leaveActionFor: TSortLeaveActionFor
+  leaveActionFor: TSortLeaveActionFor,
+  cards?: ReadonlyMap<string, TMemberCard>
 ): TSortTeamsProps["teams"] {
   // Time 3–7 não tem subdivisão: o card segue sem grupos
   const isLayered =
@@ -127,13 +134,13 @@ export function buildTeamCards(
         missingText: missing > 0 ? sortMissingToComplete(missing) : null,
         headerAccessibilityLabel: header,
         players: team.players.map((player) =>
-          playerView(player, leaveActionFor)
+          playerView(player, leaveActionFor, cards)
         ),
         playerGroups: isLayered
-          ? layerGroups(team.players, leaveActionFor)
+          ? layerGroups(team.players, leaveActionFor, cards)
           : null,
         goalkeeper: team.goalkeeper
-          ? goalkeeperView(team.goalkeeper, leaveActionFor)
+          ? goalkeeperView(team.goalkeeper, leaveActionFor, cards)
           : null,
       };
     });

@@ -1,3 +1,4 @@
+import type { TMemberCard } from "@meu-racha/domain";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Icon, PlayerCard, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
@@ -10,16 +11,22 @@ const CARD_WIDTH = 240;
 
 type TMemberCardViewProps = {
   member: TRachaMember;
+  card: TMemberCard | null;
+  rachaName: string;
 };
 
-export const MemberCardView = ({ member }: TMemberCardViewProps) => (
+export const MemberCardView = ({
+  member,
+  card,
+  rachaName,
+}: TMemberCardViewProps) => (
   <ScrollView
     contentContainerStyle={styles.content}
     showsVerticalScrollIndicator={false}
   >
     <PlayerCard
       width={CARD_WIDTH}
-      {...memberCardProps(member, member.isSuperStar)}
+      {...memberCardProps(member, member.isSuperStar, card, rachaName)}
     />
     {member.role !== "PLAYER" ? <RoleChip role={member.role} /> : null}
     {member.stars !== null ? (

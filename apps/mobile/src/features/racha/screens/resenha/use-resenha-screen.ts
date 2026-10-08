@@ -81,7 +81,12 @@ function posterFromResenha(resenha: TResenha): TResenhaPosterProps {
     infoLine: `${resenha.rachaName} · ${resenha.place} · ${resenhaMatchCount(resenha.matchCount)}`,
     scorers,
     scorerCard: resenha.scorerCard
-      ? memberCardProps(resenha.scorerCard, resenha.scorerCard.isSuperStar)
+      ? memberCardProps(
+          resenha.scorerCard,
+          resenha.scorerCard.isSuperStar,
+          resenha.scorerCard,
+          resenha.rachaName
+        )
       : null,
     topTeam: team
       ? {

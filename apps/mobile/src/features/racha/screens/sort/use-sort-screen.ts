@@ -2,7 +2,6 @@ import {
   asksPositionDetail,
   formatEventWhen,
   formatPlaysAs,
-  OVERALL_MIN,
 } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -24,6 +23,7 @@ import {
   useEventSortOperations,
 } from "../../hooks/use-event-sort";
 import { useRacha } from "../../hooks/use-racha";
+import { cardOverall, useRachaCards } from "../../hooks/use-racha-cards";
 import type { TAttendanceTarget } from "../../racha-types";
 import {
   ATTENDANCE_QUEUE_HINT,
@@ -103,6 +103,8 @@ export function useSortScreen() {
   const userId = session?.userId ?? null;
   const showToast = useToast();
   const { data: racha } = useRacha(id);
+  // a carta é só visual aqui: sem ela, a mini mostra 40 e o Sorteio segue
+  const cardsQuery = useRachaCards(id);
   const eventsQuery = useOpenEvents(id);
   const sortQuery = useEventSort(id, eventId);
   const openMatch = useEventMatch(id, eventId).data?.match ?? null;
@@ -160,6 +162,7 @@ export function useSortScreen() {
   const retry = () => {
     void eventsQuery.refetch();
     void refetchSort();
+    void cardsQuery.refetch();
     if (isProposalEnabled) void refetchProposal();
   };
 
@@ -310,7 +313,7 @@ export function useSortScreen() {
       key: `pending:${person.profileId ?? person.guestId}`,
       name: person.name,
       photoUrl: person.photoUrl,
-      overall: person.overall,
+      overall: cardOverall(cardsQuery.data, person.profileId),
       detail,
       accessibilityLabel: `${person.name}, ${detail}`,
       isSelected: false,
@@ -388,7 +391,7 @@ export function useSortScreen() {
         key: entry.id,
         name: entry.person.displayName,
         photoUrl: entry.person.photoUrl,
-        overall: OVERALL_MIN,
+        overall: cardOverall(cardsQuery.data, entry.person.profileId),
         detail: where,
         accessibilityLabel: `${entry.person.displayName}, ${where}`,
         isSelected,
@@ -409,7 +412,8 @@ export function useSortScreen() {
       teams: buildTeamCards(
         readyProposal.teams,
         outfieldPerTeam,
-        noLeaveAction
+        noLeaveAction,
+        cardsQuery.data
       ),
       goalkeeperRows,
       failureMessage,
@@ -435,7 +439,7 @@ export function useSortScreen() {
         key: `gk:${sortPersonId(entry)}`,
         name: entry.displayName,
         photoUrl: entry.photoUrl,
-        overall: OVERALL_MIN,
+        overall: cardOverall(cardsQuery.data, entry.profileId),
         detail: sortGoalkeeperQueuePosition(entry.queueOrder),
         accessibilityLabel: `${entry.displayName}, ${sortGoalkeeperQueuePosition(entry.queueOrder)}`,
         isSelected: false,
@@ -454,7 +458,7 @@ export function useSortScreen() {
           key: `wait:${person.profileId}`,
           name: person.displayName,
           photoUrl: person.photoUrl,
-          overall: OVERALL_MIN,
+          overall: cardOverall(cardsQuery.data, person.profileId),
           detail: detail,
           accessibilityLabel: `${person.displayName}, ${detail}. ${destination}`,
           isSelected: false,
@@ -481,7 +485,7 @@ export function useSortScreen() {
         key: `left:${sortPersonId(person)}`,
         name: person.displayName,
         photoUrl: person.photoUrl,
-        overall: OVERALL_MIN,
+        overall: cardOverall(cardsQuery.data, person.profileId),
         detail: SORT_LEFT_DETAIL,
         accessibilityLabel: `${person.displayName}, ${SORT_LEFT_DETAIL}. ${destination}`,
         isSelected: false,
@@ -530,7 +534,12 @@ export function useSortScreen() {
       scoreAccessibilityLabel: `${sortScoreLabel(published.balance.score, published.balance.label)}. ${SORT_BALANCE_CONFIRMED}`,
       superWarnings: warnings,
       teams: highlightMoved(
-        buildTeamCards(published.teams, outfieldPerTeam, leaveActionFor),
+        buildTeamCards(
+          published.teams,
+          outfieldPerTeam,
+          leaveActionFor,
+          cardsQuery.data
+        ),
         published.lastBolinhas
       ),
       sections,

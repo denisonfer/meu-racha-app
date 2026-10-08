@@ -10,6 +10,8 @@ export const EditMemberScreen = () => {
     racha,
     member,
     viewMember,
+    viewCard,
+    rachaName,
     adminCount,
     isLoading,
     isError,
@@ -22,7 +24,11 @@ export const EditMemberScreen = () => {
       {isLoading ? (
         <ActivityIndicator color={theme.colors.foreground} />
       ) : viewMember ? (
-        <MemberCardView member={viewMember} />
+        <MemberCardView
+          member={viewMember}
+          card={viewCard}
+          rachaName={rachaName}
+        />
       ) : isError || !racha || !member ? (
         <EmptyState
           title="Não deu pra abrir o membro"

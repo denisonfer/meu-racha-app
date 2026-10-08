@@ -7,13 +7,17 @@ import {
   parseEventMatch,
   parseEventResenha,
   parseMatchFinishPreview,
+  parseMyProfileCard,
   parsePublishedSort,
+  parseRachaCards,
   parseRachaLastResenha,
   parseSortProposal,
   toPositionLayer,
   type TDrawnBolinhas,
   type TEventMatch,
   type TMatchFinishPreview,
+  type TMemberCard,
+  type TMyProfileCard,
   type TPositionDetail,
   type TPublishedSort,
   type TRachaRules,
@@ -55,6 +59,7 @@ import { attendancePaymentNote } from "./utils/racha-messages";
 
 // raise exception chega na message, não no code
 const RAISE_EXCEPTION_CODES = [
+  "not_authenticated",
   "plan_owner_limit",
   "already_resolved",
   "not_allowed",
@@ -1059,6 +1064,20 @@ async function getEventResenha(eventId: string): Promise<TResenha> {
   return parseEventResenha(data, toPhotoUrl);
 }
 
+async function getRachaCards(rachaId: string): Promise<TMemberCard[]> {
+  const { data, error, status } = await supabase.rpc("get_racha_cards", {
+    p_racha_id: rachaId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseRachaCards(data);
+}
+
+async function getMyProfileCard(): Promise<TMyProfileCard | null> {
+  const { data, error, status } = await supabase.rpc("get_my_profile_card");
+  if (error) throw toCodedError(error, status);
+  return parseMyProfileCard(data);
+}
+
 async function getRachaLastResenha(
   rachaId: string
 ): Promise<TResenhaSummary | null> {
@@ -1410,6 +1429,8 @@ export const rachaApi = {
   includeEventSortGuest,
   getEventMatch,
   getEventResenha,
+  getRachaCards,
+  getMyProfileCard,
   getRachaLastResenha,
   startEventMatch,
   pauseEventMatch,

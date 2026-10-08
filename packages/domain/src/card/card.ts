@@ -3,7 +3,7 @@ import { TPlaysAs, TPosition } from "../profile/types";
 export type TCardLevel = "base" | "promessa" | "craque" | "monstro" | "lenda";
 export type TRoleBadge = "DEF" | "MEI" | "ATA" | "TODAS" | "GOL";
 
-// todo mundo começa aqui: é o piso da Temporada e o overall das 5 primeiras Partidas
+// todo mundo começa aqui: é o piso da Temporada e o overall das 3 primeiras Partidas
 export const OVERALL_MIN = 40;
 
 const NAME_MAX = 14;
@@ -16,6 +16,11 @@ export const LEVEL_NAME: Record<TCardLevel, string> = {
   monstro: "Monstro",
   lenda: "Lenda",
 };
+
+// O ano é o da Temporada que o banco já escolheu; o app só escreve o rótulo.
+export function seasonLabel(year: number): string {
+  return `Temporada ${year}`;
+}
 
 export function levelFromOverall(overall: number): TCardLevel {
   if (overall >= 99) return "lenda";

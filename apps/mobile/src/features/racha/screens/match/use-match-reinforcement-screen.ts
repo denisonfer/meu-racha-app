@@ -1,10 +1,11 @@
-import { initialsOf, OVERALL_MIN } from "@meu-racha/domain";
+import { initialsOf } from "@meu-racha/domain";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { AccessibilityInfo } from "react-native";
 import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useEventMatch } from "../../hooks/use-event-match";
 import { useEventMatchActions } from "../../hooks/use-event-match-actions";
+import { cardOverall, useRachaCards } from "../../hooks/use-racha-cards";
 import {
   MATCH_REINFORCE_DRAW_TEAM,
   MATCH_REINFORCE_DRAW_TEAM_RESULT,
@@ -41,6 +42,7 @@ export function useMatchReinforcementScreen() {
       name?: string;
     }>();
   const matchQuery = useEventMatch(id, eventId);
+  const cardsQuery = useRachaCards(id);
   const actions = useEventMatchActions(id, eventId);
   const navigation = useNavigation();
   const showToast = useToast();
@@ -141,7 +143,7 @@ export function useMatchReinforcementScreen() {
       result?.supporting ?? matchReinforceSubtitle(teamNumber, displayName),
     initials: result ? initialsOf(result.name) : "",
     photoUrl: result?.photoUrl ?? null,
-    overall: OVERALL_MIN,
+    overall: cardOverall(cardsQuery.data, profileId || null),
     fromTo: result
       ? `${sortTeamTitle(result.fromTeam)} → ${sortTeamTitle(result.toTeam)}`
       : "",
