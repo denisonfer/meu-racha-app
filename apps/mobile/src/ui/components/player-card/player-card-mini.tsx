@@ -64,6 +64,7 @@ export type TPlayerCardMiniProps = {
   overall: number;
   initials: string;
   photoUri: string | null;
+  showOverall?: boolean;
 };
 
 export const PlayerCardMini = ({
@@ -71,6 +72,7 @@ export const PlayerCardMini = ({
   overall,
   initials,
   photoUri,
+  showOverall = true,
 }: TPlayerCardMiniProps) => {
   const levelId = levelFromOverall(overall);
   const level = CARD_LEVELS[levelId];
@@ -83,7 +85,10 @@ export const PlayerCardMini = ({
   const radius = Math.round(6 * k);
   const cut = Math.round(7 * k);
   const photo = Math.round(34 * k);
-  const photoY = Math.round(5 * k);
+  // sem o Overall, a foto (ou as iniciais) fica no meio do retângulo
+  const photoY = showOverall
+    ? Math.round(5 * k)
+    : Math.round((height - photo) / 2);
   const cx = width / 2;
   const cy = photoY + photo / 2;
   const fontSize = Math.round(13 * k);
@@ -181,17 +186,19 @@ export const PlayerCardMini = ({
           strokeWidth={border}
         />
 
-        <Text
-          x={cx}
-          y={photoY + photo + Math.round(4 * k) + fontSize * 0.85}
-          textAnchor="middle"
-          fontFamily="BarlowCondensed-Bold"
-          fontWeight="700"
-          fontSize={fontSize}
-          fill={level.ink}
-        >
-          {overall}
-        </Text>
+        {showOverall ? (
+          <Text
+            x={cx}
+            y={photoY + photo + Math.round(4 * k) + fontSize * 0.85}
+            textAnchor="middle"
+            fontFamily="BarlowCondensed-Bold"
+            fontWeight="700"
+            fontSize={fontSize}
+            fill={level.ink}
+          >
+            {overall}
+          </Text>
+        ) : null}
       </Svg>
     </View>
   );

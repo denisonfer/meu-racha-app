@@ -22,6 +22,8 @@ import {
   matchFailureMessage,
   positionDetailChoose,
   positionDetailPendingMessage,
+  resenhaSummary,
+  seasonHomeMine,
   sortAttendanceSummary,
   sortErrorMessage,
   sortFailureMessage,
@@ -178,5 +180,47 @@ describe("matchErrorMessage", () => {
       ACTION_FAILED
     );
     expect(matchFailureMessage(new Error("xyz"))).toBe(ACTION_FAILED);
+  });
+});
+
+describe("resenhaSummary", () => {
+  test("zero Partidas", () => {
+    expect(resenhaSummary(0, ["Diego"], 3)).toBe("Nenhuma Partida jogada");
+  });
+
+  test("sem gols", () => {
+    expect(resenhaSummary(4, [], 0)).toBe("4 Partidas · sem gols");
+  });
+
+  test("um nome → artilheiro", () => {
+    expect(resenhaSummary(5, ["Diego"], 3)).toBe(
+      "5 Partidas · artilheiro Diego, 3 gols"
+    );
+  });
+
+  test("dois nomes → artilheiros + namesLine", () => {
+    expect(resenhaSummary(6, ["Diego", "Rafa"], 2)).toBe(
+      "6 Partidas · artilheiros Diego e Rafa, 2 gols"
+    );
+  });
+
+  test("três nomes → artilheiros + namesLine", () => {
+    expect(resenhaSummary(6, ["Diego", "Juninho", "Rafa"], 2)).toBe(
+      "6 Partidas · artilheiros Diego, Juninho e Rafa, 2 gols"
+    );
+  });
+});
+
+describe("seasonHomeMine", () => {
+  test("gols", () => {
+    expect(seasonHomeMine(4, "gols")).toBe("você é 4º em gols");
+  });
+
+  test("assistências", () => {
+    expect(seasonHomeMine(1, "assistências")).toBe("você é 1º em assistências");
+  });
+
+  test("vitórias", () => {
+    expect(seasonHomeMine(10, "vitórias")).toBe("você é 10º em vitórias");
   });
 });

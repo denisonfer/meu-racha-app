@@ -11,6 +11,8 @@ import {
   parsePublishedSort,
   parseRachaCards,
   parseRachaLastResenha,
+  parseSeasonEvents,
+  parseSeasonRanking,
   parseSortProposal,
   toPositionLayer,
   type TDrawnBolinhas,
@@ -1088,6 +1090,22 @@ async function getRachaLastResenha(
   return parseRachaLastResenha(data, toPhotoUrl);
 }
 
+async function getSeasonRanking(rachaId: string) {
+  const { data, error, status } = await supabase.rpc("get_season_ranking", {
+    p_racha_id: rachaId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseSeasonRanking(data, toPhotoUrl);
+}
+
+async function getSeasonEvents(rachaId: string) {
+  const { data, error, status } = await supabase.rpc("get_season_events", {
+    p_racha_id: rachaId,
+  });
+  if (error) throw toCodedError(error, status);
+  return parseSeasonEvents(data);
+}
+
 async function startEventMatch(
   eventId: string,
   homeGoalkeeperId?: string | null,
@@ -1432,6 +1450,8 @@ export const rachaApi = {
   getRachaCards,
   getMyProfileCard,
   getRachaLastResenha,
+  getSeasonRanking,
+  getSeasonEvents,
   startEventMatch,
   pauseEventMatch,
   resumeEventMatch,

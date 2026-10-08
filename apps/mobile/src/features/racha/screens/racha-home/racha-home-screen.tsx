@@ -32,6 +32,7 @@ export const RachaHomeScreen = () => {
     openLogistics,
     eventCard,
     resenhaCard,
+    seasonRow,
     selfPositionNotice,
     showEmptyEvent,
     showCreateEvent,
@@ -168,6 +169,38 @@ export const RachaHomeScreen = () => {
               </Text>
               <Icon name="chevron-right" color="muted" />
             </Pressable>
+
+            {seasonRow ? (
+              <>
+                <View style={styles.divider} />
+                <Pressable
+                  onPress={seasonRow.onOpen}
+                  accessibilityRole="button"
+                  accessibilityLabel={seasonRow.accessibilityLabel}
+                  style={({ pressed }) => [
+                    styles.membersRow,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Icon name="trophy" color="muted" size={22} />
+                  <Text
+                    style={[styles.grow, styles.membersLabel]}
+                    numberOfLines={1}
+                  >
+                    {seasonRow.title}
+                  </Text>
+                  <Text
+                    preset="small"
+                    color="muted"
+                    numberOfLines={1}
+                    style={styles.seasonRight}
+                  >
+                    {seasonRow.right}
+                  </Text>
+                  <Icon name="chevron-right" color="muted" />
+                </Pressable>
+              </>
+            ) : null}
 
             <View style={styles.divider} />
 
@@ -310,6 +343,10 @@ const styles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 24,
     fontVariant: ["tabular-nums"],
+  },
+  seasonRight: {
+    flexShrink: 1,
+    fontFamily: "Manrope-Bold",
   },
   divider: {
     marginHorizontal: theme.space[16],

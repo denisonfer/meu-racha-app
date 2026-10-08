@@ -1687,6 +1687,8 @@ export type Database = {
       get_my_profile_card: { Args: never; Returns: Json };
       get_racha_cards: { Args: { p_racha_id: string }; Returns: Json };
       get_racha_last_resenha: { Args: { p_racha_id: string }; Returns: Json };
+      get_season_events: { Args: { p_racha_id: string }; Returns: Json };
+      get_season_ranking: { Args: { p_racha_id: string }; Returns: Json };
       include_event_sort_guest: {
         Args: {
           p_display_name: string;

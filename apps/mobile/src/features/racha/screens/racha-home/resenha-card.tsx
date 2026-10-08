@@ -6,9 +6,15 @@ export type TResenhaCardProps = {
   title: string;
   summary: string;
   onOpen: () => void;
+  isMuted?: boolean;
 };
 
-export const ResenhaCard = ({ title, summary, onOpen }: TResenhaCardProps) => (
+export const ResenhaCard = ({
+  title,
+  summary,
+  onOpen,
+  isMuted = false,
+}: TResenhaCardProps) => (
   <Pressable
     onPress={onOpen}
     accessibilityRole="button"
@@ -20,7 +26,9 @@ export const ResenhaCard = ({ title, summary, onOpen }: TResenhaCardProps) => (
       <Text preset="small" color="muted" style={styles.bold}>
         {title}
       </Text>
-      <Text style={styles.bold}>{summary}</Text>
+      <Text color={isMuted ? "muted" : "foreground"} style={styles.bold}>
+        {summary}
+      </Text>
     </View>
     <Icon name="chevron-right" color="muted" />
   </Pressable>

@@ -6,6 +6,7 @@ import {
   YELLOW_OUT_MIN,
   MIN_AGE_MAX,
   MIN_AGE_MIN,
+  namesLine,
   RACHA_NAME_MIN,
 } from "@meu-racha/domain";
 import { joinNames } from "./sort-view";
@@ -979,14 +980,51 @@ export const RESENHA_POSTER_FOOTER = "Resenha gerada no app Meu Racha";
 export const RESENHA_POSTER_TOP_SCORER = "ARTILHEIRO DO DIA";
 export const RESENHA_POSTER_NO_GOALS = "DIA SEM GOLS";
 export const RESENHA_POSTER_NOBODY = "Ninguém marcou";
-export const resenhaSummary = (
-  n: number,
-  scorers: string | null,
-  count: number
+export const resenhaSummary = (n: number, scorers: string[], count: number) => {
+  if (n === 0) return RESENHA_NO_MATCH;
+  if (scorers.length === 0) return `${n} Partidas · sem gols`;
+  const word = scorers.length === 1 ? "artilheiro" : "artilheiros";
+  return `${n} Partidas · ${word} ${namesLine(scorers)}, ${count} ${count === 1 ? "gol" : "gols"}`;
+};
+
+export const SEASON_TAB_RANKING = "Ranking";
+export const SEASON_TAB_EVENTS = "Eventos";
+export const SEASON_LIST_GOALS = "Artilheiro";
+export const SEASON_LIST_ASSISTS = "Garçom";
+export const SEASON_LIST_WINS = "Mais vitórias";
+export const SEASON_CAPTION_GOALS = "Gols na Temporada · gol contra não conta";
+export const SEASON_CAPTION_ASSISTS = "Assistências na Temporada";
+export const SEASON_CAPTION_WINS = "Vitórias na Temporada · empate não conta";
+export const SEASON_EMPTY_GOALS = "Ninguém marcou ainda nesta Temporada";
+export const SEASON_EMPTY_ASSISTS =
+  "Ninguém deu assistência ainda nesta Temporada";
+export const SEASON_EMPTY_WINS = "Nenhuma Vitória ainda nesta Temporada";
+export const SEASON_EMPTY_TEXT =
+  "O Ranking atualiza quando o Condutor encerra um Evento.";
+export const SEASON_LOADING = "Carregando o Ranking";
+export const SEASON_LOAD_FAILED = "Não deu pra abrir o Ranking";
+export const SEASON_ME = "VOCÊ";
+export const SEASON_LEFT = "Saiu do Racha";
+export const SEASON_HOME_FALLBACK = "Ranking e Eventos";
+export const SEASON_EVENTS_EMPTY = "Nenhum Evento encerrado nesta Temporada.";
+export const SEASON_EVENTS_EMPTY_TEXT =
+  "Quando o Condutor encerrar um dia de jogo, a Resenha dele aparece aqui.";
+export const SEASON_EVENTS_LOAD_FAILED = "Não deu pra abrir os Eventos";
+export const seasonPosition = (n: number) => `${n}º`;
+export const seasonHomeMine = (
+  position: number,
+  list: "gols" | "assistências" | "vitórias"
+) => `você é ${position}º em ${list}`;
+export const seasonEventTitle = (shortDate: string, place: string) =>
+  `${shortDate} · ${place}`;
+export const seasonRowA11y = (
+  position: number,
+  name: string,
+  isMe: boolean,
+  hasLeft: boolean,
+  value: string
 ) =>
-  n === 0
-    ? RESENHA_NO_MATCH
-    : `${n} Partidas · ${scorers ? `artilheiro ${scorers}, ${count} ${count === 1 ? "gol" : "gols"}` : "sem gols"}`;
+  `${position}º, ${name}${isMe ? ", você" : ""}${hasLeft ? ", saiu do Racha" : ""}, ${value}`;
 export const resenhaMatchCount = (n: number) =>
   n === 0 ? RESENHA_NO_MATCH : `${n} Partidas`;
 export const RESENHA_LOAD_FAILED_TITLE = "Não deu pra abrir a Resenha";

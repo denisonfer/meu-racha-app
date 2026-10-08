@@ -17,6 +17,7 @@ export * from "./icon-button/icon-button";
 export * from "./toast/toast";
 export * from "./player-card";
 export * from "./tab-bar";
+export * from "./segmented-control/segmented-control";
 export * from "./empty-state";
 export * from "./stepper";
 export * from "./option-list";

@@ -1,12 +1,16 @@
 import {
   applyBrlMask,
   asksPositionDetail,
+  bestPlacing,
   canLeaveRacha,
   formatEventWhen,
   formatResenhaCivilDate,
   formatRulesSummary,
   isLayerPending,
-  namesLine,
+  rankRows,
+  seasonLabel,
+  type TSeasonList,
+  type TSeasonRankingMember,
 } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -18,6 +22,7 @@ import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaLastResenha } from "../../hooks/use-racha-last-resenha";
+import { useSeasonRanking } from "../../hooks/use-season-ranking";
 import { TOpenEvent } from "../../racha-types";
 import {
   eventKicker,
@@ -31,9 +36,38 @@ import {
   POSITION_DETAIL_SELF_TITLE,
   positionDetailSelfText,
   resenhaSummary,
+  SEASON_HOME_FALLBACK,
+  seasonHomeMine,
 } from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 import { TEventCardAction } from "./event-card";
+
+const HOME_LIST_WORD: Record<
+  TSeasonList,
+  "gols" | "assistências" | "vitórias"
+> = {
+  goals: "gols",
+  assists: "assistências",
+  wins: "vitórias",
+};
+
+function placingOf(
+  members: TSeasonRankingMember[],
+  list: TSeasonList,
+  userId: string | null
+): number | null {
+  const ranked = rankRows(
+    members.map((member) => ({
+      id: member.profileId,
+      name: member.displayName,
+      value: member[list],
+    })),
+    userId
+  );
+  return (
+    ranked.rows.find((row) => row.isMe)?.position ?? ranked.me?.position ?? null
+  );
+}
 
 export function useRachaHomeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -47,6 +81,7 @@ export function useRachaHomeScreen() {
   } = useRacha(id);
   const eventsQuery = useOpenEvents(id);
   const lastResenhaQuery = useRachaLastResenha(id);
+  const rankingQuery = useSeasonRanking(id);
   const { session } = useSession();
   const { assumeEventConduction } = useAssumeEventConduction(id);
   const showToast = useToast();
@@ -225,13 +260,47 @@ export function useRachaHomeScreen() {
           title: `Resenha · ${lastCivil.weekdayShort} ${lastCivil.dayMonth}`,
           summary: resenhaSummary(
             lastResenha.matchCount,
-            lastResenha.scorers.length ? namesLine(lastResenha.scorers) : null,
+            lastResenha.scorers,
             lastResenha.topGoals
           ),
           onOpen: () =>
             router.push(`/racha/${id}/event/${lastResenha.eventId}/resenha`),
         }
       : null;
+
+  const seasonYear = rankingQuery.data?.seasonYear;
+  const seasonMembers = rankingQuery.data?.members;
+  const best =
+    seasonMembers === undefined
+      ? null
+      : bestPlacing([
+          {
+            list: "goals",
+            position: placingOf(seasonMembers, "goals", userId),
+          },
+          {
+            list: "assists",
+            position: placingOf(seasonMembers, "assists", userId),
+          },
+          {
+            list: "wins",
+            position: placingOf(seasonMembers, "wins", userId),
+          },
+        ]);
+  const mine = best
+    ? seasonHomeMine(best.position, HOME_LIST_WORD[best.list])
+    : null;
+  const seasonRow =
+    seasonYear == null
+      ? null
+      : {
+          title: seasonLabel(seasonYear),
+          right: mine ?? SEASON_HOME_FALLBACK,
+          accessibilityLabel: mine
+            ? `${seasonLabel(seasonYear)}, Ranking e Eventos. ${mine.replace(/^você/, "Você")}`
+            : `${seasonLabel(seasonYear)}, Ranking e Eventos`,
+          onOpen: () => router.push(`/racha/${id}/season`),
+        };
 
   return {
     racha: racha && {
@@ -293,6 +362,7 @@ export function useRachaHomeScreen() {
     },
     selfPositionNotice,
     resenhaCard,
+    seasonRow,
     showEmptyEvent: Boolean(racha && hasEventsData && !shownEvent),
     showCreateEvent,
     eventsMissing: eventsQuery.isError && events === undefined,
@@ -305,6 +375,7 @@ export function useRachaHomeScreen() {
       void refetch();
       void eventsQuery.refetch();
       void lastResenhaQuery.refetch();
+      void rankingQuery.refetch();
     },
     isRetrying: isRefetching || eventsQuery.isRefetching,
     shareInvite: () => racha && shareInvite(racha.name, racha.inviteCode),

@@ -83,6 +83,7 @@ export default function AppLayout() {
       />
       <Stack.Screen name="racha/[id]/event/[eventId]/bolinhas" />
       <Stack.Screen name="racha/[id]/event/[eventId]/resenha" />
+      <Stack.Screen name="racha/[id]/season" />
       {/* sem arrastar para voltar no meio da animação */}
       <Stack.Screen
         name="racha/[id]/event/[eventId]/bolinhas-reveal"

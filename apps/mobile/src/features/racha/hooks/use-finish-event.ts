@@ -4,6 +4,8 @@ import { openEventsKey } from "./use-open-events";
 import { myRachaEventsKey } from "./use-my-racha-events";
 import { myProfileCardKey, rachaCardsKey } from "./use-racha-cards";
 import { rachaLastResenhaKey } from "./use-racha-last-resenha";
+import { seasonEventsKey } from "./use-season-events";
+import { seasonRankingKey } from "./use-season-ranking";
 
 export function useFinishEvent(rachaId: string) {
   const queryClient = useQueryClient();
@@ -38,6 +40,12 @@ export function useFinishEvent(rachaId: string) {
           queryKey: rachaCardsKey(rachaId),
         }),
         queryClient.invalidateQueries({ queryKey: myProfileCardKey }),
+        queryClient.invalidateQueries({
+          queryKey: seasonRankingKey(rachaId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: seasonEventsKey(rachaId),
+        }),
       ]);
     },
   });
