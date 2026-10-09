@@ -43,7 +43,7 @@ export const StepProfile = ({
       <View style={styles.preview}>
         <PlayerCard width={196} {...cardPreview} />
         <Button
-          title={photo.hasPhoto ? "Trocar foto" : "Adicionar foto (opcional)"}
+          title={photo.hasPhoto ? "Trocar foto" : "Adicionar foto"}
           preset="text"
           isLoading={photo.isPicking}
           onPress={photo.pick}

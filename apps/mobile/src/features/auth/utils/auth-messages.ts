@@ -21,8 +21,8 @@ export function signUpErrorMessage(raw: string): string {
 
 export const PHOTO_PICK_ERROR =
   "Essa foto é grande demais ou não é um formato aceito. Mantivemos a anterior.";
-export const PHOTO_UPLOAD_WARNING =
-  "Conta criada, mas não deu pra salvar sua foto. Você vai poder adicionar depois.";
+export const PHOTO_UPLOAD_FAILED =
+  "Não deu pra salvar sua foto. Tente de novo.";
 
 export function signInErrorMessage(raw: string): string {
   if (raw.includes("network_error"))

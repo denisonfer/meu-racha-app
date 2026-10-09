@@ -7,6 +7,7 @@ import {
   ScreenFooter,
 } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { useChangePhoto } from "./use-change-photo";
 import { useProfileScreen } from "./use-profile-screen";
 
 const CARD_WIDTH = 240;
@@ -14,6 +15,7 @@ const CARD_WIDTH = 240;
 export const ProfileScreen = () => {
   const { card, isLoading, retry, isRetrying, signOut, isSigningOut } =
     useProfileScreen();
+  const { changePhoto, isChangingPhoto } = useChangePhoto();
 
   return (
     <Screen title="Perfil" hasTabBar>
@@ -21,7 +23,15 @@ export const ProfileScreen = () => {
         {isLoading ? (
           <ActivityIndicator color={theme.colors.foreground} />
         ) : card ? (
-          <PlayerCard width={CARD_WIDTH} {...card} />
+          <View style={styles.card}>
+            <PlayerCard width={CARD_WIDTH} {...card} />
+            <Button
+              title="Trocar foto"
+              preset="text"
+              isLoading={isChangingPhoto}
+              onPress={changePhoto}
+            />
+          </View>
         ) : (
           <EmptyState
             title="Não deu pra carregar seu perfil"
@@ -51,4 +61,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  card: { alignItems: "center", gap: theme.space[8] },
 });

@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Control, useController } from "react-hook-form";
-import { pickAvatar } from "@/lib/image-picker";
+import { pickAvatar, TPickedImage } from "@/lib/image-picker";
 import { PHOTO_PICK_ERROR } from "../../../utils/auth-messages";
 import { TSignUpFormInput } from "../sign-up-schema";
 
-export function usePhotoPicker(control: Control<TSignUpFormInput>) {
-  const { field } = useController({ control, name: "photo" });
+export function usePhotoPicker(
+  control: Control<TSignUpFormInput>,
+  onPicked?: (photo: TPickedImage) => void
+) {
+  const { field, fieldState } = useController({ control, name: "photo" });
   const [error, setError] = useState<string | null>(null);
   const [isPicking, setIsPicking] = useState(false);
 
@@ -17,6 +20,7 @@ export function usePhotoPicker(control: Control<TSignUpFormInput>) {
       if (!picked) return;
       field.onChange(picked);
       setError(null);
+      onPicked?.(picked);
     } catch {
       setError(PHOTO_PICK_ERROR);
     } finally {
@@ -24,5 +28,10 @@ export function usePhotoPicker(control: Control<TSignUpFormInput>) {
     }
   }
 
-  return { hasPhoto: field.value != null, isPicking, error, pick };
+  return {
+    hasPhoto: field.value != null,
+    isPicking,
+    error: error ?? fieldState.error?.message ?? null,
+    pick,
+  };
 }

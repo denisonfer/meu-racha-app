@@ -33,7 +33,13 @@ export const signUpSchema = z
     playsAs: z.enum(["OUTFIELD", "GOALKEEPER"]),
     primaryPosition: z.enum(POSITIONS).nullable(),
     secondaryPosition: z.enum(POSITIONS).nullable(),
-    photo: z.custom<TPickedImage>().nullable(),
+    // nullable só pelo valor inicial do formulário: sem foto não avança
+    photo: z
+      .custom<TPickedImage>()
+      .nullable()
+      .refine((photo) => photo !== null, {
+        message: "Adicione uma foto para o pessoal do racha te reconhecer",
+      }),
 
     // etapa 3 — guardamos o texto mascarado que a pessoa vê
     birthDate: z
@@ -70,6 +76,6 @@ export type TSignUpForm = z.output<typeof signUpSchema>;
 
 export const stepFields = [
   ["displayName", "email", "password"],
-  ["playsAs", "primaryPosition", "secondaryPosition"],
+  ["playsAs", "primaryPosition", "secondaryPosition", "photo"],
   ["birthDate", "acceptedTerms"],
 ] as const satisfies readonly (readonly (keyof TSignUpForm)[])[];

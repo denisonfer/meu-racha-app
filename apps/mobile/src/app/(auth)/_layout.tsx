@@ -1,9 +1,14 @@
 import { Href, Redirect, Stack, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { takePendingDestination, useSession } from "@/features/auth";
+import {
+  takePendingDestination,
+  usePhotoHold,
+  useSession,
+} from "@/features/auth";
 
 export default function AuthLayout() {
   const { session, isLoading } = useSession();
+  const isPhotoHeld = usePhotoHold();
   const [destination, setDestination] = useState<string | null>();
   const userId = session?.userId;
 
@@ -16,7 +21,8 @@ export default function AuthLayout() {
 
   if (isLoading) return null;
 
-  if (session) {
+  // o Cadastro só entrega a pessoa ao app com a foto salva
+  if (session && !isPhotoHeld) {
     if (destination === undefined) return null;
     return <Redirect href={(destination ?? "/rachas") as Href} />;
   }

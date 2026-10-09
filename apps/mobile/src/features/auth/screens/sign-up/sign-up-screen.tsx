@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { Button, Screen, ScreenFooter, StepIndicator } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { PhotoFailed } from "./photo-failed";
 import { StepAccount, StepProfile, StepTerms } from "./steps";
 import { useSignUpScreen } from "./use-sign-up-screen";
 
@@ -14,10 +15,26 @@ export const SignUpScreen = () => {
     isLastStep,
     isPending,
     isAdvancing,
+    isPhotoFailed,
+    retryPhoto,
+    isRetryingPhoto,
     goForward,
     recoverPassword,
     goBack,
   } = useSignUpScreen();
+
+  if (isPhotoFailed) {
+    return (
+      <Screen title="Cadastro" isScrollable>
+        <Stack.Screen options={{ gestureEnabled: false }} />
+        <PhotoFailed
+          control={control}
+          onRetry={retryPhoto}
+          isRetrying={isRetryingPhoto}
+        />
+      </Screen>
+    );
+  }
 
   return (
     <Screen title="Cadastro" canGoBack onGoBack={goBack} isScrollable>
