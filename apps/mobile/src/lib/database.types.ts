@@ -1276,6 +1276,56 @@ export type Database = {
           },
         ];
       };
+      notification: {
+        Row: {
+          actor_name: string | null;
+          created_at: string;
+          event_id: string | null;
+          id: string;
+          join_request_id: string | null;
+          kind: string;
+          payload: Json;
+          racha_id: string;
+          racha_name: string;
+          recipient_id: string;
+          seen_at: string | null;
+        };
+        Insert: {
+          actor_name?: string | null;
+          created_at?: string;
+          event_id?: string | null;
+          id?: string;
+          join_request_id?: string | null;
+          kind: string;
+          payload?: Json;
+          racha_id: string;
+          racha_name: string;
+          recipient_id: string;
+          seen_at?: string | null;
+        };
+        Update: {
+          actor_name?: string | null;
+          created_at?: string;
+          event_id?: string | null;
+          id?: string;
+          join_request_id?: string | null;
+          kind?: string;
+          payload?: Json;
+          racha_id?: string;
+          racha_name?: string;
+          recipient_id?: string;
+          seen_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notification_recipient_id_fkey";
+            columns: ["recipient_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profile: {
         Row: {
           anonymized_at: string | null;
@@ -1685,10 +1735,12 @@ export type Database = {
         }[];
       };
       get_my_profile_card: { Args: never; Returns: Json };
+      get_notifications: { Args: never; Returns: Json };
       get_racha_cards: { Args: { p_racha_id: string }; Returns: Json };
       get_racha_last_resenha: { Args: { p_racha_id: string }; Returns: Json };
       get_season_events: { Args: { p_racha_id: string }; Returns: Json };
       get_season_ranking: { Args: { p_racha_id: string }; Returns: Json };
+      get_unseen_notifications_count: { Args: never; Returns: number };
       include_event_sort_guest: {
         Args: {
           p_display_name: string;
@@ -1829,6 +1881,7 @@ export type Database = {
           stars: number;
         }[];
       };
+      mark_notifications_seen: { Args: never; Returns: undefined };
       my_racha_role: {
         Args: { p_racha_id: string };
         Returns: Database["public"]["Enums"]["member_role"];

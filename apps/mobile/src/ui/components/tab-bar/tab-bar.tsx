@@ -4,16 +4,29 @@ import { useAppSafeArea } from "@/ui/hooks/use-app-safe-area";
 import { Icon } from "../icon";
 import { TIconName } from "../icon/icon-map";
 import { Text } from "../text/text";
+import { TabBadge } from "./tab-badge";
 
-export type TTabBarTab = { key: string; label: string; icon: TIconName };
+export type TTabBarTab = {
+  key: string;
+  label: string;
+  icon: TIconName;
+  badgeCount?: number;
+};
 
 export type TTabBarProps = {
   tabs: TTabBarTab[];
   activeKey: string;
   onChange: (key: string) => void;
+  // ui/ não importa feature: a barra só desenha o rótulo que a tela calcula.
+  badgeA11y?: (label: string, count: number) => string;
 };
 
-export const TabBar = ({ tabs, activeKey, onChange }: TTabBarProps) => {
+export const TabBar = ({
+  tabs,
+  activeKey,
+  onChange,
+  badgeA11y,
+}: TTabBarProps) => {
   const { bottom } = useAppSafeArea();
 
   return (
@@ -24,20 +37,29 @@ export const TabBar = ({ tabs, activeKey, onChange }: TTabBarProps) => {
       {tabs.map((tab) => {
         const isActive = tab.key === activeKey;
         const color = isActive ? "foreground" : "muted";
+        const badgeCount = tab.badgeCount ?? 0;
+        const showBadge = badgeCount > 0;
 
         return (
           <Pressable
             key={tab.key}
             accessibilityRole="tab"
             accessibilityState={{ selected: isActive }}
-            accessibilityLabel={tab.label}
+            accessibilityLabel={
+              showBadge && badgeA11y
+                ? badgeA11y(tab.label, badgeCount)
+                : tab.label
+            }
             onPress={() => onChange(tab.key)}
             style={({ pressed }) => [styles.tab, pressed && styles.pressed]}
           >
             <View
               style={[styles.indicator, isActive && styles.indicatorActive]}
             />
-            <Icon name={tab.icon} size={24} color={color} />
+            <View>
+              <Icon name={tab.icon} size={24} color={color} />
+              {showBadge ? <TabBadge count={badgeCount} /> : null}
+            </View>
             <Text
               preset="caption"
               color={color}
