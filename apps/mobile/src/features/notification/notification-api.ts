@@ -52,23 +52,21 @@ async function unregisterPushToken(token: string): Promise<void> {
   if (error) throw toCodedError(error, status);
 }
 
-export async function setRachaPushMuted(
-  rachaId: string,
-  muted: boolean
-): Promise<void> {
-  const { error, status } = await supabase.rpc("set_racha_push_muted", {
-    p_racha_id: rachaId,
-    p_muted: muted,
-  });
+// a policy do Perfil só deixa ler a própria linha
+async function getPushEnabled(): Promise<boolean> {
+  const { data, error, status } = await supabase
+    .from("profile")
+    .select("push_enabled")
+    .single();
   if (error) throw toCodedError(error, status);
+  return data.push_enabled;
 }
 
-export async function getRachaPushMuted(rachaId: string): Promise<boolean> {
-  const { data, error, status } = await supabase.rpc("get_racha_push_muted", {
-    p_racha_id: rachaId,
+export async function setPushEnabled(enabled: boolean): Promise<void> {
+  const { error, status } = await supabase.rpc("set_push_enabled", {
+    p_enabled: enabled,
   });
   if (error) throw toCodedError(error, status);
-  return data ?? false;
 }
 
 const openedNotificationSchema = z.object({
@@ -107,7 +105,7 @@ export const notificationApi = {
   markNotificationsSeen,
   registerPushToken,
   unregisterPushToken,
-  setRachaPushMuted,
-  getRachaPushMuted,
+  getPushEnabled,
+  setPushEnabled,
   openNotification,
 };

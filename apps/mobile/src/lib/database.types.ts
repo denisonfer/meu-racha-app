@@ -1336,6 +1336,7 @@ export type Database = {
           id: string;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position: Database["public"]["Enums"]["position"] | null;
+          push_enabled: boolean;
           secondary_position: Database["public"]["Enums"]["position"] | null;
           terms_accepted_at: string;
         };
@@ -1348,6 +1349,7 @@ export type Database = {
           id: string;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
+          push_enabled?: boolean;
           secondary_position?: Database["public"]["Enums"]["position"] | null;
           terms_accepted_at: string;
         };
@@ -1360,6 +1362,7 @@ export type Database = {
           id?: string;
           plays_as?: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
+          push_enabled?: boolean;
           secondary_position?: Database["public"]["Enums"]["position"] | null;
           terms_accepted_at?: string;
         };
@@ -1601,36 +1604,6 @@ export type Database = {
           },
         ];
       };
-      racha_push_mute: {
-        Row: {
-          profile_id: string;
-          racha_id: string;
-        };
-        Insert: {
-          profile_id: string;
-          racha_id: string;
-        };
-        Update: {
-          profile_id?: string;
-          racha_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "racha_push_mute_profile_id_fkey";
-            columns: ["profile_id"];
-            isOneToOne: false;
-            referencedRelation: "profile";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "racha_push_mute_racha_id_fkey";
-            columns: ["racha_id"];
-            isOneToOne: false;
-            referencedRelation: "racha";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       season: {
         Row: {
           closed: boolean;
@@ -1797,7 +1770,6 @@ export type Database = {
       get_notifications: { Args: never; Returns: Json };
       get_racha_cards: { Args: { p_racha_id: string }; Returns: Json };
       get_racha_last_resenha: { Args: { p_racha_id: string }; Returns: Json };
-      get_racha_push_muted: { Args: { p_racha_id: string }; Returns: boolean };
       get_season_events: { Args: { p_racha_id: string }; Returns: Json };
       get_season_ranking: { Args: { p_racha_id: string }; Returns: Json };
       get_unseen_notifications_count: { Args: never; Returns: number };
@@ -2028,10 +2000,7 @@ export type Database = {
         };
         Returns: undefined;
       };
-      set_racha_push_muted: {
-        Args: { p_muted: boolean; p_racha_id: string };
-        Returns: undefined;
-      };
+      set_push_enabled: { Args: { p_enabled: boolean }; Returns: undefined };
       start_event_match: {
         Args: {
           p_away_goalkeeper?: string;

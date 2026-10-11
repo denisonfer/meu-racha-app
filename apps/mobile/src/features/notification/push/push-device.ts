@@ -28,6 +28,31 @@ export async function askPushPermissionOnce(): Promise<boolean> {
   }
 }
 
+export type TPushPermission = {
+  granted: boolean;
+  denied: boolean;
+  canAskAgain: boolean;
+};
+
+export async function getPushPermission(): Promise<TPushPermission> {
+  const { granted, status, canAskAgain } =
+    await Notifications.getPermissionsAsync();
+  return { granted, denied: status === "denied", canAskAgain };
+}
+
+// Pedido pelo toque da pessoa, sem o "uma vez": as Configurações pedem de novo
+// enquanto o sistema deixar.
+export async function requestPushPermission(): Promise<boolean> {
+  try {
+    await ensureAndroidChannel();
+    const asked = await Notifications.requestPermissionsAsync();
+    return asked.granted;
+  } catch (error) {
+    console.warn("push: pedido de permissão falhou", error);
+    return false;
+  }
+}
+
 export function getCurrentPushToken(): string | null {
   return currentToken;
 }

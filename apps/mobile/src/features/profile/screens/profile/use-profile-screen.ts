@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useSignOut } from "@/features/auth";
 import { memberCardProps } from "@/features/racha";
 import { useMyProfileCard } from "../../hooks/use-my-profile-card";
@@ -42,5 +43,6 @@ export function useProfileScreen() {
     isRetrying: isRefetching || cardQuery.isRefetching,
     signOut: () => signOut(),
     isSigningOut,
+    openSettings: () => router.push("/settings"),
   };
 }

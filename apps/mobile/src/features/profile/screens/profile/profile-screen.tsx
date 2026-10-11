@@ -1,24 +1,49 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import {
   Button,
   EmptyState,
+  Icon,
   PlayerCard,
   Screen,
   ScreenFooter,
 } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { SETTINGS_TITLE } from "../../utils/settings-messages";
 import { useChangePhoto } from "./use-change-photo";
 import { useProfileScreen } from "./use-profile-screen";
 
 const CARD_WIDTH = 240;
 
 export const ProfileScreen = () => {
-  const { card, isLoading, retry, isRetrying, signOut, isSigningOut } =
-    useProfileScreen();
+  const {
+    card,
+    isLoading,
+    retry,
+    isRetrying,
+    signOut,
+    isSigningOut,
+    openSettings,
+  } = useProfileScreen();
   const { changePhoto, isChangingPhoto } = useChangePhoto();
 
   return (
-    <Screen title="Perfil" hasTabBar>
+    <Screen
+      title="Perfil"
+      hasTabBar
+      headerRight={
+        <Pressable
+          onPress={openSettings}
+          accessibilityRole="button"
+          accessibilityLabel={SETTINGS_TITLE}
+          style={({ pressed }) => [
+            styles.settingsButton,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Icon name="settings" size={24} />
+        </Pressable>
+      }
+    >
       <View style={styles.content}>
         {isLoading ? (
           <ActivityIndicator color={theme.colors.foreground} />
@@ -62,4 +87,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   card: { alignItems: "center", gap: theme.space[8] },
+  settingsButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: theme.minTouch,
+    height: theme.minTouch,
+    marginVertical: -10,
+    marginRight: -10,
+  },
+  pressed: { opacity: 0.8 },
 });

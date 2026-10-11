@@ -1,48 +1,45 @@
 import { describe, expect, mock, test } from "bun:test";
 import { MutationObserver, QueryClient } from "@tanstack/react-query";
-import { PUSH_MUTE_FAILED } from "../utils/racha-messages";
-import {
-  rachaPushMutedKey,
-  rachaPushMutedOptions,
-} from "./racha-push-muted-options";
+import { PUSH_SAVE_FAILED } from "../../utils/settings-messages";
+import { pushEnabledOptions } from "./push-enabled-options";
 
-const RACHA = "r1";
+const KEY = ["push-enabled"];
 
-function setup(save: (muted: boolean) => Promise<void>) {
+function setup(save: (enabled: boolean) => Promise<void>) {
   const queryClient = new QueryClient({
     defaultOptions: { mutations: { retry: false } },
   });
-  queryClient.setQueryData(rachaPushMutedKey(RACHA), false);
+  queryClient.setQueryData(KEY, true);
   const showError = mock();
   const observer = new MutationObserver(
     queryClient,
-    rachaPushMutedOptions(queryClient, RACHA, save, showError)
+    pushEnabledOptions(queryClient, KEY, save, showError)
   );
   return { queryClient, showError, observer };
 }
 
-describe("rachaPushMutedOptions", () => {
+describe("pushEnabledOptions", () => {
   test("muda na hora, antes da RPC responder", async () => {
     let seenBySave: unknown;
     const { queryClient, observer } = setup(async () => {
-      seenBySave = queryClient.getQueryData(rachaPushMutedKey(RACHA));
+      seenBySave = queryClient.getQueryData(KEY);
     });
-    await observer.mutate(true);
-    expect(seenBySave).toBe(true);
+    await observer.mutate(false);
+    expect(seenBySave).toBe(false);
   });
 
   test("no erro volta o valor e mostra o toast", async () => {
     const { queryClient, showError, observer } = setup(async () => {
       throw new Error("network_error");
     });
-    await observer.mutate(true).catch(() => {});
-    expect(queryClient.getQueryData(rachaPushMutedKey(RACHA))).toBe(false);
-    expect(showError).toHaveBeenCalledWith(PUSH_MUTE_FAILED);
+    await observer.mutate(false).catch(() => {});
+    expect(queryClient.getQueryData(KEY)).toBe(true);
+    expect(showError).toHaveBeenCalledWith(PUSH_SAVE_FAILED);
   });
 
   test("no sucesso não mostra toast", async () => {
     const { showError, observer } = setup(async () => {});
-    await observer.mutate(true);
+    await observer.mutate(false);
     expect(showError).not.toHaveBeenCalled();
   });
 });

@@ -1,26 +1,9 @@
 import { Control } from "react-hook-form";
-import * as WebBrowser from "expo-web-browser";
 import { StyleSheet, View } from "react-native";
+import { openWebPage } from "@/lib/open-web-page";
 import { FormCheckbox, FormInput, Text, TextLink } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { TSignUpFormInput } from "../sign-up-schema";
-
-/**
- * Sai do código porque o endereço muda de mão: primeiro o subdomínio grátis do
- * Pages, depois o domínio próprio. O padrão é o domínio final para nenhuma
- * build sem env ficar com link morto.
- */
-const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? "https://meuracha.app";
-
-/**
- * Abre por cima do cadastro, não no navegador do sistema: sair do app no meio
- * do formulário é o caminho mais curto para a pessoa não voltar.
- */
-const openPage = (path: string) =>
-  void WebBrowser.openBrowserAsync(`${WEB_URL}${path}`, {
-    toolbarColor: theme.colors.background,
-    controlsColor: theme.colors.action,
-  });
 
 export const StepTerms = ({
   control,
@@ -49,11 +32,14 @@ export const StepTerms = ({
         label={
           <Text preset="small" style={styles.terms}>
             Li e aceito os{" "}
-            <TextLink preset="small" onPress={() => openPage("/termos")}>
+            <TextLink preset="small" onPress={() => openWebPage("/termos")}>
               Termos de Uso
             </TextLink>{" "}
             e a{" "}
-            <TextLink preset="small" onPress={() => openPage("/privacidade")}>
+            <TextLink
+              preset="small"
+              onPress={() => openWebPage("/privacidade")}
+            >
               Política de Privacidade
             </TextLink>
             .

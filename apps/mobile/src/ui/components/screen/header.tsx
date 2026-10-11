@@ -24,6 +24,9 @@ export const Header = ({
   }
 
   const isVisibleLabelGoBack = !title && !headerComponent;
+  // Sem voltar, o espaçador da esquerda equilibra o botão da direita (44 com
+  // margem de -10) para o título ficar no centro.
+  const balancesHeaderRight = Boolean(title && headerRight && !canGoBack);
 
   return (
     <View style={styles.container}>
@@ -44,14 +47,16 @@ export const Header = ({
           {isVisibleLabelGoBack ? <Text>Voltar</Text> : null}
         </Pressable>
       ) : (
-        <View style={styles.spacer} />
+        <View
+          style={balancesHeaderRight ? styles.headerRightSpacer : styles.spacer}
+        />
       )}
 
       {headerComponent}
 
       {title ? <Text preset="h3">{title}</Text> : null}
 
-      {title && <View style={styles.spacer} />}
+      {title && !balancesHeaderRight && <View style={styles.spacer} />}
 
       {headerRight}
     </View>
@@ -72,5 +77,8 @@ const styles = StyleSheet.create({
   },
   spacer: {
     width: theme.space[24],
+  },
+  headerRightSpacer: {
+    width: theme.minTouch - 10,
   },
 });

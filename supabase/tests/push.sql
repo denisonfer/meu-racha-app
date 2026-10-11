@@ -1,4 +1,4 @@
--- Push: tokens, silêncio, toque e o corpo que o gatilho põe na fila do pg_net.
+-- Push: tokens, chave da conta, toque e o corpo que o gatilho põe na fila do pg_net.
 -- Rode com: docker exec -i supabase_db_meu-racha-app psql -U postgres -d postgres -v ON_ERROR_STOP=1 -f - < supabase/tests/push.sql
 begin;
 
@@ -229,7 +229,7 @@ begin
 end $$;
 
 -- ============================================================
--- Casos 8 e 9. Silêncio por Racha, sem tocar no outro Racha
+-- Chave da conta: desligada, nenhum Racha manda push
 -- ============================================================
 do $$
 declare
@@ -247,49 +247,36 @@ begin
     ((vb ->> 'racha')::uuid, v_person, 'PLAYER', 'OUTFIELD', 'ANY', 3);
   perform pg_temp.token(v_person, 'ExponentPushToken[dois-rachas]');
 
+  perform pg_temp.assert_that(
+    (select p.push_enabled from public.profile p where p.id = v_person),
+    'Perfil novo começa com a chave ligada'
+  );
+
   perform pg_temp.as_(v_person);
-  perform pg_temp.assert_that(
-    not public.get_racha_push_muted((va ->> 'racha')::uuid),
-    'sem linha, o Racha não está silenciado'
-  );
-  perform public.set_racha_push_muted((va ->> 'racha')::uuid, true);
-  perform public.set_racha_push_muted((va ->> 'racha')::uuid, true);
-  perform pg_temp.assert_that(
-    public.get_racha_push_muted((va ->> 'racha')::uuid)
-    and not public.get_racha_push_muted((vb ->> 'racha')::uuid),
-    'silenciar A não silencia B, e silenciar duas vezes não quebra'
-  );
+  perform public.set_push_enabled(false);
 
   v_mark := pg_temp.queue_mark();
   perform pg_temp.as_((va ->> 'owner')::uuid);
-  perform pg_temp.new_event((va ->> 'racha')::uuid, 21);
-  perform pg_temp.assert_that(
-    exists (select 1 from public.notification n
-      where n.recipient_id = v_person and n.racha_id = (va ->> 'racha')::uuid)
-    and not exists (select 1 from pg_temp.queued(v_mark)),
-    'Racha silenciado: o Aviso fica na aba e nada vai para a fila'
-  );
-
-  v_mark := pg_temp.queue_mark();
+  perform pg_temp.aviso(v_person, (va ->> 'racha')::uuid);
   perform pg_temp.as_((vb ->> 'owner')::uuid);
-  perform pg_temp.new_event((vb ->> 'racha')::uuid, 21);
+  perform pg_temp.aviso(v_person, (vb ->> 'racha')::uuid);
   perform pg_temp.assert_that(
-    (select count(*) from pg_temp.items(v_mark) i
-      where i ->> 'token' = 'ExponentPushToken[dois-rachas]'
-        and i #>> '{notification,racha_id}' = vb ->> 'racha') = 1,
-    'o outro Racha da mesma pessoa continua mandando push'
+    (select count(*) from public.notification n where n.recipient_id = v_person) = 2
+    and not exists (select 1 from pg_temp.queued(v_mark)),
+    'chave desligada: os Avisos dos dois Rachas ficam na aba e nada vai para a fila'
   );
 
   perform pg_temp.as_(v_person);
-  perform public.set_racha_push_muted((va ->> 'racha')::uuid, false);
+  perform public.set_push_enabled(true);
   v_mark := pg_temp.queue_mark();
   perform pg_temp.as_((va ->> 'owner')::uuid);
   perform pg_temp.aviso(v_person, (va ->> 'racha')::uuid);
   perform pg_temp.assert_that(
-    (select count(*) from pg_temp.items(v_mark)) = 1,
-    'religado, o próximo Aviso sai'
+    (select count(*) from pg_temp.items(v_mark) i
+      where i ->> 'token' = 'ExponentPushToken[dois-rachas]') = 1,
+    'religada, o próximo Aviso sai'
   );
-  raise notice 'PASS: silêncio vale só para o Racha silenciado';
+  raise notice 'PASS: chave desligada corta o push de todos os Rachas, e religar volta';
 end $$;
 
 -- ============================================================
@@ -407,7 +394,7 @@ begin
 end $$;
 
 -- ============================================================
--- Caso 18. Ninguém apaga nem silencia pelo outro
+-- Caso 18. Ninguém apaga token nem mexe na chave do outro
 -- ============================================================
 do $$
 declare
@@ -427,9 +414,11 @@ begin
       where t.token = 'ExponentPushToken[do-dono]' and t.profile_id = v_owner),
     'unregister_push_token com token alheio não apaga'
   );
+  perform public.set_push_enabled(false);
   perform pg_temp.assert_that(
-    pg_temp.err(format('select public.set_racha_push_muted(%L, true)', v ->> 'racha')) = 'not_allowed',
-    'set_racha_push_muted de quem não é Membro dá not_allowed'
+    (select p.push_enabled from public.profile p where p.id = v_owner)
+    and not (select p.push_enabled from public.profile p where p.id = v_outsider),
+    'set_push_enabled muda só o próprio Perfil'
   );
 
   perform pg_temp.as_(v_owner);
@@ -444,11 +433,11 @@ begin
   perform pg_temp.assert_that(
     pg_temp.err($q$select public.register_push_token('ExponentPushToken[x]', 'ios')$q$) = 'not_allowed'
     and pg_temp.err($q$select public.unregister_push_token('ExponentPushToken[x]')$q$) = 'not_allowed'
-    and pg_temp.err(format('select public.get_racha_push_muted(%L)', v ->> 'racha')) = 'not_allowed'
+    and pg_temp.err($q$select public.set_push_enabled(false)$q$) = 'not_allowed'
     and pg_temp.err(format('select public.open_notification(%L)', gen_random_uuid())) = 'not_allowed',
     'sem sessão, as RPCs do push dão not_allowed'
   );
-  raise notice 'PASS: ninguém apaga token nem silencia pelo outro';
+  raise notice 'PASS: ninguém apaga token nem mexe na chave do outro';
 end $$;
 
 -- ============================================================
@@ -506,7 +495,6 @@ begin
     (select n.seen_at from public.notification n where n.id = v_first) = v_seen,
     'tocar de novo não muda o seen_at'
   );
-  perform public.set_racha_push_muted(v_racha, true);
 
   -- Fora do Racha e com o Racha excluído, o destino segue o get_notifications.
   perform pg_temp.as_(v_owner);
@@ -524,10 +512,6 @@ begin
     and (select x ->> 'target' from jsonb_array_elements(public.get_notifications()) x
       where x ->> 'id' = v_second::text) = 'racha_deleted',
     'Racha excluído: racha_deleted no toque e na aba'
-  );
-  perform pg_temp.assert_that(
-    not exists (select 1 from public.racha_push_mute pm where pm.racha_id = v_racha),
-    'excluir o Racha apaga os silêncios dele'
   );
   raise notice 'PASS: open_notification marca só aquele Aviso e devolve o destino da aba';
 end $$;
