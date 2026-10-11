@@ -1,4 +1,10 @@
-import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Switch,
+  View,
+} from "react-native";
 import {
   Button,
   EmptyState,
@@ -12,6 +18,7 @@ import { RulesSummary } from "../../components/rules-summary";
 import {
   CONDUCTOR_CANNOT_LEAVE,
   OWNER_HINT_TO_LEAVE,
+  PUSH_ROW_LABEL,
 } from "../../utils/racha-messages";
 import { EventCard } from "./event-card";
 import { InviteCard } from "./invite-card";
@@ -33,6 +40,7 @@ export const RachaHomeScreen = () => {
     eventCard,
     resenhaCard,
     seasonRow,
+    pushRow,
     selfPositionNotice,
     showEmptyEvent,
     showCreateEvent,
@@ -169,6 +177,27 @@ export const RachaHomeScreen = () => {
               </Text>
               <Icon name="chevron-right" color="muted" />
             </Pressable>
+
+            <View style={styles.divider} />
+            <View style={styles.membersRow}>
+              <Icon name="notification" color="muted" size={22} />
+              <Text style={[styles.grow, styles.membersLabel]}>
+                {PUSH_ROW_LABEL}
+              </Text>
+              <Switch
+                value={pushRow.enabled}
+                onValueChange={pushRow.onToggle}
+                accessibilityLabel={PUSH_ROW_LABEL}
+                trackColor={{
+                  false: theme.colors.mutedDisabled,
+                  true: theme.colors.action,
+                }}
+                thumbColor={
+                  pushRow.enabled ? theme.colors.onAction : theme.colors.muted
+                }
+                ios_backgroundColor={theme.colors.mutedDisabled}
+              />
+            </View>
 
             {seasonRow ? (
               <>

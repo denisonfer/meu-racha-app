@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "920634237878",
+    "project_id": "meu-racha-2c94a",
+    "storage_bucket": "meu-racha-2c94a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920634237878:android:69783ad5ffb34344e95717",
+        "android_client_info": {
+          "package_name": "app.meuracha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaaS9QhEp7Z1ALLI-wRpuRYsMrVYAGBzg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

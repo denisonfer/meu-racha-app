@@ -7,7 +7,6 @@ const EVENT = "e1";
 const home = `/racha/${RACHA}`;
 const requests = `/racha/${RACHA}/requests`;
 const sort = `/racha/${RACHA}/event/${EVENT}/sort`;
-const match = `/racha/${RACHA}/event/${EVENT}/match`;
 const resenha = `/racha/${RACHA}/event/${EVENT}/resenha`;
 
 describe("notificationHref", () => {
@@ -103,26 +102,7 @@ describe("notificationHref", () => {
     ).toBe(resenha);
   });
 
-  test("condução abre a Partida, ou a Resenha se o evento acabou", () => {
-    expect(
-      notificationHref({
-        kind: "conduction_taken",
-        target: "available",
-        rachaId: RACHA,
-        eventId: EVENT,
-      })
-    ).toBe(match);
-    expect(
-      notificationHref({
-        kind: "conduction_taken",
-        target: "event_finished",
-        rachaId: RACHA,
-        eventId: EVENT,
-      })
-    ).toBe(resenha);
-  });
-
-  test("sem eventId, Times e Partida não abrem", () => {
+  test("sem eventId, Times não abrem", () => {
     expect(
       notificationHref({
         kind: "sort_confirmed",
@@ -139,26 +119,32 @@ describe("notificationHref", () => {
         eventId: null,
       })
     ).toBeNull();
-    expect(
-      notificationHref({
-        kind: "conduction_taken",
-        target: "event_finished",
-        rachaId: RACHA,
-        eventId: null,
-      })
-    ).toBeNull();
   });
 
+  test.each(["event_created", "waitlist_promoted"] as const)(
+    "%s abre a home do Racha",
+    (kind) => {
+      expect(
+        notificationHref({
+          kind,
+          target: "available",
+          rachaId: RACHA,
+          eventId: EVENT,
+        })
+      ).toBe(home);
+    }
+  );
+
+  // Decisão de 11/10/2026: o que só informa não leva a lugar nenhum.
   test.each([
     "join_approved",
-    "event_created",
     "event_changed",
     "event_cancelled",
     "role_changed",
     "ownership_transferred",
-    "waitlist_promoted",
+    "conduction_taken",
     "credit_created",
-  ] as const)("%s abre a home do Racha", (kind) => {
+  ] as const)("%s só informa, não abre", (kind) => {
     expect(
       notificationHref({
         kind,
@@ -166,6 +152,6 @@ describe("notificationHref", () => {
         rachaId: RACHA,
         eventId: EVENT,
       })
-    ).toBe(home);
+    ).toBeNull();
   });
 });

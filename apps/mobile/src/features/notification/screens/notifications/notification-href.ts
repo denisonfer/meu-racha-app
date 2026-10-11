@@ -24,24 +24,21 @@ export function notificationHref(
   notice: TNotificationHrefInput
 ): string | null {
   if (notificationIsUnavailable(notice.target)) return null;
-  if (notice.kind === "join_refused" || notice.kind === "expelled") {
-    return null;
-  }
-  if (notice.kind === "join_request") {
-    return `/racha/${notice.rachaId}/requests`;
-  }
 
-  const finished = notice.target === "event_finished";
-  if (notice.kind === "sort_confirmed" || notice.kind === "team_changed") {
-    if (!notice.eventId) return null;
-    const leaf = finished ? "resenha" : "sort";
-    return `/racha/${notice.rachaId}/event/${notice.eventId}/${leaf}`;
+  // Só navega o Aviso que pede ação lá; o resto só informa.
+  switch (notice.kind) {
+    case "join_request":
+      return `/racha/${notice.rachaId}/requests`;
+    case "event_created":
+    case "waitlist_promoted":
+      return `/racha/${notice.rachaId}`;
+    case "sort_confirmed":
+    case "team_changed": {
+      if (!notice.eventId) return null;
+      const leaf = notice.target === "event_finished" ? "resenha" : "sort";
+      return `/racha/${notice.rachaId}/event/${notice.eventId}/${leaf}`;
+    }
+    default:
+      return null;
   }
-  if (notice.kind === "conduction_taken") {
-    if (!notice.eventId) return null;
-    const leaf = finished ? "resenha" : "match";
-    return `/racha/${notice.rachaId}/event/${notice.eventId}/${leaf}`;
-  }
-
-  return `/racha/${notice.rachaId}`;
 }

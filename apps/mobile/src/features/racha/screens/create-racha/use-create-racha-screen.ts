@@ -1,5 +1,9 @@
 import { DEFAULT_MIN_AGE, DEFAULT_RACHA_RULES } from "@meu-racha/domain";
 import { router } from "expo-router";
+import {
+  askPushPermissionOnce,
+  registerPushToken,
+} from "@/features/notification";
 import { useCreateRacha } from "../../hooks/use-create-racha";
 import { useCreateRachaForm } from "../../hooks/use-racha-form";
 import { useMyRachas } from "../../hooks/use-my-rachas";
@@ -36,6 +40,9 @@ export function useCreateRachaScreen() {
 
   const onValid = async (values: TCreateRachaForm) => {
     const { id } = await createRacha(values);
+    void askPushPermissionOnce().then((granted) =>
+      granted ? registerPushToken() : undefined
+    );
     router.replace(`/racha/${id}`);
   };
 

@@ -1,2 +1,3 @@
 bun.lock
 node_modules
+supabase/functions/_shared/domain-push.js

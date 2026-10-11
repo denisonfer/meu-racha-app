@@ -13,13 +13,17 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# Native (CNG: geradas pelo prebuild a partir do app.json)
+/ios
+/android
 *.orig.*
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+# chave da conta de serviço do FCM: vai só para o Expo, nunca para o git
+*-firebase-adminsdk-*.json
 
 # Metro
 .metro-health-check*

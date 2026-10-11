@@ -6,6 +6,10 @@ import {
 } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
+import {
+  askPushPermissionOnce,
+  registerPushToken,
+} from "@/features/notification";
 import { useToast } from "@/ui/components";
 import { useCancelJoinRequest } from "../../hooks/use-cancel-join-request";
 import { useInvite } from "../../hooks/use-invite";
@@ -109,6 +113,9 @@ export function useJoinRachaScreen() {
         asksDetail
           ? { primary: choice("primary"), secondary: choice("secondary") }
           : undefined
+      );
+      void askPushPermissionOnce().then((granted) =>
+        granted ? registerPushToken() : undefined
       );
       router.dismissTo("/rachas");
     } catch (error) {

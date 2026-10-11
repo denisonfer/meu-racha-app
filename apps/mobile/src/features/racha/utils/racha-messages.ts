@@ -1035,3 +1035,10 @@ export const resenhaAssistUnit = (n: number) =>
   n === 1 ? "assistência" : "assistências";
 export const resenhaWinUnit = (n: number) => (n === 1 ? "Vitória" : "Vitórias");
 export const resenhaTeamName = (n: number) => `Time ${n}`;
+
+export const PUSH_ROW_LABEL = "Avisos no celular";
+export const PUSH_MUTE_FAILED = "Não foi possível salvar. Tente de novo.";
+// o NoticeBanner só mostra a ação com título: a frase aprovada foi dividida
+export const PUSH_DENIED_TITLE = "Sem avisos no celular";
+export const PUSH_DENIED_TEXT = "Você só vê novos pedidos quando abrir o app.";
+export const PUSH_DENIED_ACTION = "Ativar nos Ajustes";

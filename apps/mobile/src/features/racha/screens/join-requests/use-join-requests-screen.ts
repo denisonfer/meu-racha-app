@@ -2,6 +2,8 @@ import { formatAge, formatPlaysAs, isBelowMinAge } from "@meu-racha/domain";
 import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useEffectEvent } from "react";
+import { Linking } from "react-native";
+import { usePushPermissionDenied } from "@/features/notification";
 import { useToast } from "@/ui/components";
 import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { rachaKey, useRacha } from "../../hooks/use-racha";
@@ -24,6 +26,7 @@ export function useJoinRequestsScreen() {
   const queryClient = useQueryClient();
 
   const hasRachaAccess = useHasRachaAccess(id);
+  const pushDenied = usePushPermissionDenied();
 
   const notifyNotAllowed = useEffectEvent(async () => {
     if (await hasRachaAccess()) showToast(REQUESTS_NOT_ALLOWED);
@@ -87,5 +90,8 @@ export function useJoinRequestsScreen() {
     retry: () => void requestsQuery.refetch(),
     isRetrying: requestsQuery.isRefetching,
     shareInvite: () => racha && shareInvite(racha.name, racha.inviteCode),
+    showPushDenied:
+      pushDenied && (racha?.role === "OWNER" || racha?.role === "ADMIN"),
+    openSettings: () => void Linking.openSettings(),
   };
 }

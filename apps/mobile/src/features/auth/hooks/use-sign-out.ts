@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { unregisterPushToken } from "@/features/notification";
 import { useToast } from "@/ui/components";
 import { authApi } from "../auth-api";
 import { setSigningOut } from "../utils/pending-destination";
@@ -10,6 +11,10 @@ export function useSignOut() {
   const mutation = useMutation({
     mutationFn: async () => {
       setSigningOut(true);
+      // depois do signOut não há sessão para a RPC; sem rede, sai mesmo assim
+      try {
+        await unregisterPushToken();
+      } catch {}
       try {
         await authApi.signOut();
       } catch (error) {

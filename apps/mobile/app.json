@@ -8,7 +8,8 @@
     "scheme": "meuracha",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "app.meuracha"
+      "bundleIdentifier": "app.meuracha",
+      "appleTeamId": "F7MJN7SK3C"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "app.meuracha"
+      "package": "app.meuracha",
+      "googleServicesFile": "./google-services.json"
     },
     "plugins": [
       "expo-router",
@@ -48,11 +50,26 @@
           "cameraPermission": false,
           "microphonePermission": false
         }
-      ]
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#07180F"
+        }
+      ],
+      "./plugins/with-scene-delegate.js"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6ec030d4-a09c-4d60-afad-0c18b4e226d0"
+      }
+    },
+    "owner": "filubilce"
   }
 }

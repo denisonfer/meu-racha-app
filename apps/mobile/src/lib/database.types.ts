@@ -1365,6 +1365,35 @@ export type Database = {
         };
         Relationships: [];
       };
+      push_token: {
+        Row: {
+          platform: string;
+          profile_id: string;
+          token: string;
+          updated_at: string;
+        };
+        Insert: {
+          platform: string;
+          profile_id: string;
+          token: string;
+          updated_at?: string;
+        };
+        Update: {
+          platform?: string;
+          profile_id?: string;
+          token?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "push_token_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       racha: {
         Row: {
           consider_position: boolean;
@@ -1572,6 +1601,36 @@ export type Database = {
           },
         ];
       };
+      racha_push_mute: {
+        Row: {
+          profile_id: string;
+          racha_id: string;
+        };
+        Insert: {
+          profile_id: string;
+          racha_id: string;
+        };
+        Update: {
+          profile_id?: string;
+          racha_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "racha_push_mute_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "racha_push_mute_racha_id_fkey";
+            columns: ["racha_id"];
+            isOneToOne: false;
+            referencedRelation: "racha";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       season: {
         Row: {
           closed: boolean;
@@ -1738,6 +1797,7 @@ export type Database = {
       get_notifications: { Args: never; Returns: Json };
       get_racha_cards: { Args: { p_racha_id: string }; Returns: Json };
       get_racha_last_resenha: { Args: { p_racha_id: string }; Returns: Json };
+      get_racha_push_muted: { Args: { p_racha_id: string }; Returns: boolean };
       get_season_events: { Args: { p_racha_id: string }; Returns: Json };
       get_season_ranking: { Args: { p_racha_id: string }; Returns: Json };
       get_unseen_notifications_count: { Args: never; Returns: number };
@@ -1886,6 +1946,7 @@ export type Database = {
         Args: { p_racha_id: string };
         Returns: Database["public"]["Enums"]["member_role"];
       };
+      open_notification: { Args: { p_id: string }; Returns: Json };
       pause_event_match: { Args: { p_match_id: string }; Returns: Json };
       prepare_event_sort: { Args: { p_event_id: string }; Returns: Json };
       preview_finish_event_match: {
@@ -1898,6 +1959,10 @@ export type Database = {
       };
       refuse_join_request: {
         Args: { p_request_id: string };
+        Returns: undefined;
+      };
+      register_push_token: {
+        Args: { p_platform: string; p_token: string };
         Returns: undefined;
       };
       reinforce_event_match: {
@@ -1963,6 +2028,10 @@ export type Database = {
         };
         Returns: undefined;
       };
+      set_racha_push_muted: {
+        Args: { p_muted: boolean; p_racha_id: string };
+        Returns: undefined;
+      };
       start_event_match: {
         Args: {
           p_away_goalkeeper?: string;
@@ -1988,6 +2057,7 @@ export type Database = {
         Args: { p_profile_id: string; p_racha_id: string };
         Returns: undefined;
       };
+      unregister_push_token: { Args: { p_token: string }; Returns: undefined };
       update_event: {
         Args: {
           p_event_id: string;

@@ -1,4 +1,5 @@
 import { useFonts } from "expo-font";
+import * as Notifications from "expo-notifications";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { queryClient } from "@/lib/query-client";
@@ -6,6 +7,16 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ToastProvider } from "@/ui/components";
 
 SplashScreen.preventAutoHideAsync();
+
+// Com o app aberto o banner também aparece (decisão do dono, 10/10/2026).
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({

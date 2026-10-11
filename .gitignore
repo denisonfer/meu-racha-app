@@ -44,3 +44,6 @@ example
 
 # Rascunhos locais (seeds, scripts e senhas de teste)
 .scratch/
+
+# Segredo local da Edge Function send-push
+supabase/functions/.env

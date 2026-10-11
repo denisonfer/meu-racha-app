@@ -54,3 +54,23 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Push local
+
+O gatilho de push só chama a Edge Function `send-push` quando o Vault tem os dois segredos. Sem eles, o Aviso é gravado e nenhum push sai.
+
+1. Crie `supabase/functions/.env` (fica fora do git) com o segredo que a função confere:
+
+   ```bash
+   echo "PUSH_FUNCTION_SECRET=$(openssl rand -hex 24)" > supabase/functions/.env
+   ```
+
+2. Grave no Vault a URL da função e o mesmo segredo:
+
+   ```bash
+   docker exec -i supabase_db_meu-racha-app psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+     -v secret="$(grep PUSH_FUNCTION_SECRET supabase/functions/.env | cut -d= -f2)" \
+     -f - < supabase/snippets/push_local_secrets.sql
+   ```
+
+Depois, `bunx supabase functions serve` sobe a função. A função usa o domínio por `supabase/functions/_shared/domain-push.js`, gerado por `bun functions:build`; o `bun test` falha se ele estiver desatualizado.

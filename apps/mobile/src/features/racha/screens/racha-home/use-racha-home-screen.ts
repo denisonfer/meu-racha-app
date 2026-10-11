@@ -22,6 +22,7 @@ import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { useOpenEvents } from "../../hooks/use-open-events";
 import { useRacha } from "../../hooks/use-racha";
 import { useRachaLastResenha } from "../../hooks/use-racha-last-resenha";
+import { useRachaPushMuted } from "../../hooks/use-racha-push-muted";
 import { useSeasonRanking } from "../../hooks/use-season-ranking";
 import { TOpenEvent } from "../../racha-types";
 import {
@@ -87,6 +88,7 @@ export function useRachaHomeScreen() {
   const showToast = useToast();
   const [isPreparingSort, setIsPreparingSort] = useState(false);
   const isNoAccess = useLeaveOnNoAccess(error, fetchStatus, id);
+  const pushMuted = useRachaPushMuted(id);
 
   const userId = session?.userId ?? null;
   const events = eventsQuery.data;
@@ -363,6 +365,11 @@ export function useRachaHomeScreen() {
     selfPositionNotice,
     resenhaCard,
     seasonRow,
+    // ligado = não silenciado
+    pushRow: {
+      enabled: !pushMuted.muted,
+      onToggle: (enabled: boolean) => pushMuted.setMuted(!enabled),
+    },
     showEmptyEvent: Boolean(racha && hasEventsData && !shownEvent),
     showCreateEvent,
     eventsMissing: eventsQuery.isError && events === undefined,

@@ -1,5 +1,6 @@
 import { Redirect, Stack, usePathname } from "expo-router";
 import { savePendingDestination, useSession } from "@/features/auth";
+import { usePush } from "@/features/notification";
 import { BOTTOM_SHEET_SCREEN_OPTIONS } from "@/ui/components";
 
 // sem âncora, a folha (1ª declarada) viraria a raiz da pilha
@@ -11,6 +12,7 @@ export default function AppLayout() {
   const { session, isLoading } = useSession();
   // só o caminho: nenhuma rota de (app) usa parâmetros de busca
   const pathname = usePathname();
+  usePush(session?.userId ?? null);
 
   if (isLoading) return null;
   if (!session) {
