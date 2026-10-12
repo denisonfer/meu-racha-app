@@ -2,6 +2,8 @@ import { Pressable, StyleSheet, Switch, View } from "react-native";
 import { Icon, NoticeBanner, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import {
+  DELETE_ACCOUNT,
+  DELETE_ACCOUNT_HINT,
   PUSH_DENIED_SETTINGS_TEXT,
   PUSH_DENIED_TITLE,
   PUSH_OPEN_SETTINGS,
@@ -12,6 +14,7 @@ import {
   PUSH_UNASKED_TEXT,
   PUSH_UNASKED_TITLE,
   SETTINGS_ABOUT,
+  SETTINGS_ACCOUNT,
   SETTINGS_NOTIFICATIONS,
   SETTINGS_PRIVACY,
   SETTINGS_TERMS,
@@ -30,6 +33,7 @@ export const SettingsScreen = () => {
     askPermission,
     openTerms,
     openPrivacy,
+    openDeleteAccount,
     version,
   } = useSettingsScreen();
   const pushText = pushEnabled ? PUSH_ROW_ON : PUSH_ROW_OFF;
@@ -114,6 +118,25 @@ export const SettingsScreen = () => {
                 {SETTINGS_PRIVACY}
               </Text>
               <Icon name="chevron-right" color="muted" />
+            </Pressable>
+          </View>
+        </View>
+
+        <View>
+          <Text color="muted" style={styles.sectionTitle}>
+            {SETTINGS_ACCOUNT}
+          </Text>
+          <View style={styles.card}>
+            <Pressable
+              onPress={openDeleteAccount}
+              accessibilityRole="button"
+              accessibilityLabel={DELETE_ACCOUNT}
+              accessibilityHint={DELETE_ACCOUNT_HINT}
+              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+            >
+              <Text color="errorText" style={styles.label}>
+                {DELETE_ACCOUNT}
+              </Text>
             </Pressable>
           </View>
         </View>

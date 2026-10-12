@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
+import { router } from "expo-router";
 import { Linking } from "react-native";
 import {
   pushEnabledKey,
@@ -53,6 +54,7 @@ export function useSettingsScreen() {
     askPermission: () => void askPermission(),
     openTerms: () => openWebPage("/termos"),
     openPrivacy: () => openWebPage("/privacidade"),
+    openDeleteAccount: () => router.push("/settings/delete-account"),
     version: Constants.expoConfig?.version ?? "",
   };
 }

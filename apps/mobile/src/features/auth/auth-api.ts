@@ -73,8 +73,9 @@ function onSessionChange(listener: (session: TSession | null) => void) {
   return () => data.subscription.unsubscribe();
 }
 
-async function signOut() {
-  const { error } = await supabase.auth.signOut();
+// "local" só apaga a sessão deste aparelho: serve quando a conta já sumiu no servidor
+async function signOut(scope?: "local") {
+  const { error } = await supabase.auth.signOut(scope && { scope });
   if (error) throw error;
 }
 

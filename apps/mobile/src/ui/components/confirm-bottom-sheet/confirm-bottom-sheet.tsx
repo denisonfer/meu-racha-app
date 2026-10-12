@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { theme } from "@/ui/theme";
 import { BottomSheet } from "../bottom-sheet/bottom-sheet";
@@ -14,6 +15,8 @@ export type TConfirmBottomSheetProps = {
   failureMessage: string | null;
   onConfirm: () => void;
   onCancel: () => void;
+  /** Entre o texto e a mensagem de falha. */
+  children?: ReactNode;
 };
 
 export const ConfirmBottomSheet = ({
@@ -26,6 +29,7 @@ export const ConfirmBottomSheet = ({
   failureMessage,
   onConfirm,
   onCancel,
+  children,
 }: TConfirmBottomSheetProps) => (
   <BottomSheet
     title={title}
@@ -33,6 +37,7 @@ export const ConfirmBottomSheet = ({
     hasCloseButton={false}
     isBusy={isBusy}
   >
+    {children}
     {failureMessage ? (
       <Text preset="small" color="errorText" accessibilityRole="alert">
         {failureMessage}

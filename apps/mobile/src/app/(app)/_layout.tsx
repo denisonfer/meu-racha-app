@@ -24,6 +24,10 @@ export default function AppLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
       <Stack.Screen
+        name="settings/delete-account"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
         name="racha/[id]/approve/[requestId]"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />

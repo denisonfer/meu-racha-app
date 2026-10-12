@@ -31,3 +31,15 @@ export function useSignOut() {
 
   return { signOut: mutation.mutate, isPending: mutation.isPending };
 }
+
+// A conta já foi apagada no servidor e os tokens de push com ela: sem o
+// unregister_push_token, que falharia sem a conta.
+export async function signOutDeletedAccount() {
+  setSigningOut(true);
+  try {
+    await authApi.signOut("local");
+  } catch {
+    // o auth-js apaga a sessão local mesmo com erro de rede
+  }
+  forgetLastOwner();
+}

@@ -1330,7 +1330,7 @@ export type Database = {
         Row: {
           anonymized_at: string | null;
           avatar_path: string | null;
-          birth_date: string;
+          birth_date: string | null;
           created_at: string;
           display_name: string;
           id: string;
@@ -1343,7 +1343,7 @@ export type Database = {
         Insert: {
           anonymized_at?: string | null;
           avatar_path?: string | null;
-          birth_date: string;
+          birth_date?: string | null;
           created_at?: string;
           display_name: string;
           id: string;
@@ -1356,7 +1356,7 @@ export type Database = {
         Update: {
           anonymized_at?: string | null;
           avatar_path?: string | null;
-          birth_date?: string;
+          birth_date?: string | null;
           created_at?: string;
           display_name?: string;
           id?: string;
@@ -1728,6 +1728,7 @@ export type Database = {
       };
       delete_event_match_card: { Args: { p_card_id: string }; Returns: Json };
       delete_event_match_goal: { Args: { p_goal_id: string }; Returns: Json };
+      delete_my_account: { Args: never; Returns: undefined };
       discard_event_match: { Args: { p_match_id: string }; Returns: Json };
       draw_event_bolinhas: {
         Args: {
@@ -1750,6 +1751,7 @@ export type Database = {
         Args: { p_match_id: string; p_penalty_winner?: string };
         Returns: Json;
       };
+      get_account_deletion_check: { Args: never; Returns: Json };
       get_event_match: { Args: { p_event_id: string }; Returns: Json };
       get_event_resenha: { Args: { p_event_id: string }; Returns: Json };
       get_event_sort: { Args: { p_event_id: string }; Returns: Json };

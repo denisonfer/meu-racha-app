@@ -6,3 +6,9 @@ export type TMyProfile = {
   primaryPosition: TPosition | null;
   photoUri: string | null;
 };
+
+export type TAccountDeletionCheck = {
+  rachaCount: number;
+  ownedRachas: { id: string; name: string; memberCount: number }[];
+  conducting: { rachaId: string; rachaName: string; eventId: string }[];
+};
