@@ -55,3 +55,18 @@ export const DELETED_ACCOUNT_NAME = "Conta apagada";
 export const deleteAccountMemberCount = (n: number) =>
   n === 1 ? "1 membro" : `${n} membros`;
 export const DELETE_ACCOUNT_RETRY = "Tentar de novo";
+export const SETTINGS_SAFETY = "Segurança e ajuda";
+export const BLOCKED_PEOPLE = "Pessoas bloqueadas";
+export const BLOCKED_PEOPLE_TEXT =
+  "Quem você bloqueou some para você de Membros, Ranking e Resenha. Nas telas do jogo continua aparecendo.";
+export const BLOCKED_NO_SHARED_RACHA = "Nenhum racha em comum";
+export const BLOCKED_EMPTY = "Você não bloqueou ninguém";
+export const BLOCKED_EMPTY_TEXT =
+  "Para bloquear alguém, abra a pessoa em Membros e toque na bandeira.";
+export const BLOCKED_LOAD_FAILED = "Não deu pra abrir as pessoas bloqueadas";
+export const BLOCKED_LOAD_FAILED_TEXT = "Confira a internet e tente de novo.";
+export const BLOCKED_RETRY = "Tentar de novo";
+export const UNBLOCK = "Desbloquear";
+export const CONTACT_US = "Fale conosco";
+export const CONTACT_EMAIL = "denison91.dev@gmail.com";
+export const CONTACT_COPIED = "E-mail copiado.";

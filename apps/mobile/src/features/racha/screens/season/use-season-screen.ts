@@ -14,7 +14,7 @@ import { useSeasonRanking } from "../../hooks/use-season-ranking";
 import {
   resenhaAssistUnit,
   resenhaGoalUnit,
-  resenhaSummary,
+  resenhaSummarySegments,
   resenhaWinUnit,
   SEASON_CAPTION_ASSISTS,
   SEASON_CAPTION_GOALS,
@@ -77,6 +77,7 @@ function buildRanking(
       id: member.profileId,
       name: member.displayName,
       value: meta.valueOf(member),
+      isHidden: member.isBlocked,
     })),
     userId
   );
@@ -179,7 +180,12 @@ export function useSeasonScreen() {
         `${civil.weekdayShort} ${civil.dayMonth}`,
         event.place
       ),
-      summary: resenhaSummary(event.matchCount, event.scorers, event.topGoals),
+      summary: resenhaSummarySegments(
+        event.matchCount,
+        event.scorers,
+        event.scorersBlocked,
+        event.topGoals
+      ),
       isMuted: event.matchCount === 0,
       onOpen: () => router.push(`/racha/${id}/event/${event.eventId}/resenha`),
     };

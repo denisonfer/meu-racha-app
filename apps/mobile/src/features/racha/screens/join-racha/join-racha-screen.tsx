@@ -4,12 +4,14 @@ import {
   Button,
   EmptyState,
   Icon,
+  IconButton,
   Screen,
   ScreenFooter,
   Text,
   TIconName,
 } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { REPORT_RACHA } from "../../utils/racha-messages";
 import { JoinPositionSection } from "./join-position-section";
 import { useJoinRachaScreen } from "./use-join-racha-screen";
 
@@ -28,6 +30,7 @@ export const JoinRachaScreen = () => {
     canRequest,
     cancel,
     isCancelling,
+    openReport,
   } = useJoinRachaScreen();
 
   if (isLoading || isGone || !invite) {
@@ -56,7 +59,20 @@ export const JoinRachaScreen = () => {
   }
 
   return (
-    <Screen title="Convite" canGoBack onGoBack={goBack}>
+    <Screen
+      title="Convite"
+      canGoBack
+      onGoBack={goBack}
+      headerRight={
+        <View style={styles.headerRight}>
+          <IconButton
+            icon="flag"
+            accessibilityLabel={REPORT_RACHA}
+            onPress={openReport}
+          />
+        </View>
+      }
+    >
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -151,6 +167,8 @@ const InfoRow = ({ icon, hasDivider = false, children }: TInfoRowProps) => (
 );
 
 const styles = StyleSheet.create({
+  // o alvo de 44 sobra para fora: o título fica no centro, como no Perfil
+  headerRight: { marginVertical: -10, marginRight: -10 },
   scroll: { flex: 1 },
   content: { gap: 20, paddingBottom: theme.space[24] },
   titleBlock: { gap: 6 },

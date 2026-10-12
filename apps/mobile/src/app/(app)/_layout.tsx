@@ -10,7 +10,7 @@ export const unstable_settings = {
 
 export default function AppLayout() {
   const { session, isLoading } = useSession();
-  // só o caminho: nenhuma rota de (app) usa parâmetros de busca
+  // só o caminho: nenhuma rota de (app) que abre por link usa parâmetros de busca
   const pathname = usePathname();
   usePush(session?.userId ?? null);
 
@@ -41,6 +41,22 @@ export default function AppLayout() {
       />
       <Stack.Screen
         name="racha/[id]/member/[profileId]/transfer"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/member/[profileId]/actions"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/member/[profileId]/report"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/member/[profileId]/block"
+        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+      />
+      <Stack.Screen
+        name="racha/[id]/report"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
       <Stack.Screen

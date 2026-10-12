@@ -2,6 +2,9 @@ import { Pressable, StyleSheet, Switch, View } from "react-native";
 import { Icon, NoticeBanner, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import {
+  BLOCKED_PEOPLE,
+  CONTACT_EMAIL,
+  CONTACT_US,
   DELETE_ACCOUNT,
   DELETE_ACCOUNT_HINT,
   PUSH_DENIED_SETTINGS_TEXT,
@@ -17,6 +20,7 @@ import {
   SETTINGS_ACCOUNT,
   SETTINGS_NOTIFICATIONS,
   SETTINGS_PRIVACY,
+  SETTINGS_SAFETY,
   SETTINGS_TERMS,
   SETTINGS_TITLE,
   settingsVersion,
@@ -34,6 +38,9 @@ export const SettingsScreen = () => {
     openTerms,
     openPrivacy,
     openDeleteAccount,
+    blockedCount,
+    openBlockedPeople,
+    contactUs,
     version,
   } = useSettingsScreen();
   const pushText = pushEnabled ? PUSH_ROW_ON : PUSH_ROW_OFF;
@@ -91,6 +98,47 @@ export const SettingsScreen = () => {
               />
             </View>
           ) : null}
+        </View>
+
+        <View>
+          <Text color="muted" style={styles.sectionTitle}>
+            {SETTINGS_SAFETY}
+          </Text>
+          <View style={styles.card}>
+            <Pressable
+              onPress={openBlockedPeople}
+              accessibilityRole="button"
+              accessibilityLabel={
+                blockedCount > 0
+                  ? `${BLOCKED_PEOPLE}, ${blockedCount}`
+                  : BLOCKED_PEOPLE
+              }
+              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+            >
+              <Text style={[styles.grow, styles.label]}>{BLOCKED_PEOPLE}</Text>
+              {blockedCount > 0 ? (
+                <Text color="muted" style={styles.count}>
+                  {blockedCount}
+                </Text>
+              ) : null}
+              <Icon name="chevron-right" color="muted" />
+            </Pressable>
+            <View style={styles.divider} />
+            <Pressable
+              onPress={contactUs}
+              accessibilityRole="link"
+              accessibilityLabel={`${CONTACT_US}, ${CONTACT_EMAIL}`}
+              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+            >
+              <View style={styles.pushTexts}>
+                <Text style={styles.label}>{CONTACT_US}</Text>
+                <Text preset="small" color="muted">
+                  {CONTACT_EMAIL}
+                </Text>
+              </View>
+              <Icon name="chevron-right" color="muted" />
+            </Pressable>
+          </View>
         </View>
 
         <View>
@@ -174,6 +222,12 @@ const styles = StyleSheet.create({
   pushTexts: { flex: 1, gap: 2 },
   grow: { flex: 1 },
   label: { fontFamily: "Manrope-Bold" },
+  count: {
+    fontFamily: "BarlowCondensed-Bold",
+    fontSize: 22,
+    lineHeight: 26,
+    fontVariant: ["tabular-nums"],
+  },
   pressed: { opacity: 0.8 },
   divider: {
     marginHorizontal: theme.space[16],

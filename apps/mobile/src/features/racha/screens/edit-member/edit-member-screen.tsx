@@ -1,6 +1,7 @@
-import { ActivityIndicator } from "react-native";
-import { EmptyState, Screen } from "@/ui/components";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { EmptyState, IconButton, Screen } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { REPORT_OR_BLOCK } from "../../utils/racha-messages";
 import { EditMemberForm } from "./edit-member-form";
 import { MemberCardView } from "./member-card-view";
 import { useEditMemberScreen } from "./use-edit-member-screen";
@@ -12,6 +13,8 @@ export const EditMemberScreen = () => {
     viewMember,
     viewCard,
     rachaName,
+    canReport,
+    openReportOrBlock,
     adminCount,
     isLoading,
     isError,
@@ -20,7 +23,21 @@ export const EditMemberScreen = () => {
   } = useEditMemberScreen();
 
   return (
-    <Screen title={viewMember ? "Membro" : "Editar membro"} canGoBack>
+    <Screen
+      title={viewMember ? "Membro" : "Editar membro"}
+      canGoBack
+      headerRight={
+        canReport ? (
+          <View style={styles.headerRight}>
+            <IconButton
+              icon="flag"
+              accessibilityLabel={REPORT_OR_BLOCK}
+              onPress={openReportOrBlock}
+            />
+          </View>
+        ) : undefined
+      }
+    >
       {isLoading ? (
         <ActivityIndicator color={theme.colors.foreground} />
       ) : viewMember ? (
@@ -49,3 +66,8 @@ export const EditMemberScreen = () => {
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  // o alvo de 44 sobra para fora: o título fica no centro, como no Perfil
+  headerRight: { marginVertical: -10, marginRight: -10 },
+});

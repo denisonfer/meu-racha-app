@@ -4,6 +4,7 @@ export type TSeasonRankItem = {
   id: string;
   name: string;
   value: number;
+  isHidden?: boolean;
 };
 
 export type TSeasonRankRow = {
@@ -41,6 +42,7 @@ export type TSeasonRankingMember = {
   goals: number;
   assists: number;
   wins: number;
+  isBlocked: boolean;
 };
 
 export type TSeasonRanking = {
@@ -54,5 +56,7 @@ export type TSeasonEvent = {
   place: string;
   matchCount: number;
   scorers: string[];
+  /** Na ordem de scorers: quem chama bloqueou aquele artilheiro. */
+  scorersBlocked: boolean[];
   topGoals: number;
 };

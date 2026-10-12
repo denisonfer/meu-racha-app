@@ -12,6 +12,7 @@ import { TCreateRachaForm } from "../../racha-form-schema";
 import {
   CREATE_RACHA_FAILED,
   isPlanOwnerLimit,
+  NAME_NOT_ALLOWED,
   NAME_REQUIRED,
   PLAN_OWNER_LIMIT,
   yellowShorterThanMatch,
@@ -22,8 +23,8 @@ export function useCreateRachaScreen() {
   const { createRacha, errorCode } = useCreateRacha();
   const pushEnabled = usePushEnabled();
 
-  const { form, isSubmitting, isSubmitSuccessful, submit } = useCreateRachaForm(
-    {
+  const { form, isSubmitting, isSubmitSuccessful, submit, rejectName } =
+    useCreateRachaForm({
       defaultValues: {
         name: "",
         place: "",
@@ -32,8 +33,7 @@ export function useCreateRachaScreen() {
       },
       nameRequiredMessage: NAME_REQUIRED,
       isRulesInitiallyExpanded: false,
-    }
-  );
+    });
 
   const isBlocked =
     !isSubmitSuccessful &&
@@ -41,7 +41,16 @@ export function useCreateRachaScreen() {
       isPlanOwnerLimit(errorCode));
 
   const onValid = async (values: TCreateRachaForm) => {
-    const { id } = await createRacha(values);
+    let id: string;
+    try {
+      ({ id } = await createRacha(values));
+    } catch (error) {
+      if (error instanceof Error && error.message === "name_not_allowed") {
+        rejectName(NAME_NOT_ALLOWED);
+        return;
+      }
+      throw error;
+    }
     if (pushEnabled === true) {
       void askPushPermissionOnce().then((granted) =>
         granted ? registerPushToken() : undefined
@@ -56,7 +65,10 @@ export function useCreateRachaScreen() {
     isBlocked,
     blockedMessage: PLAN_OWNER_LIMIT,
     failureMessage:
-      errorCode && !isPlanOwnerLimit(errorCode) && !isSubmitting
+      errorCode &&
+      !isPlanOwnerLimit(errorCode) &&
+      errorCode !== "name_not_allowed" &&
+      !isSubmitting
         ? errorCode === "yellow_shorter_than_match"
           ? yellowShorterThanMatch(form.rules.matchDurationMin ?? 0)
           : CREATE_RACHA_FAILED

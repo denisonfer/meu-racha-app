@@ -35,7 +35,7 @@ import {
   POSITION_DETAIL_COMPLETE,
   POSITION_DETAIL_SELF_TITLE,
   positionDetailSelfText,
-  resenhaSummary,
+  resenhaSummarySegments,
   SEASON_HOME_FALLBACK,
   seasonHomeMine,
 } from "../../utils/racha-messages";
@@ -258,9 +258,10 @@ export function useRachaHomeScreen() {
     lastCivil
       ? {
           title: `Resenha · ${lastCivil.weekdayShort} ${lastCivil.dayMonth}`,
-          summary: resenhaSummary(
+          summary: resenhaSummarySegments(
             lastResenha.matchCount,
             lastResenha.scorers,
+            lastResenha.scorersBlocked,
             lastResenha.topGoals
           ),
           onOpen: () =>
@@ -385,6 +386,11 @@ export function useRachaHomeScreen() {
     openSettings: () => router.push(`/racha/${id}/settings`),
     openLogistics: () => router.push(`/racha/${id}/logistics`),
     openLeave: () => router.push(`/racha/${id}/leave`),
+    openReport: () =>
+      router.push({
+        pathname: "/racha/[id]/report",
+        params: { id, name: racha?.name ?? "" },
+      }),
     openCreateEvent: () => router.push(`/racha/${id}/event/new`),
   };
 }

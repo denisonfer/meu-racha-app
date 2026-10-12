@@ -12,6 +12,7 @@ import { RulesSummary } from "../../components/rules-summary";
 import {
   CONDUCTOR_CANNOT_LEAVE,
   OWNER_HINT_TO_LEAVE,
+  REPORT_RACHA,
 } from "../../utils/racha-messages";
 import { EventCard } from "./event-card";
 import { InviteCard } from "./invite-card";
@@ -40,6 +41,7 @@ export const RachaHomeScreen = () => {
     canLeave,
     showConductorCannotLeave,
     openLeave,
+    openReport,
     openCreateEvent,
   } = useRachaHomeScreen();
 
@@ -283,6 +285,15 @@ export const RachaHomeScreen = () => {
               </Text>
             </View>
           ) : null}
+
+          {racha.isOwner ? null : (
+            <Button
+              preset="text"
+              icon="flag"
+              title={REPORT_RACHA}
+              onPress={openReport}
+            />
+          )}
         </View>
       )}
     </Screen>

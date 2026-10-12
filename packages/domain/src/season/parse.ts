@@ -56,17 +56,28 @@ function member(value: unknown, photo: TPhotoResolver): TSeasonRankingMember {
     goals: int(raw.goals),
     assists: int(raw.assists),
     wins: int(raw.wins),
+    isBlocked: bool(raw.is_blocked),
   };
+}
+
+// scorers_blocked só vem quando quem chama bloqueou um dos artilheiros.
+function scorersBlocked(raw: TObject, scorers: string[]): boolean[] {
+  if (raw.scorers_blocked == null) return scorers.map(() => false);
+  const flags = list(raw.scorers_blocked).map(bool);
+  if (flags.length !== scorers.length) throw invalid();
+  return flags;
 }
 
 function eventRow(value: unknown): TSeasonEvent {
   const raw = obj(value);
+  const scorers = list(raw.scorers).map(str);
   return {
     eventId: str(raw.event_id),
     startsOn: str(raw.starts_on),
     place: str(raw.place),
     matchCount: int(raw.match_count),
-    scorers: list(raw.scorers).map(str),
+    scorers,
+    scorersBlocked: scorersBlocked(raw, scorers),
     topGoals: int(raw.top_goals),
   };
 }

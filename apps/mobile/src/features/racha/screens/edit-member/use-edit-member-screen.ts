@@ -109,6 +109,10 @@ export function useEditMemberScreen() {
         ? (cardsQuery.data?.get(member.profileId) ?? null)
         : null,
     rachaName: rachaQuery.data?.name ?? "",
+    // a própria tela não tem a bandeira
+    canReport: (isOpen || isViewOnly) && profileId !== session?.userId,
+    openReportOrBlock: () =>
+      router.push(`/racha/${id}/member/${profileId}/actions`),
     adminCount: (membersQuery.data ?? []).filter((m) => m.role === "ADMIN")
       .length,
     isLoading: isLoading || isNoAccess || isGone,

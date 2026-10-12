@@ -10,6 +10,7 @@ export const MembersScreen = () => {
     memberWord,
     showGroupTitles,
     groups,
+    hiddenNote,
     isOnlyOwner,
     isLoading,
     isError,
@@ -57,6 +58,12 @@ export const MembersScreen = () => {
             ))}
           </View>
 
+          {hiddenNote ? (
+            <Text preset="small" color="muted" style={styles.hiddenNote}>
+              {hiddenNote}
+            </Text>
+          ) : null}
+
           {isOnlyOwner ? (
             <View style={styles.aloneCard}>
               <View style={styles.aloneTexts}>
@@ -103,4 +110,5 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
   },
   aloneTexts: { gap: 2 },
+  hiddenNote: { paddingTop: 16 },
 });

@@ -31,6 +31,7 @@ export function useRachaForm(options: {
     setValue,
     getValues,
     clearErrors,
+    setError,
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<TRachaForm>({
     resolver: zodResolver(buildRachaFormSchema(nameRequiredMessage)),
@@ -73,7 +74,13 @@ export function useRachaForm(options: {
     toggleRules: () => setIsRulesExpanded((isOpen) => !isOpen),
   };
 
-  return { form, values, isSubmitting, isSubmitSuccessful, submit };
+  // o filtro de nome é do banco: a recusa chega depois do envio, no campo
+  const rejectName = (message: string) => {
+    setError("name", { message });
+    nameRef.current?.focus();
+  };
+
+  return { form, values, isSubmitting, isSubmitSuccessful, submit, rejectName };
 }
 
 export function useCreateRachaForm(options: {
@@ -96,6 +103,7 @@ export function useCreateRachaForm(options: {
     setValue,
     getValues,
     clearErrors,
+    setError,
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<TCreateRachaForm>({
     resolver: zodResolver(buildCreateRachaFormSchema(nameRequiredMessage)),
@@ -152,5 +160,11 @@ export function useCreateRachaForm(options: {
     toggleRules: () => setIsRulesExpanded((isOpen) => !isOpen),
   };
 
-  return { form, values, isSubmitting, isSubmitSuccessful, submit };
+  // o filtro de nome é do banco: a recusa chega depois do envio, no campo
+  const rejectName = (message: string) => {
+    setError("name", { message });
+    nameRef.current?.focus();
+  };
+
+  return { form, values, isSubmitting, isSubmitSuccessful, submit, rejectName };
 }

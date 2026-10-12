@@ -20,6 +20,8 @@ import {
   finishEventPaidSummary,
   matchErrorMessage,
   matchFailureMessage,
+  membersHiddenBlocked,
+  resenhaSummarySegments,
   positionDetailChoose,
   positionDetailPendingMessage,
   resenhaSummary,
@@ -222,5 +224,38 @@ describe("seasonHomeMine", () => {
 
   test("vitórias", () => {
     expect(seasonHomeMine(10, "vitórias")).toBe("você é 10º em vitórias");
+  });
+});
+
+describe("membersHiddenBlocked", () => {
+  test("singular com 1 e plural com N", () => {
+    expect(membersHiddenBlocked(1)).toBe(
+      "1 pessoa que você bloqueou não aparece aqui."
+    );
+    expect(membersHiddenBlocked(3)).toBe(
+      "3 pessoas que você bloqueou não aparecem aqui."
+    );
+  });
+});
+
+describe("resenhaSummarySegments", () => {
+  test("empate: o bloqueado sai do texto e o número fica", () => {
+    expect(
+      resenhaSummarySegments(5, ["Ana", "Carlos"], [false, true], 2)
+    ).toEqual([{ text: "5 Partidas · artilheiro Ana, 2 gols" }]);
+  });
+
+  test("artilheiro único bloqueado vira o marcador em muted", () => {
+    expect(resenhaSummarySegments(5, ["Carlos"], [true], 1)).toEqual([
+      { text: "5 Partidas · artilheiro " },
+      { text: "Pessoa bloqueada", isMuted: true },
+      { text: ", 1 gol" },
+    ]);
+  });
+
+  test("sem bloqueado, o texto de sempre", () => {
+    expect(
+      resenhaSummarySegments(5, ["Ana", "Bia"], [false, false], 2)
+    ).toEqual([{ text: "5 Partidas · artilheiros Ana e Bia, 2 gols" }]);
   });
 });

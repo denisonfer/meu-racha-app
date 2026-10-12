@@ -45,11 +45,14 @@ export function rankRows(
       ? ranked
       : ranked.filter((item) => item.value >= cutoffValue);
 
-  const rows = included.map((item) => ({
-    id: item.id,
-    position: item.position,
-    isMe: myId !== null && item.id === myId,
-  }));
+  // Quem foi bloqueado conta na posição e no corte, só não aparece.
+  const rows = included
+    .filter((item) => !item.isHidden)
+    .map((item) => ({
+      id: item.id,
+      position: item.position,
+      isMe: myId !== null && item.id === myId,
+    }));
 
   const mine =
     myId === null ? undefined : ranked.find((item) => item.id === myId);

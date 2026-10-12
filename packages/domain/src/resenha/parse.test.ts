@@ -31,6 +31,7 @@ const VALID = {
       goals: 3,
       assists: 0,
       wins: 2,
+      is_blocked: false,
     },
     {
       person: person(
@@ -41,6 +42,7 @@ const VALID = {
       goals: 1,
       assists: 2,
       wins: 1,
+      is_blocked: false,
     },
   ],
   teams: [
@@ -53,11 +55,13 @@ const VALID = {
       person: person("11111111-1111-1111-1111-111111111111", "Diego"),
       color: "yellow",
       match_number: 2,
+      is_blocked: false,
     },
     {
       person: person("33333333-3333-3333-3333-333333333333", "Samuel"),
       color: "red",
       match_number: 4,
+      is_blocked: true,
     },
   ],
   scorer_card: {
@@ -113,6 +117,7 @@ describe("parseEventResenha", () => {
       color: "red",
       matchNumber: 4,
       person: { displayName: "Samuel" },
+      isBlocked: true,
     });
     expect(resenha.scorerCard).toEqual({
       displayName: "Diego",
@@ -192,8 +197,22 @@ describe("parseRachaLastResenha", () => {
       startsOn: "2026-10-04",
       matchCount: 5,
       scorers: ["Diego"],
+      scorersBlocked: [false],
       topGoals: 3,
     });
+  });
+
+  test("lê scorers_blocked quando vem e recusa tamanho diferente", () => {
+    expect(
+      parseRachaLastResenha({
+        ...LAST,
+        scorers: ["Ana", "Carlos"],
+        scorers_blocked: [false, true],
+      })?.scorersBlocked
+    ).toEqual([false, true]);
+    expect(() =>
+      parseRachaLastResenha({ ...LAST, scorers_blocked: [true, true] })
+    ).toThrow(RESENHA_PAYLOAD_INVALID);
   });
 
   test("rejeita resumo sem event_id", () => {

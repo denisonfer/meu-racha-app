@@ -5,6 +5,7 @@ import { PASSWORD_MIN } from "@meu-racha/domain";
  * aqui; a api fala em código, a tela fala em português.
  */
 export const EMAIL_TAKEN_MESSAGE = "Esse e-mail já tem conta";
+export const NAME_NOT_ALLOWED = "Esse nome não pode ser usado.";
 
 export function signUpErrorMessage(raw: string): string {
   if (raw.includes("terms_not_accepted"))

@@ -62,6 +62,17 @@ async function checkEmailAvailable(email: string) {
   return data === true;
 }
 
+// O filtro de nome mora no banco; a consulta só antecipa o erro do gatilho, que
+// dentro do auth.users chegaria ao app como um erro genérico.
+async function checkNameAllowed(name: string) {
+  const { data, error } = await supabase.rpc("name_allowed", {
+    p_name: name,
+  });
+
+  if (error) throw error;
+  return data === true;
+}
+
 const toSession = (session: Session | null): TSession | null =>
   session ? { userId: session.user.id, email: session.user.email ?? "" } : null;
 
@@ -115,6 +126,7 @@ export const authApi = {
   uploadAvatar,
   signIn,
   checkEmailAvailable,
+  checkNameAllowed,
   onSessionChange,
   signOut,
   requestPasswordReset,

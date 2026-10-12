@@ -12,6 +12,8 @@ export type TResenhaCardRow = {
   color: "yellow" | "red";
   name: string;
   matchNumber: number;
+  /** "Pessoa bloqueada" no lugar do nome, em muted. */
+  isBlocked: boolean;
 };
 
 export type TResenhaCardListProps = {
@@ -32,7 +34,12 @@ export const ResenhaCardList = ({ cards }: TResenhaCardListProps) => {
           <Text preset="small" style={styles.word}>
             {card.color === "yellow" ? RESENHA_YELLOW : RESENHA_RED}
           </Text>
-          <Text style={styles.name}>{card.name}</Text>
+          <Text
+            color={card.isBlocked ? "muted" : "foreground"}
+            style={styles.name}
+          >
+            {card.name}
+          </Text>
           <Text preset="small" color="muted">
             {`Partida ${card.matchNumber}`}
           </Text>

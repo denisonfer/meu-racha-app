@@ -201,5 +201,11 @@ export function useJoinRachaScreen() {
     isRequesting,
     cancel: () => void cancel(),
     isCancelling: invite ? isCancelling(invite.rachaId) : false,
+    openReport: () =>
+      invite &&
+      router.push({
+        pathname: "/racha/[id]/report",
+        params: { id: invite.rachaId, name: invite.name },
+      }),
   };
 }

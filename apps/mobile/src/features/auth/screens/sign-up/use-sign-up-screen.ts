@@ -26,25 +26,22 @@ export function useSignUpScreen() {
     useSignUp();
   const queryClient = useQueryClient();
 
-  const { control, handleSubmit, trigger, getValues, setValue } = useForm<
-    TSignUpFormInput,
-    unknown,
-    TSignUpForm
-  >({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      displayName: "",
-      email: "",
-      password: "",
-      playsAs: "OUTFIELD",
-      primaryPosition: null,
-      secondaryPosition: null,
-      photo: null,
-      birthDate: "",
-      acceptedTerms: false,
-    },
-    mode: "onBlur",
-  });
+  const { control, handleSubmit, trigger, getValues, setValue, setError } =
+    useForm<TSignUpFormInput, unknown, TSignUpForm>({
+      resolver: zodResolver(signUpSchema),
+      defaultValues: {
+        displayName: "",
+        email: "",
+        password: "",
+        playsAs: "OUTFIELD",
+        primaryPosition: null,
+        secondaryPosition: null,
+        photo: null,
+        birthDate: "",
+        acceptedTerms: false,
+      },
+      mode: "onBlur",
+    });
 
   const playsAs = useWatch({ control, name: "playsAs" });
   const primaryPosition = useWatch({ control, name: "primaryPosition" });
@@ -79,10 +76,16 @@ export function useSignUpScreen() {
     const isStepValid = await trigger([...fields]);
     if (!isStepValid) return;
 
-    // A mensagem de e-mail já usado aparece ao vivo, no passo da conta.
+    // A mensagem de e-mail já usado aparece ao vivo, no passo da conta; a de
+    // nome recusado vai para o campo.
     const taken = await findTakenFields(queryClient, fields, (field) =>
       getValues(field)
     );
+    for (const { field, message } of taken) {
+      if (field === "displayName") {
+        setError(field, { message }, { shouldFocus: true });
+      }
+    }
     if (taken.length > 0) return;
 
     if (isLastStep) {

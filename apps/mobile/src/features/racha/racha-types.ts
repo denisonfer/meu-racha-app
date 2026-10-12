@@ -116,6 +116,8 @@ export type TRachaMember = {
   // subdivisão neste Racha; o Perfil não tem
   primaryPositionDetail: TPositionDetail | null;
   secondaryPositionDetail: TPositionDetail | null;
+  // quem eu bloqueei: some de Membros, continua nas telas do jogo
+  isBlocked: boolean;
 };
 
 export type TPositionDetails = {

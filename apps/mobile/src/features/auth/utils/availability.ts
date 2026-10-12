@@ -1,7 +1,7 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { authApi } from "../auth-api";
-import { EMAIL_TAKEN_MESSAGE } from "./auth-messages";
+import { EMAIL_TAKEN_MESSAGE, NAME_NOT_ALLOWED } from "./auth-messages";
 
 const normalize = (value: string) => value.trim().toLowerCase();
 
@@ -10,6 +10,12 @@ const checks = {
     isAskable: (value: string) => z.email().safeParse(value).success,
     ask: authApi.checkEmailAvailable,
     takenMessage: EMAIL_TAKEN_MESSAGE,
+  },
+  // só ao avançar, nunca ao vivo: checar enquanto digita vira adivinhação
+  displayName: {
+    isAskable: (value: string) => value.length > 0,
+    ask: authApi.checkNameAllowed,
+    takenMessage: NAME_NOT_ALLOWED,
   },
 } as const;
 

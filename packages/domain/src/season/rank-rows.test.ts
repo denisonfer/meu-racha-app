@@ -85,6 +85,27 @@ describe("rankRows", () => {
 
     expect(rows.map((row) => row.id)).toEqual(["a", "b", "c"]);
   });
+
+  test("o bloqueado some da lista e as posições continuam as reais", () => {
+    const { rows, me } = rankRows(
+      [
+        item("a", "Ana", 10),
+        item("b", "Bia", 8),
+        { ...item("c", "Caio", 5), isHidden: true },
+        item("d", "Diego", 4),
+      ],
+      "d"
+    );
+
+    expect(rows.map((row) => ({ id: row.id, position: row.position }))).toEqual(
+      [
+        { id: "a", position: 1 },
+        { id: "b", position: 2 },
+        { id: "d", position: 4 },
+      ]
+    );
+    expect(me).toBeNull();
+  });
 });
 
 describe("bestPlacing", () => {

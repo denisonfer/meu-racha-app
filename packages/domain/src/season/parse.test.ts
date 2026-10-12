@@ -19,6 +19,7 @@ const RANKING = {
       goals: 7,
       assists: 2,
       wins: 5,
+      is_blocked: false,
     },
     {
       profile_id: "22222222-2222-2222-2222-222222222222",
@@ -29,6 +30,7 @@ const RANKING = {
       goals: 0,
       assists: 1,
       wins: 0,
+      is_blocked: true,
     },
   ],
 };
@@ -66,6 +68,7 @@ describe("parseSeasonRanking", () => {
           goals: 7,
           assists: 2,
           wins: 5,
+          isBlocked: false,
         },
         {
           profileId: "22222222-2222-2222-2222-222222222222",
@@ -76,6 +79,7 @@ describe("parseSeasonRanking", () => {
           goals: 0,
           assists: 1,
           wins: 0,
+          isBlocked: true,
         },
       ],
     });
@@ -102,6 +106,7 @@ describe("parseSeasonEvents", () => {
         place: "Arena Jardins da Serra",
         matchCount: 5,
         scorers: ["Diego"],
+        scorersBlocked: [false],
         topGoals: 3,
       },
       {
@@ -110,10 +115,21 @@ describe("parseSeasonEvents", () => {
         place: "Quadra 2",
         matchCount: 0,
         scorers: [],
+        scorersBlocked: [],
         topGoals: 0,
       },
     ]);
     expect(parseSeasonEvents([])).toEqual([]);
+  });
+
+  test("lê scorers_blocked quando vem e recusa tamanho diferente", () => {
+    expect(
+      parseSeasonEvents([{ ...EVENTS[0], scorers_blocked: [true] }])[0]
+        ?.scorersBlocked
+    ).toEqual([true]);
+    expect(() =>
+      parseSeasonEvents([{ ...EVENTS[0], scorers_blocked: [] }])
+    ).toThrow(SEASON_PAYLOAD_INVALID);
   });
 
   test("rejeita objeto no lugar do array e número que não é inteiro", () => {

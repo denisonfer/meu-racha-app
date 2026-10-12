@@ -93,6 +93,7 @@ function peopleRow(value: unknown, photo: TPhotoResolver): TResenhaPersonStats {
     goals: num(raw.goals),
     assists: num(raw.assists),
     wins: num(raw.wins),
+    isBlocked: bool(raw.is_blocked),
   };
 }
 
@@ -110,7 +111,16 @@ function cardRow(value: unknown, photo: TPhotoResolver): TResenhaCard {
     person: person(raw.person, photo),
     color: oneOf(raw.color, CARD_COLORS),
     matchNumber: num(raw.match_number),
+    isBlocked: bool(raw.is_blocked),
   };
+}
+
+// scorers_blocked só vem quando quem chama bloqueou um dos artilheiros.
+function scorersBlocked(raw: TObject, scorers: string[]): boolean[] {
+  if (raw.scorers_blocked == null) return scorers.map(() => false);
+  const flags = list(raw.scorers_blocked).map(bool);
+  if (flags.length !== scorers.length) throw invalid();
+  return flags;
 }
 
 function scorerCard(
@@ -170,11 +180,13 @@ export function parseRachaLastResenha(
 ): TResenhaSummary | null {
   if (json == null) return null;
   const raw = obj(json);
+  const scorers = list(raw.scorers).map(str);
   return {
     eventId: str(raw.event_id),
     startsOn: str(raw.starts_on),
     matchCount: num(raw.match_count),
-    scorers: list(raw.scorers).map(str),
+    scorers,
+    scorersBlocked: scorersBlocked(raw, scorers),
     topGoals: num(raw.top_goals),
   };
 }

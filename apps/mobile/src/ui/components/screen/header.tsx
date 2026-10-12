@@ -24,9 +24,9 @@ export const Header = ({
   }
 
   const isVisibleLabelGoBack = !title && !headerComponent;
-  // Sem voltar, o espaçador da esquerda equilibra o botão da direita (44 com
-  // margem de -10) para o título ficar no centro.
-  const balancesHeaderRight = Boolean(title && headerRight && !canGoBack);
+  // O lado esquerdo (voltar ou espaçador) ocupa o mesmo que o botão da direita
+  // (44 com margem de -10) para o título ficar no centro.
+  const balancesHeaderRight = Boolean(title && headerRight);
 
   return (
     <View style={styles.container}>
@@ -41,6 +41,7 @@ export const Header = ({
               marginRight: isVisibleLabelGoBack ? theme.space[8] : undefined,
             },
             styles.goBackButton,
+            balancesHeaderRight && styles.headerRightSpacer,
           ]}
         >
           <Icon name="back" size={24} />

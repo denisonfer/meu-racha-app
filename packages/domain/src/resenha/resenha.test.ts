@@ -5,7 +5,53 @@ import {
   leaders,
   namesLine,
   topTeams,
+  visibleLeaders,
+  visibleScorers,
 } from "./resenha";
+
+describe("visibleLeaders", () => {
+  test("no empate, o bloqueado sai do texto e o número fica", () => {
+    expect(
+      visibleLeaders([
+        { name: "Ana Paula", value: 2, isHidden: false },
+        { name: "Carlos Mendes", value: 2, isHidden: true },
+        { name: "Diego", value: 1, isHidden: false },
+      ])
+    ).toEqual({ names: ["Ana Paula"], count: 2 });
+  });
+
+  test("líder única bloqueada: sem nome, com o número real", () => {
+    expect(
+      visibleLeaders([
+        { name: "Carlos Mendes", value: 3, isHidden: true },
+        { name: "Diego", value: 1, isHidden: false },
+      ])
+    ).toEqual({ names: [], count: 3 });
+  });
+
+  test("sem gols devolve null", () => {
+    expect(
+      visibleLeaders([{ name: "Carlos Mendes", value: 0, isHidden: true }])
+    ).toBeNull();
+  });
+});
+
+describe("visibleScorers", () => {
+  test("no empate o bloqueado sai; sozinho vira só o marcador", () => {
+    expect(visibleScorers(["Ana", "Carlos"], [false, true])).toEqual({
+      names: ["Ana"],
+      isBlockedOnly: false,
+    });
+    expect(visibleScorers(["Carlos"], [true])).toEqual({
+      names: [],
+      isBlockedOnly: true,
+    });
+    expect(visibleScorers([], [])).toEqual({
+      names: [],
+      isBlockedOnly: false,
+    });
+  });
+});
 
 describe("leaders", () => {
   test("exclui zero e negativo e devolve o maior valor", () => {

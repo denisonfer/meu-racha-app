@@ -8,6 +8,7 @@ import {
   MIN_AGE_MIN,
   namesLine,
   RACHA_NAME_MIN,
+  visibleScorers,
 } from "@meu-racha/domain";
 import { joinNames } from "./sort-view";
 
@@ -1040,3 +1041,31 @@ export const resenhaTeamName = (n: number) => `Time ${n}`;
 export const PUSH_DENIED_TITLE = "Sem avisos no celular";
 export const PUSH_DENIED_TEXT = "Você só vê novos pedidos quando abrir o app.";
 export const PUSH_DENIED_ACTION = "Abrir Ajustes";
+
+export const membersHiddenBlocked = (n: number) =>
+  n === 1
+    ? "1 pessoa que você bloqueou não aparece aqui."
+    : `${n} pessoas que você bloqueou não aparecem aqui.`;
+export const BLOCKED_PERSON = "Pessoa bloqueada";
+export const REPORT_RACHA = "Denunciar racha";
+export const REPORT_OR_BLOCK = "Denunciar ou bloquear";
+export const NAME_NOT_ALLOWED = "Esse nome não pode ser usado.";
+
+export type TSummarySegment = { text: string; isMuted?: boolean };
+// O resumo vira pedaços porque "Pessoa bloqueada" vai em muted no meio da linha.
+export const resenhaSummarySegments = (
+  n: number,
+  scorers: string[],
+  scorersBlocked: boolean[],
+  count: number
+): TSummarySegment[] => {
+  const { names, isBlockedOnly } = visibleScorers(scorers, scorersBlocked);
+  if (n === 0 || !isBlockedOnly) {
+    return [{ text: resenhaSummary(n, names, count) }];
+  }
+  return [
+    { text: `${n} Partidas · artilheiro ` },
+    { text: BLOCKED_PERSON, isMuted: true },
+    { text: `, ${count} ${count === 1 ? "gol" : "gols"}` },
+  ];
+};

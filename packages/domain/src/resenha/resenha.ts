@@ -45,6 +45,29 @@ export function leaders(
   return { names, count };
 }
 
+// Quem bloqueou não vê o nome, mas o destaque e o número continuam os reais:
+// sem nenhum nome visível, a tela mostra "Pessoa bloqueada".
+export function visibleLeaders(
+  stats: { name: string; value: number; isHidden: boolean }[]
+): TResenhaLeaders | null {
+  const result = leaders(stats);
+  if (!result) return null;
+  const visible = leaders(
+    stats.filter((item) => !item.isHidden && item.value === result.count)
+  );
+  return { names: visible?.names ?? [], count: result.count };
+}
+
+// A mesma regra dos destaques para a lista de nomes dos resumos: o bloqueado
+// sai do texto; sem ninguém visível, a tela mostra "Pessoa bloqueada".
+export function visibleScorers(
+  scorers: string[],
+  blocked: boolean[]
+): { names: string[]; isBlockedOnly: boolean } {
+  const names = scorers.filter((_, index) => !blocked[index]);
+  return { names, isBlockedOnly: scorers.length > 0 && names.length === 0 };
+}
+
 export function namesLine(names: string[]): string {
   if (names.length <= 1) return names[0] ?? "";
   if (names.length === 2) return `${names[0]} e ${names[1]}`;

@@ -5,11 +5,13 @@ import {
   namesLine,
   topTeams,
   type TResenha,
+  visibleLeaders,
 } from "@meu-racha/domain";
 import { useLocalSearchParams } from "expo-router";
 import { useEventResenha } from "../../hooks/use-event-resenha";
 import { memberCardProps } from "../../utils/member-card";
 import {
+  BLOCKED_PERSON,
   resenhaAssistUnit,
   resenhaGoalUnit,
   resenhaMatchCount,
@@ -21,7 +23,10 @@ import {
   SORT_LOAD_FAILED_TEXT,
 } from "../../utils/racha-messages";
 import type { TResenhaCardRow } from "./resenha-card-list";
-import type { TResenhaHighlightsProps } from "./resenha-highlights";
+import type {
+  TResenhaHighlightsProps,
+  TResenhaLeader,
+} from "./resenha-highlights";
 import type { TResenhaPosterProps } from "./resenha-poster";
 import { useShareResenha } from "./use-share-resenha";
 
@@ -36,6 +41,23 @@ function toLeader(
     count: result.count,
     unit: unitOf(result.count),
     nameCount: result.names.length,
+  };
+}
+
+// Na tela, quem eu bloqueei sai dos destaques; o cartaz vai para o grupo com todos.
+function toVisibleLeader(
+  stats: { name: string; value: number; isHidden: boolean }[],
+  unitOf: (n: number) => string
+): TResenhaLeader | null {
+  const result = visibleLeaders(stats);
+  if (!result) return null;
+  const isBlocked = result.names.length === 0;
+  return {
+    names: isBlocked ? BLOCKED_PERSON : namesLine(result.names),
+    count: result.count,
+    unit: unitOf(result.count),
+    nameCount: Math.max(result.names.length, 1),
+    isBlocked,
   };
 }
 
@@ -110,10 +132,11 @@ function posterFromResenha(resenha: TResenha): TResenhaPosterProps {
 function highlightsFromResenha(resenha: TResenha): TResenhaHighlightsProps {
   const team = topTeams(resenha.teams);
   return {
-    scorers: toLeader(
+    scorers: toVisibleLeader(
       resenha.people.map((row) => ({
         name: row.person.displayName,
         value: row.goals,
+        isHidden: row.isBlocked,
       })),
       resenhaGoalUnit
     ),
@@ -125,10 +148,11 @@ function highlightsFromResenha(resenha: TResenha): TResenhaHighlightsProps {
           ofMatches: resenhaOfMatches(resenha.matchCount),
         }
       : null,
-    assists: toLeader(
+    assists: toVisibleLeader(
       resenha.people.map((row) => ({
         name: row.person.displayName,
         value: row.assists,
+        isHidden: row.isBlocked,
       })),
       resenhaAssistUnit
     ),
@@ -139,8 +163,9 @@ function cardRowsFromResenha(resenha: TResenha): TResenhaCardRow[] {
   return resenha.cards.map((card, index) => ({
     key: `${card.person.personId}-${card.matchNumber}-${index}`,
     color: card.color,
-    name: card.person.displayName,
+    name: card.isBlocked ? BLOCKED_PERSON : card.person.displayName,
     matchNumber: card.matchNumber,
+    isBlocked: card.isBlocked,
   }));
 }
 

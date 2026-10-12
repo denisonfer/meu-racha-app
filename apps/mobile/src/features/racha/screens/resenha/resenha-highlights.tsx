@@ -16,6 +16,8 @@ export type TResenhaLeader = {
   count: number;
   unit: string;
   nameCount?: number;
+  /** "Pessoa bloqueada" no lugar do nome, em muted. */
+  isBlocked?: boolean;
 };
 
 export type TResenhaTopTeamView = {
@@ -51,7 +53,10 @@ export const ResenhaHighlights = ({
               styles.heroName,
               {
                 fontSize: scorerFont,
-                color: scorers ? theme.colors.foreground : theme.colors.muted,
+                color:
+                  scorers && !scorers.isBlocked
+                    ? theme.colors.foreground
+                    : theme.colors.muted,
               },
             ]}
           >
@@ -135,7 +140,12 @@ const DuoCard = ({
     <Text
       style={[
         styles.duoName,
-        { color: leader ? theme.colors.foreground : theme.colors.muted },
+        {
+          color:
+            leader && !leader.isBlocked
+              ? theme.colors.foreground
+              : theme.colors.muted,
+        },
       ]}
     >
       {leader ? leader.names : empty}

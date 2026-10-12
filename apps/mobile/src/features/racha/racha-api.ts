@@ -62,6 +62,7 @@ import { attendancePaymentNote } from "./utils/racha-messages";
 // raise exception chega na message, não no code
 const RAISE_EXCEPTION_CODES = [
   "not_authenticated",
+  "name_not_allowed",
   "plan_owner_limit",
   "already_resolved",
   "not_allowed",
@@ -494,6 +495,7 @@ async function listRachaMembers(rachaId: string): Promise<TRachaMember[]> {
     // o tipo gerado diz not-null; sem subdivisão vem null
     primaryPositionDetail: row.primary_position_detail ?? null,
     secondaryPositionDetail: row.secondary_position_detail ?? null,
+    isBlocked: row.is_blocked,
   }));
 }
 

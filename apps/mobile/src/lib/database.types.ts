@@ -1368,6 +1368,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      profile_block: {
+        Row: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at: string;
+        };
+        Insert: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at?: string;
+        };
+        Update: {
+          blocked_id?: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       push_token: {
         Row: {
           platform: string;
@@ -1604,6 +1622,67 @@ export type Database = {
           },
         ];
       };
+      report: {
+        Row: {
+          created_at: string;
+          details: string | null;
+          id: string;
+          reason: string;
+          reporter_id: string;
+          status: string;
+          target_kind: string;
+          target_profile_id: string | null;
+          target_racha_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason: string;
+          reporter_id: string;
+          status?: string;
+          target_kind: string;
+          target_profile_id?: string | null;
+          target_racha_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason?: string;
+          reporter_id?: string;
+          status?: string;
+          target_kind?: string;
+          target_profile_id?: string | null;
+          target_racha_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "report_reporter_id_fkey";
+            columns: ["reporter_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "report_target_profile_id_fkey";
+            columns: ["target_profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "report_target_racha_id_fkey";
+            columns: ["target_racha_id"];
+            isOneToOne: false;
+            referencedRelation: "racha";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       season: {
         Row: {
           closed: boolean;
@@ -1686,6 +1765,7 @@ export type Database = {
         Args: { p_event_id: string };
         Returns: undefined;
       };
+      block_profile: { Args: { p_id: string }; Returns: undefined };
       cancel_attendance: { Args: { p_event_id: string }; Returns: undefined };
       cancel_event: { Args: { p_event_id: string }; Returns: undefined };
       confirm_attendance: { Args: { p_event_id: string }; Returns: undefined };
@@ -1752,6 +1832,15 @@ export type Database = {
         Returns: Json;
       };
       get_account_deletion_check: { Args: never; Returns: Json };
+      get_blocked_profiles: {
+        Args: never;
+        Returns: {
+          avatar_path: string;
+          display_name: string;
+          profile_id: string;
+          shared_racha_name: string;
+        }[];
+      };
       get_event_match: { Args: { p_event_id: string }; Returns: Json };
       get_event_resenha: { Args: { p_event_id: string }; Returns: Json };
       get_event_sort: { Args: { p_event_id: string }; Returns: Json };
@@ -1904,6 +1993,7 @@ export type Database = {
         Returns: {
           avatar_path: string;
           display_name: string;
+          is_blocked: boolean;
           is_super_star: boolean;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position: Database["public"]["Enums"]["position"];
@@ -1920,6 +2010,7 @@ export type Database = {
         Args: { p_racha_id: string };
         Returns: Database["public"]["Enums"]["member_role"];
       };
+      name_allowed: { Args: { p_name: string }; Returns: boolean };
       open_notification: { Args: { p_id: string }; Returns: Json };
       pause_event_match: { Args: { p_match_id: string }; Returns: Json };
       prepare_event_sort: { Args: { p_event_id: string }; Returns: Json };
@@ -1949,6 +2040,15 @@ export type Database = {
         Returns: Json;
       };
       remove_guest: { Args: { p_guest_id: string }; Returns: undefined };
+      report_content: {
+        Args: {
+          p_details?: string;
+          p_kind: string;
+          p_reason: string;
+          p_target_id: string;
+        };
+        Returns: undefined;
+      };
       resume_event_match: { Args: { p_match_id: string }; Returns: Json };
       return_event_sort_player: {
         Args: {
@@ -2028,6 +2128,7 @@ export type Database = {
         Args: { p_profile_id: string; p_racha_id: string };
         Returns: undefined;
       };
+      unblock_profile: { Args: { p_id: string }; Returns: undefined };
       unregister_push_token: { Args: { p_token: string }; Returns: undefined };
       update_event: {
         Args: {

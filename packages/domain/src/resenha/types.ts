@@ -7,6 +7,8 @@ export type TResenhaPersonStats = {
   goals: number;
   assists: number;
   wins: number;
+  /** Quem chama bloqueou: some dos destaques da tela, não do cartaz. */
+  isBlocked: boolean;
 };
 
 export type TResenhaTeam = {
@@ -20,6 +22,8 @@ export type TResenhaCard = {
   person: TMatchPerson;
   color: TResenhaCardColor;
   matchNumber: number;
+  /** Quem chama bloqueou: a linha da tela troca o nome, o cartaz não. */
+  isBlocked: boolean;
 };
 
 export type TResenhaScorerCard = {
@@ -46,6 +50,8 @@ export type TResenhaSummary = {
   startsOn: string;
   matchCount: number;
   scorers: string[];
+  /** Na ordem de scorers: quem chama bloqueou aquele artilheiro. */
+  scorersBlocked: boolean[];
   topGoals: number;
 };
 

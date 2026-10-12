@@ -24,6 +24,7 @@ import {
   DISCARD_CHANGES_TITLE,
   LINE_TOO_BIG_FOR_SPOT_LIMIT,
   MOTOR_LOCKED,
+  NAME_NOT_ALLOWED,
   NAME_REQUIRED_TO_SAVE,
   NOT_OWNER,
   RACHA_SAVED,
@@ -92,6 +93,7 @@ export function useRachaSettingsForm(racha: TRacha) {
     values,
     isSubmitting: isSaving,
     submit,
+    rejectName,
   } = useRachaForm({
     defaultValues: initial,
     nameRequiredMessage: NAME_REQUIRED_TO_SAVE,
@@ -149,6 +151,11 @@ export function useRachaSettingsForm(racha: TRacha) {
         if (error instanceof Error && error.message === "not_allowed") {
           setIsLeaving(true);
           if (await hasRachaAccess()) showToast(NOT_OWNER);
+        } else if (
+          error instanceof Error &&
+          error.message === "name_not_allowed"
+        ) {
+          rejectName(NAME_NOT_ALLOWED);
         } else {
           setFailedValues(values);
           const code = error instanceof Error ? error.message : "";

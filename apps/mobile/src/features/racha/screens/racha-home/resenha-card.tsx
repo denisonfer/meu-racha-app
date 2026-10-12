@@ -1,10 +1,11 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { Icon, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import type { TSummarySegment } from "../../utils/racha-messages";
 
 export type TResenhaCardProps = {
   title: string;
-  summary: string;
+  summary: TSummarySegment[];
   onOpen: () => void;
   isMuted?: boolean;
 };
@@ -27,7 +28,15 @@ export const ResenhaCard = ({
         {title}
       </Text>
       <Text color={isMuted ? "muted" : "foreground"} style={styles.bold}>
-        {summary}
+        {summary.map((segment, index) =>
+          segment.isMuted ? (
+            <Text key={index} color="muted" style={styles.bold}>
+              {segment.text}
+            </Text>
+          ) : (
+            segment.text
+          )
+        )}
       </Text>
     </View>
     <Icon name="chevron-right" color="muted" />

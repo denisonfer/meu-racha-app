@@ -13,6 +13,7 @@ import { cardOverall, useRachaCards } from "../../hooks/use-racha-cards";
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import { TRachaMember } from "../../racha-types";
 import { ROLE_ACCESSIBILITY_LABEL, starsLabel } from "../../utils/racha-labels";
+import { membersHiddenBlocked } from "../../utils/racha-messages";
 import { shareInvite } from "../../utils/share-invite";
 
 const formatPosition = (member: TRachaMember) =>
@@ -53,7 +54,10 @@ export function useMembersScreen() {
     id
   );
 
-  const members = membersQuery.data ?? [];
+  const all = membersQuery.data ?? [];
+  // o número conta quem eu vejo; a nota explica a diferença para Times
+  const members = all.filter((member) => !member.isBlocked);
+  const hiddenCount = all.length - members.length;
   const cards = cardsQuery.data;
   const groups = groupMembersByPosition(members).map((group) => ({
     key: group.key,
@@ -84,7 +88,8 @@ export function useMembersScreen() {
     memberWord: members.length === 1 ? "membro" : "membros",
     showGroupTitles: members.length > 1,
     groups,
-    isOnlyOwner: members.length === 1,
+    hiddenNote: hiddenCount > 0 ? membersHiddenBlocked(hiddenCount) : null,
+    isOnlyOwner: all.length === 1,
     isLoading: membersQuery.isPending || cardsQuery.isLoading || isNoAccess,
     // Sem a carta, o piso 40 parece Overall de verdade.
     isError: (membersQuery.isError || cardsQuery.isError) && !isNoAccess,
