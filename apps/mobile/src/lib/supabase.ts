@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { AppState } from "react-native";
 import type { Database } from "./database.types";
-import { storage } from "./storage";
+import { authStorage } from "./storage";
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -12,9 +12,14 @@ if (!url || !anonKey) {
   );
 }
 
+// Em produção a sessão e o token não podem trafegar em texto claro.
+if (!__DEV__ && url.startsWith("http://")) {
+  throw new Error("EXPO_PUBLIC_SUPABASE_URL deve usar https:// em produção.");
+}
+
 export const supabase = createClient<Database>(url, anonKey, {
   auth: {
-    storage,
+    storage: authStorage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

@@ -18,6 +18,7 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "allowBackup": false,
       "predictiveBackGestureEnabled": false,
       "package": "app.meuracha",
       "googleServicesFile": "./google-services.json"
@@ -58,7 +59,9 @@
           "color": "#07180F"
         }
       ],
-      "./plugins/with-scene-delegate.js"
+      "./plugins/with-scene-delegate.js",
+      "expo-secure-store",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

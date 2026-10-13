@@ -1278,6 +1278,7 @@ export type Database = {
       };
       notification: {
         Row: {
+          actor_id: string | null;
           actor_name: string | null;
           created_at: string;
           event_id: string | null;
@@ -1291,6 +1292,7 @@ export type Database = {
           seen_at: string | null;
         };
         Insert: {
+          actor_id?: string | null;
           actor_name?: string | null;
           created_at?: string;
           event_id?: string | null;
@@ -1304,6 +1306,7 @@ export type Database = {
           seen_at?: string | null;
         };
         Update: {
+          actor_id?: string | null;
           actor_name?: string | null;
           created_at?: string;
           event_id?: string | null;
@@ -1317,6 +1320,13 @@ export type Database = {
           seen_at?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "notification_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "notification_recipient_id_fkey";
             columns: ["recipient_id"];
