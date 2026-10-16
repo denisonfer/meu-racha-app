@@ -6,7 +6,8 @@ import { theme } from "@/ui/theme";
  * Pages, depois o domínio próprio. O padrão é o domínio final para nenhuma
  * build sem env ficar com link morto.
  */
-const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? "https://meuracha.app";
+const WEB_URL =
+  process.env.EXPO_PUBLIC_WEB_URL ?? "https://meu-racha.pages.dev";
 
 /**
  * Abre por cima do app, não no navegador do sistema: sair do app no meio do

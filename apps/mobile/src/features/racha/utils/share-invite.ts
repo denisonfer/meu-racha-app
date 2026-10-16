@@ -1,6 +1,7 @@
 import { Share } from "react-native";
 
-const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? "https://meuracha.app";
+const WEB_URL =
+  process.env.EXPO_PUBLIC_WEB_URL ?? "https://meu-racha.pages.dev";
 
 export const shareInvite = (rachaName: string, inviteCode: string) =>
   void Share.share({
