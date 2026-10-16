@@ -60,6 +60,7 @@
         }
       ],
       "./plugins/with-scene-delegate.js",
+      "./plugins/with-release-signing.js",
       "expo-secure-store",
       "expo-sharing"
     ],
