@@ -1,4 +1,4 @@
-import { BottomSheet } from "@/ui/components";
+import { Screen } from "@/ui/components";
 import { GuestForm } from "./guest-form";
 import { useGuestScreen } from "./use-guest-screen";
 
@@ -18,8 +18,9 @@ export const GuestScreen = () => {
   if (isMissing) return null;
 
   return (
-    <BottomSheet title="Adicionar avulso" isBusy={isSaving}>
+    <Screen title="Adicionar avulso" canGoBack>
       <GuestForm
+        isFullScreen
         values={values}
         errors={errors}
         asksPositionDetail={asksPositionDetail}
@@ -29,6 +30,6 @@ export const GuestScreen = () => {
         onChange={onChange}
         onSubmit={onSubmit}
       />
-    </BottomSheet>
+    </Screen>
   );
 };

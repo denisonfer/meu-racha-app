@@ -80,10 +80,6 @@ export default function AppLayout() {
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
       <Stack.Screen
-        name="racha/[id]/event/[eventId]/guest"
-        options={BOTTOM_SHEET_SCREEN_OPTIONS}
-      />
-      <Stack.Screen
         name="racha/[id]/event/[eventId]/remove-guest"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />

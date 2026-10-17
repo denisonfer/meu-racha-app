@@ -10,7 +10,14 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { Button, ChipGroup, Input, NoticeBanner, Text } from "@/ui/components";
+import {
+  Button,
+  ChipGroup,
+  Input,
+  NoticeBanner,
+  ScreenFooter,
+  Text,
+} from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { PositionDetailField } from "../../components/position-detail-field";
 import { StarsAndSuperStarField } from "../../components/stars-and-super-star-field";
@@ -52,9 +59,12 @@ type TGuestFormProps = {
   hint?: string;
   onChange: (patch: Partial<TGuestFormValues>) => void;
   onSubmit: () => void;
+  /** Na tela cheia a lista ocupa a tela e o botão fica fixo no rodapé. */
+  isFullScreen?: boolean;
 };
 
 export const GuestForm = ({
+  isFullScreen = false,
   values,
   errors,
   asksPositionDetail,
@@ -97,166 +107,176 @@ export const GuestForm = ({
     );
   };
 
+  const actions = (
+    <>
+      {hint ? (
+        <Text preset="small" color="muted">
+          {hint}
+        </Text>
+      ) : null}
+      {failureMessage ? (
+        <Text preset="small" color="errorText" accessibilityRole="alert">
+          {failureMessage}
+        </Text>
+      ) : null}
+      <Button
+        title="Adicionar avulso"
+        onPress={onSubmit}
+        isDisabled={!canSubmit}
+        isLoading={isSaving}
+        accessibilityLabel={isSaving ? "Adicionando" : "Adicionar avulso"}
+      />
+    </>
+  );
+
   return (
-    // a folha mede o conteúdo (fitToContents): sem teto, o ScrollView cresce com
-    // ele, nunca rola, e com as subdivisões o fim do formulário fica cortado
-    <ScrollView
-      style={{ maxHeight: height * 0.6 }}
-      keyboardShouldPersistTaps="handled"
-      automaticallyAdjustKeyboardInsets
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.content}
-    >
-      <Input
-        label="Nome"
-        value={values.displayName}
-        onChangeText={(displayName) => onChange({ displayName })}
-        error={errors.displayName}
-        isDisabled={isSaving}
-        autoCapitalize="words"
-      />
-
-      <ChipGroup
-        label="Onde joga"
-        isFullWidth
-        isDisabled={isSaving}
-        value={values.playsAs}
-        onChange={(playsAs) =>
-          onChange({
-            playsAs,
-            primaryPosition: null,
-            secondaryPosition: null,
-            primaryPositionDetail: null,
-            secondaryPositionDetail: null,
-            stars: playsAs === "GOALKEEPER" ? null : values.stars,
-            isSuperStar: playsAs === "GOALKEEPER" ? false : values.isSuperStar,
-          })
-        }
-        options={PLAYS_AS_OPTIONS}
-      />
-
-      {isOutfield ? (
-        <>
-          <ChipGroup
-            label="Posição principal"
-            isDisabled={isSaving}
-            value={values.primaryPosition}
-            onChange={(primaryPosition) => {
-              const secondaryPosition =
-                primaryPosition === "ANY" ||
-                primaryPosition === values.secondaryPosition
-                  ? null
-                  : values.secondaryPosition;
-              onChange({
-                primaryPosition,
-                secondaryPosition,
-                primaryPositionDetail: keepDetail(
-                  primaryPosition,
-                  values.primaryPositionDetail
-                ),
-                secondaryPositionDetail: keepDetail(
-                  secondaryPosition,
-                  values.secondaryPositionDetail
-                ),
-              });
-            }}
-            options={POSITION_OPTIONS}
-            error={errors.primaryPosition}
-          />
-          {detailField(
-            "primary",
-            values.primaryPosition,
-            values.primaryPositionDetail,
-            errors.primaryPositionDetail
-          )}
-
-          {needsSecondary ? (
-            <>
-              <ChipGroup
-                label="Posição secundária"
-                isDisabled={isSaving}
-                value={values.secondaryPosition}
-                onChange={(secondaryPosition) =>
-                  onChange({
-                    secondaryPosition,
-                    secondaryPositionDetail: keepDetail(
-                      secondaryPosition,
-                      values.secondaryPositionDetail
-                    ),
-                  })
-                }
-                options={POSITION_OPTIONS.filter(
-                  (option) =>
-                    option.value !== "ANY" &&
-                    option.value !== values.primaryPosition
-                )}
-                error={errors.secondaryPosition}
-              />
-              {detailField(
-                "secondary",
-                values.secondaryPosition,
-                values.secondaryPositionDetail,
-                errors.secondaryPositionDetail
-              )}
-            </>
-          ) : null}
-
-          <StarsAndSuperStarField
-            isGoalkeeper={false}
-            stars={values.stars}
-            onStarsChange={(stars) => onChange({ stars })}
-            isSuperStar={values.isSuperStar}
-            onSuperStarChange={(isSuperStar) => onChange({ isSuperStar })}
-            isDisabled={isSaving}
-          />
-          {errors.stars ? (
-            <Text preset="small" color="errorText" accessibilityRole="alert">
-              {errors.stars}
-            </Text>
-          ) : null}
-          {asksPositionDetail ? (
-            <Text preset="small" color="muted">
-              {POSITION_DETAIL_GUEST_HINT}
-            </Text>
-          ) : null}
-        </>
-      ) : (
-        <StarsAndSuperStarField
-          isGoalkeeper
-          stars={null}
-          onStarsChange={() => undefined}
-          isSuperStar={false}
-          onSuperStarChange={() => undefined}
+    <>
+      {/* na folha (fitToContents) o teto evita que o ScrollView cresça com o
+          conteúdo, nunca role e corte o fim do formulário */}
+      <ScrollView
+        style={isFullScreen ? styles.fill : { maxHeight: height * 0.6 }}
+        keyboardDismissMode={isFullScreen ? "on-drag" : "none"}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        <Input
+          label="Nome"
+          value={values.displayName}
+          onChangeText={(displayName) => onChange({ displayName })}
+          error={errors.displayName}
           isDisabled={isSaving}
+          autoCapitalize="words"
         />
-      )}
 
-      <NoticeBanner tone="warning" text={ATTENDANCE_GUEST_AGE_NOTICE} />
-
-      <View style={styles.footer}>
-        {hint ? (
-          <Text preset="small" color="muted">
-            {hint}
-          </Text>
-        ) : null}
-        {failureMessage ? (
-          <Text preset="small" color="errorText" accessibilityRole="alert">
-            {failureMessage}
-          </Text>
-        ) : null}
-        <Button
-          title="Adicionar avulso"
-          onPress={onSubmit}
-          isDisabled={!canSubmit}
-          isLoading={isSaving}
-          accessibilityLabel={isSaving ? "Adicionando" : "Adicionar avulso"}
+        <ChipGroup
+          label="Onde joga"
+          isFullWidth
+          isDisabled={isSaving}
+          value={values.playsAs}
+          onChange={(playsAs) =>
+            onChange({
+              playsAs,
+              primaryPosition: null,
+              secondaryPosition: null,
+              primaryPositionDetail: null,
+              secondaryPositionDetail: null,
+              stars: playsAs === "GOALKEEPER" ? null : values.stars,
+              isSuperStar:
+                playsAs === "GOALKEEPER" ? false : values.isSuperStar,
+            })
+          }
+          options={PLAYS_AS_OPTIONS}
         />
-      </View>
-    </ScrollView>
+
+        {isOutfield ? (
+          <>
+            <ChipGroup
+              label="Posição principal"
+              isDisabled={isSaving}
+              value={values.primaryPosition}
+              onChange={(primaryPosition) => {
+                const secondaryPosition =
+                  primaryPosition === "ANY" ||
+                  primaryPosition === values.secondaryPosition
+                    ? null
+                    : values.secondaryPosition;
+                onChange({
+                  primaryPosition,
+                  secondaryPosition,
+                  primaryPositionDetail: keepDetail(
+                    primaryPosition,
+                    values.primaryPositionDetail
+                  ),
+                  secondaryPositionDetail: keepDetail(
+                    secondaryPosition,
+                    values.secondaryPositionDetail
+                  ),
+                });
+              }}
+              options={POSITION_OPTIONS}
+              error={errors.primaryPosition}
+            />
+            {detailField(
+              "primary",
+              values.primaryPosition,
+              values.primaryPositionDetail,
+              errors.primaryPositionDetail
+            )}
+
+            {needsSecondary ? (
+              <>
+                <ChipGroup
+                  label="Posição secundária"
+                  isDisabled={isSaving}
+                  value={values.secondaryPosition}
+                  onChange={(secondaryPosition) =>
+                    onChange({
+                      secondaryPosition,
+                      secondaryPositionDetail: keepDetail(
+                        secondaryPosition,
+                        values.secondaryPositionDetail
+                      ),
+                    })
+                  }
+                  options={POSITION_OPTIONS.filter(
+                    (option) =>
+                      option.value !== "ANY" &&
+                      option.value !== values.primaryPosition
+                  )}
+                  error={errors.secondaryPosition}
+                />
+                {detailField(
+                  "secondary",
+                  values.secondaryPosition,
+                  values.secondaryPositionDetail,
+                  errors.secondaryPositionDetail
+                )}
+              </>
+            ) : null}
+
+            <StarsAndSuperStarField
+              isGoalkeeper={false}
+              stars={values.stars}
+              onStarsChange={(stars) => onChange({ stars })}
+              isSuperStar={values.isSuperStar}
+              onSuperStarChange={(isSuperStar) => onChange({ isSuperStar })}
+              isDisabled={isSaving}
+            />
+            {errors.stars ? (
+              <Text preset="small" color="errorText" accessibilityRole="alert">
+                {errors.stars}
+              </Text>
+            ) : null}
+            {asksPositionDetail ? (
+              <Text preset="small" color="muted">
+                {POSITION_DETAIL_GUEST_HINT}
+              </Text>
+            ) : null}
+          </>
+        ) : (
+          <StarsAndSuperStarField
+            isGoalkeeper
+            stars={null}
+            onStarsChange={() => undefined}
+            isSuperStar={false}
+            onSuperStarChange={() => undefined}
+            isDisabled={isSaving}
+          />
+        )}
+
+        <NoticeBanner tone="warning" text={ATTENDANCE_GUEST_AGE_NOTICE} />
+
+        {isFullScreen ? null : <View style={styles.footer}>{actions}</View>}
+      </ScrollView>
+      {isFullScreen ? <ScreenFooter>{actions}</ScreenFooter> : null}
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   content: { gap: theme.space[16], paddingBottom: theme.space[8] },
   footer: { gap: 10, paddingTop: theme.space[8] },
+  fill: { flex: 1 },
 });

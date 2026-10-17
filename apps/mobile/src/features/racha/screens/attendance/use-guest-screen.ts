@@ -1,7 +1,7 @@
 import { asksPositionDetail } from "@meu-racha/domain";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import { useBottomSheetClose, useToast } from "@/ui/components";
+import { useToast } from "@/ui/components";
 import { useAttendanceAdmin } from "../../hooks/use-event-attendance";
 import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useOpenEvents } from "../../hooks/use-open-events";
@@ -30,7 +30,6 @@ export function useGuestScreen() {
   const hasRachaAccess = useHasRachaAccess(id);
   const navigation = useNavigation();
   const showToast = useToast();
-  const close = useBottomSheetClose();
 
   const [values, setValues] = useState<TGuestFormValues>(emptyGuestForm);
   const [triedSubmit, setTriedSubmit] = useState(false);
@@ -109,11 +108,11 @@ export function useGuestScreen() {
         stars: data.playsAs === "GOALKEEPER" ? null : data.stars,
         isSuperStar: data.playsAs === "GOALKEEPER" ? false : data.isSuperStar,
       });
-      close();
+      if (navigation.isFocused()) router.back();
     } catch (error) {
       const code = (error as Error).message;
       if (code === "not_allowed") {
-        close();
+        if (navigation.isFocused()) router.back();
         if (await hasRachaAccess()) showToast(ACTION_FAILED);
         return;
       }
