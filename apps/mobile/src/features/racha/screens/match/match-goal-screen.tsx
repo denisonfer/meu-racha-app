@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, StyleSheet } from "react-native";
-import { FixedBottomSheet, Button, Text } from "@/ui/components";
+import { BottomSheet, Button, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { SORT_BACK } from "../../utils/racha-messages";
 import { useMatchGoalScreen } from "./use-match-goal-screen";
@@ -25,7 +25,7 @@ export const MatchGoalScreen = () => {
   if (isMissing) return null;
 
   return (
-    <FixedBottomSheet
+    <BottomSheet
       title={title}
       supporting={hint ? <Text color="muted">{hint}</Text> : undefined}
       isBusy={isBusy}
@@ -95,7 +95,7 @@ export const MatchGoalScreen = () => {
           onPress={cancel}
         />
       )}
-    </FixedBottomSheet>
+    </BottomSheet>
   );
 };
 

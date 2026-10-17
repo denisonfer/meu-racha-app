@@ -1,9 +1,10 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
-  BottomSheet,
   Button,
   Input,
   OptionList,
+  Screen,
+  ScreenFooter,
   Text,
   type TOptionListOption,
 } from "@/ui/components";
@@ -43,13 +44,15 @@ export const ReportForm = ({
   failureMessage,
   onSend,
 }: TReportFormProps) => (
-  <BottomSheet
-    title={title}
-    supporting={<Text>{text}</Text>}
-    isBusy={isSending}
-  >
-    {/* em celular pequeno a folha passa da tela: o miolo rola */}
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+  <Screen title={title} canGoBack>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
+      showsVerticalScrollIndicator={false}
+    >
+      <Text>{text}</Text>
       <View style={styles.reasons}>
         <Text style={styles.groupTitle}>{REPORT_REASON}</Text>
         {/* "" fora das opções: nada marcado até a pessoa escolher */}
@@ -72,25 +75,27 @@ export const ReportForm = ({
         style={styles.details}
       />
     </ScrollView>
-    {failureMessage ? (
-      <Text preset="small" color="errorText" accessibilityRole="alert">
-        {failureMessage}
-      </Text>
-    ) : null}
-    <Button
-      title={REPORT_SEND}
-      onPress={onSend}
-      isDisabled={!reason}
-      isLoading={isSending}
-      accessibilityLabel={isSending ? REPORT_SENDING : REPORT_SEND}
-      style={styles.send}
-    />
-  </BottomSheet>
+    <ScreenFooter>
+      {failureMessage ? (
+        <Text preset="small" color="errorText" accessibilityRole="alert">
+          {failureMessage}
+        </Text>
+      ) : null}
+      <Button
+        title={REPORT_SEND}
+        onPress={onSend}
+        isDisabled={!reason}
+        isLoading={isSending}
+        accessibilityLabel={isSending ? REPORT_SENDING : REPORT_SEND}
+        style={styles.send}
+      />
+    </ScreenFooter>
+  </Screen>
 );
 
 const styles = StyleSheet.create({
-  scroll: { flexGrow: 0 },
-  content: { gap: 20 },
+  scroll: { flex: 1 },
+  content: { gap: 20, paddingBottom: theme.space[24] },
   reasons: { gap: theme.space[8] },
   groupTitle: {
     fontFamily: "Manrope-Bold",

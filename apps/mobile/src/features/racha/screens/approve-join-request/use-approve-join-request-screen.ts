@@ -29,7 +29,7 @@ export function useApproveJoinRequestScreen() {
   const [stars, setStars] = useState<number | null>(null);
   const [isSuperStar, setIsSuperStar] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
-  // no iOS o formSheet cobre o toast da raiz: o erro fica na folha
+  // a folha fica por cima do toast da raiz: o erro aparece dentro dela
   const [failureMessage, setFailureMessage] = useState<string | null>(null);
 
   // a lista recarrega antes da mutation terminar e o pedido some com a folha aberta

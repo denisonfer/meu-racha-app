@@ -49,6 +49,6 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  // a folha em JS (FixedBottomSheet) depende do gesture-handler na raiz
+  // a folha em JS (BottomSheet) depende do gesture-handler na raiz
   root: { flex: 1 },
 });

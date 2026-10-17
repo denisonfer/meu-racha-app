@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet } from "react-native";
-import { FixedBottomSheet, Text } from "@/ui/components";
+import { BottomSheet, Text } from "@/ui/components";
 import {
   MATCH_QUEUE_EMPTY,
   MATCH_QUEUE_SHEET_TITLE,
@@ -12,7 +12,7 @@ export const MatchQueueScreen = () => {
   const { teams, keepers, history } = useMatchQueueScreen();
 
   return (
-    <FixedBottomSheet title={MATCH_QUEUE_SHEET_TITLE}>
+    <BottomSheet title={MATCH_QUEUE_SHEET_TITLE}>
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
         {teams.length === 0 ? (
           <Text color="muted">{MATCH_QUEUE_EMPTY}</Text>
@@ -20,7 +20,7 @@ export const MatchQueueScreen = () => {
         <MatchQueue teams={teams} keepers={keepers} />
         <MatchHistory matches={history} />
       </ScrollView>
-    </FixedBottomSheet>
+    </BottomSheet>
   );
 };
 

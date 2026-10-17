@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet } from "react-native";
-import { FixedBottomSheet, Text } from "@/ui/components";
+import { BottomSheet, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { SortPersonList } from "../../components/sort-person-list";
 import { MATCH_ROSTER_TEXT } from "../../utils/racha-messages";
@@ -11,7 +11,7 @@ export const MatchRosterScreen = () => {
   if (isMissing) return null;
 
   return (
-    <FixedBottomSheet
+    <BottomSheet
       title={title}
       supporting={<Text color="muted">{MATCH_ROSTER_TEXT}</Text>}
     >
@@ -22,7 +22,7 @@ export const MatchRosterScreen = () => {
       >
         <SortPersonList title={listTitle} rows={rows} />
       </ScrollView>
-    </FixedBottomSheet>
+    </BottomSheet>
   );
 };
 

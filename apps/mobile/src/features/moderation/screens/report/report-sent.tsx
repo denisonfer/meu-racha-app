@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import { BottomSheet, Button, Icon, Text } from "@/ui/components";
+import { Button, Icon, Screen, ScreenFooter, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { CLOSE, REPORT_SENT } from "../../utils/moderation-messages";
 
@@ -19,27 +19,30 @@ export const ReportSent = ({
   onBlock,
   onClose,
 }: TReportSentProps) => (
-  <BottomSheet
-    title={REPORT_SENT}
-    leading={<Icon name="success" size={32} color="success" />}
-    supporting={<Text>{text}</Text>}
-  >
-    {blockAsk ? (
-      <View style={styles.blockCard}>
-        <Text>{blockAsk}</Text>
-        <Button title={blockAction} preset="secondary" onPress={onBlock} />
-      </View>
-    ) : null}
-    <Button
-      title={CLOSE}
-      preset="outline"
-      onPress={onClose}
-      style={styles.close}
-    />
-  </BottomSheet>
+  <Screen title={REPORT_SENT} canGoBack>
+    <View style={styles.content}>
+      <Icon name="success" size={32} color="success" />
+      <Text>{text}</Text>
+      {blockAsk ? (
+        <View style={styles.blockCard}>
+          <Text>{blockAsk}</Text>
+          <Button title={blockAction} preset="secondary" onPress={onBlock} />
+        </View>
+      ) : null}
+    </View>
+    <ScreenFooter>
+      <Button
+        title={CLOSE}
+        preset="outline"
+        onPress={onClose}
+        style={styles.close}
+      />
+    </ScreenFooter>
+  </Screen>
 );
 
 const styles = StyleSheet.create({
+  content: { flex: 1, gap: theme.space[16] },
   blockCard: {
     gap: 12,
     padding: theme.space[16],

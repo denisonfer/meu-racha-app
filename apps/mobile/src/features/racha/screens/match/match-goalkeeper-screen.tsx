@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, StyleSheet } from "react-native";
-import { FixedBottomSheet, Button, Text } from "@/ui/components";
+import { BottomSheet, Button, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { useMatchGoalkeeperScreen } from "./use-match-goalkeeper-screen";
 
@@ -17,7 +17,7 @@ export const MatchGoalkeeperScreen = () => {
   if (isMissing) return null;
 
   return (
-    <FixedBottomSheet
+    <BottomSheet
       title={title}
       supporting={<Text color="muted">{teamLabel}</Text>}
       isBusy={isBusy}
@@ -58,7 +58,7 @@ export const MatchGoalkeeperScreen = () => {
         isDisabled={isBusy}
         onPress={cancel}
       />
-    </FixedBottomSheet>
+    </BottomSheet>
   );
 };
 
