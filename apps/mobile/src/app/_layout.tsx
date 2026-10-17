@@ -2,6 +2,8 @@ import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
+import { StyleSheet } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { queryClient } from "@/lib/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ToastProvider } from "@/ui/components";
@@ -33,13 +35,20 @@ export default function RootLayout() {
   if (!loaded && !error) return null;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          {/* home autenticada: gesto não pode voltar ao login */}
-          <Stack.Screen name="(app)" options={{ gestureEnabled: false }} />
-        </Stack>
-      </ToastProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            {/* home autenticada: gesto não pode voltar ao login */}
+            <Stack.Screen name="(app)" options={{ gestureEnabled: false }} />
+          </Stack>
+        </ToastProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  // a folha em JS (FixedBottomSheet) depende do gesture-handler na raiz
+  root: { flex: 1 },
+});

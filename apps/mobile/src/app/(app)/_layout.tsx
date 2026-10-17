@@ -1,7 +1,10 @@
 import { Redirect, Stack, usePathname } from "expo-router";
 import { savePendingDestination, useSession } from "@/features/auth";
 import { usePush } from "@/features/notification";
-import { BOTTOM_SHEET_SCREEN_OPTIONS } from "@/ui/components";
+import {
+  BOTTOM_SHEET_SCREEN_OPTIONS,
+  FIXED_BOTTOM_SHEET_SCREEN_OPTIONS,
+} from "@/ui/components";
 
 // sem âncora, a folha (1ª declarada) viraria a raiz da pilha
 export const unstable_settings = {
@@ -105,7 +108,7 @@ export default function AppLayout() {
       />
       <Stack.Screen
         name="racha/[id]/event/[eventId]/match-goal"
-        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+        options={FIXED_BOTTOM_SHEET_SCREEN_OPTIONS}
       />
       <Stack.Screen
         name="racha/[id]/event/[eventId]/match-finish"
@@ -117,15 +120,15 @@ export default function AppLayout() {
       />
       <Stack.Screen
         name="racha/[id]/event/[eventId]/match-goalkeeper"
-        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+        options={FIXED_BOTTOM_SHEET_SCREEN_OPTIONS}
       />
       <Stack.Screen
         name="racha/[id]/event/[eventId]/match-roster"
-        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+        options={FIXED_BOTTOM_SHEET_SCREEN_OPTIONS}
       />
       <Stack.Screen
         name="racha/[id]/event/[eventId]/match-queue"
-        options={BOTTOM_SHEET_SCREEN_OPTIONS}
+        options={FIXED_BOTTOM_SHEET_SCREEN_OPTIONS}
       />
       <Stack.Screen
         name="racha/[id]/event/[eventId]/match-leave"
