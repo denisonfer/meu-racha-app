@@ -1,15 +1,11 @@
+import { ReactNode } from "react";
 import {
   positionDetailFits,
   positionDetailOptions,
   type TPosition,
   type TPositionDetail,
 } from "@meu-racha/domain";
-import {
-  ScrollView,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import {
   Button,
   ChipGroup,
@@ -59,12 +55,12 @@ type TGuestFormProps = {
   hint?: string;
   onChange: (patch: Partial<TGuestFormValues>) => void;
   onSubmit: () => void;
-  /** Na tela cheia a lista ocupa a tela e o botão fica fixo no rodapé. */
-  isFullScreen?: boolean;
+  /** Abaixo do botão principal, no rodapé. */
+  secondaryAction?: ReactNode;
 };
 
 export const GuestForm = ({
-  isFullScreen = false,
+  secondaryAction,
   values,
   errors,
   asksPositionDetail,
@@ -75,7 +71,6 @@ export const GuestForm = ({
   onChange,
   onSubmit,
 }: TGuestFormProps) => {
-  const { height } = useWindowDimensions();
   const isOutfield = values.playsAs === "OUTFIELD";
   const needsSecondary =
     isOutfield &&
@@ -126,16 +121,15 @@ export const GuestForm = ({
         isLoading={isSaving}
         accessibilityLabel={isSaving ? "Adicionando" : "Adicionar avulso"}
       />
+      {secondaryAction}
     </>
   );
 
   return (
     <>
-      {/* na folha (fitToContents) o teto evita que o ScrollView cresça com o
-          conteúdo, nunca role e corte o fim do formulário */}
       <ScrollView
-        style={isFullScreen ? styles.fill : { maxHeight: height * 0.6 }}
-        keyboardDismissMode={isFullScreen ? "on-drag" : "none"}
+        style={styles.fill}
+        keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
         automaticallyAdjustKeyboardInsets
         showsVerticalScrollIndicator={false}
@@ -267,16 +261,13 @@ export const GuestForm = ({
         )}
 
         <NoticeBanner tone="warning" text={ATTENDANCE_GUEST_AGE_NOTICE} />
-
-        {isFullScreen ? null : <View style={styles.footer}>{actions}</View>}
       </ScrollView>
-      {isFullScreen ? <ScreenFooter>{actions}</ScreenFooter> : null}
+      <ScreenFooter>{actions}</ScreenFooter>
     </>
   );
 };
 
 const styles = StyleSheet.create({
   content: { gap: theme.space[16], paddingBottom: theme.space[8] },
-  footer: { gap: 10, paddingTop: theme.space[8] },
   fill: { flex: 1 },
 });

@@ -20,7 +20,6 @@ export const GuestScreen = () => {
   return (
     <Screen title="Adicionar avulso" canGoBack>
       <GuestForm
-        isFullScreen
         values={values}
         errors={errors}
         asksPositionDetail={asksPositionDetail}

@@ -1,5 +1,5 @@
-import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
-import { BottomSheet, Button, Text } from "@/ui/components";
+import { ActivityIndicator, ScrollView, StyleSheet } from "react-native";
+import { Button, Screen, ScreenFooter, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { SortPersonList } from "../../components/sort-person-list";
 import {
@@ -30,19 +30,21 @@ export const IncludeSortScreen = () => {
   if (isMissing) return null;
 
   return (
-    <BottomSheet title={SORT_INCLUDE_TITLE} isBusy={guestForm.isSaving}>
+    <Screen title={SORT_INCLUDE_TITLE} canGoBack>
       {mode === "guest" ? (
-        <View style={styles.guest}>
-          <GuestForm {...guestForm} />
-          <Button
-            title={SORT_INCLUDE_BACK_TO_LIST}
-            preset="outline"
-            isDisabled={guestForm.isSaving}
-            onPress={backToList}
-          />
-        </View>
+        <GuestForm
+          {...guestForm}
+          secondaryAction={
+            <Button
+              title={SORT_INCLUDE_BACK_TO_LIST}
+              preset="outline"
+              isDisabled={guestForm.isSaving}
+              onPress={backToList}
+            />
+          }
+        />
       ) : (
-        <View style={styles.list}>
+        <>
           {isLoadingMembers ? (
             <ActivityIndicator color={theme.colors.foreground} />
           ) : hasMembersError ? (
@@ -63,24 +65,24 @@ export const IncludeSortScreen = () => {
               />
             </ScrollView>
           )}
-          {failureMessage ? (
-            <Text preset="small" color="errorText" accessibilityRole="alert">
-              {failureMessage}
-            </Text>
-          ) : null}
-          <Button
-            title={SORT_INCLUDE_GUEST}
-            preset="secondary"
-            onPress={openGuest}
-          />
-        </View>
+          <ScreenFooter>
+            {failureMessage ? (
+              <Text preset="small" color="errorText" accessibilityRole="alert">
+                {failureMessage}
+              </Text>
+            ) : null}
+            <Button
+              title={SORT_INCLUDE_GUEST}
+              preset="secondary"
+              onPress={openGuest}
+            />
+          </ScreenFooter>
+        </>
       )}
-    </BottomSheet>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  guest: { gap: theme.space[8] },
-  list: { gap: theme.space[16] },
-  scroll: { maxHeight: 360 },
+  scroll: { flex: 1 },
 });

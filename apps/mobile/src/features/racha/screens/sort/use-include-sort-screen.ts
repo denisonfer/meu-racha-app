@@ -1,7 +1,7 @@
 import { asksPositionDetail, formatPlaysAs } from "@meu-racha/domain";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import { useBottomSheetClose, useToast } from "@/ui/components";
+import { useToast } from "@/ui/components";
 import type { TSortPersonListRow } from "../../components/sort-person-list";
 import {
   useEventSort,
@@ -34,7 +34,6 @@ export function useIncludeSortScreen() {
     useEventSortOperations(id, eventId);
   const navigation = useNavigation();
   const showToast = useToast();
-  const close = useBottomSheetClose();
 
   const [mode, setMode] = useState<"list" | "guest">("list");
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -80,7 +79,7 @@ export function useIncludeSortScreen() {
     setBusyId(profileId);
     try {
       await includeEventSortMember(profileId);
-      close();
+      if (navigation.isFocused()) router.back();
     } catch (error) {
       setFailureMessage(sortFailureMessage(error));
     } finally {
@@ -170,7 +169,7 @@ export function useIncludeSortScreen() {
         stars: isGoalkeeper ? null : data.stars,
         isSuperStar: isGoalkeeper ? false : data.isSuperStar,
       });
-      close();
+      if (navigation.isFocused()) router.back();
     } catch (error) {
       if (!navigation.isFocused()) {
         showToast(sortFailureMessage(error), "danger");
