@@ -6,11 +6,6 @@ import {
 } from "@meu-racha/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  askPushPermissionOnce,
-  registerPushToken,
-  usePushEnabled,
-} from "@/features/notification";
 import { useToast } from "@/ui/components";
 import { useCancelJoinRequest } from "../../hooks/use-cancel-join-request";
 import { useInvite } from "../../hooks/use-invite";
@@ -52,7 +47,6 @@ export function useJoinRachaScreen() {
   const { cancelJoinRequest, isCancelling } = useCancelJoinRequest();
   const showToast = useToast();
   const [isRequesting, setIsRequesting] = useState(false);
-  const pushEnabled = usePushEnabled();
 
   const isMember = invite?.myStatus === "MEMBER";
 
@@ -116,11 +110,6 @@ export function useJoinRachaScreen() {
           ? { primary: choice("primary"), secondary: choice("secondary") }
           : undefined
       );
-      if (pushEnabled === true) {
-        void askPushPermissionOnce().then((granted) =>
-          granted ? registerPushToken() : undefined
-        );
-      }
       router.dismissTo("/rachas");
     } catch (error) {
       const code = (error as Error).message;

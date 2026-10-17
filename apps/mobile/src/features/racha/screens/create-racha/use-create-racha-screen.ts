@@ -1,10 +1,5 @@
 import { DEFAULT_MIN_AGE, DEFAULT_RACHA_RULES } from "@meu-racha/domain";
 import { router } from "expo-router";
-import {
-  askPushPermissionOnce,
-  registerPushToken,
-  usePushEnabled,
-} from "@/features/notification";
 import { useCreateRacha } from "../../hooks/use-create-racha";
 import { useCreateRachaForm } from "../../hooks/use-racha-form";
 import { useMyRachas } from "../../hooks/use-my-rachas";
@@ -21,7 +16,6 @@ import {
 export function useCreateRachaScreen() {
   const { data: myRachas } = useMyRachas();
   const { createRacha, errorCode } = useCreateRacha();
-  const pushEnabled = usePushEnabled();
 
   const { form, isSubmitting, isSubmitSuccessful, submit, rejectName } =
     useCreateRachaForm({
@@ -50,11 +44,6 @@ export function useCreateRachaScreen() {
         return;
       }
       throw error;
-    }
-    if (pushEnabled === true) {
-      void askPushPermissionOnce().then((granted) =>
-        granted ? registerPushToken() : undefined
-      );
     }
     router.replace(`/racha/${id}`);
   };

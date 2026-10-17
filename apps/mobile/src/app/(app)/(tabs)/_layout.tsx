@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import { ComponentProps } from "react";
 import {
   tabBadgeA11y,
+  useAskPushPermission,
   useUnseenNotificationsCount,
 } from "@/features/notification";
 import { TabBar, TTabBarTab } from "@/ui/components";
@@ -35,6 +36,8 @@ function TabsBar({ state, navigation }: TTabsBarProps) {
 const renderTabBar: TTabBarRender = (props) => <TabsBar {...props} />;
 
 export default function TabsLayout() {
+  useAskPushPermission();
+
   return (
     <Tabs screenOptions={{ headerShown: false }} tabBar={renderTabBar}>
       <Tabs.Screen name="rachas" />

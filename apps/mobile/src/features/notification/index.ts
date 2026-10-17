@@ -3,9 +3,9 @@ export * from "./hooks/use-unseen-notifications-count";
 export { tabBadgeA11y } from "./utils/notification-messages";
 export { usePush } from "./push/use-push";
 export { usePushPermission } from "./push/use-push-permission";
+export { useAskPushPermission } from "./push/use-ask-push-permission";
 export { pushEnabledKey, usePushEnabled } from "./hooks/use-push-enabled";
 export {
-  askPushPermissionOnce,
   registerPushToken,
   requestPushPermission,
   unregisterPushToken,
