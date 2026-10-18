@@ -1,4 +1,5 @@
 import type {
+  TPixKeyType,
   TPlaysAs,
   TPosition,
   TPositionDetail,
@@ -68,6 +69,25 @@ export type TRachaLogistics = {
   monthlyPrice: number | null;
   spotLimit: number | null;
   payerTarget: number | null;
+};
+
+export type TRachaPixKey = {
+  pixKey: string | null;
+  hasOpenEventKey: boolean;
+};
+
+export type TPayment = {
+  dailyPrice: number;
+  creditAvailable: number;
+  /** Saldo bruto de Crédito no Racha, sem o teto da diária. */
+  creditBalance: number;
+  amountDue: number;
+  isPaid: boolean;
+  isWaitlisted: boolean;
+  isOwner: boolean;
+  recipientName: string;
+  pixKey: string | null;
+  pixKeyType: TPixKeyType | null;
 };
 
 export type TInviteStatus = "MEMBER" | "PENDING";
@@ -173,6 +193,8 @@ export type TOpenEvent = {
   price: number | null;
   spotLimit: number | null;
   payerTarget: number | null;
+  /** Só Dono e Admin recebem a chave. */
+  pixKey: string | null;
   outfieldPerTeam: number;
   conductorId: string | null;
   conductorName: string | null;

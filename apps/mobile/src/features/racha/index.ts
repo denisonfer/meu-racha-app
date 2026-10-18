@@ -15,6 +15,7 @@ export * from "./screens/assume-event-conduction/assume-event-conduction-screen"
 export * from "./screens/attendance/attendance-screen";
 export * from "./screens/attendance/guest-screen";
 export * from "./screens/attendance/monthly-pass-screen";
+export * from "./screens/pay/pay-screen";
 export * from "./screens/attendance/remove-guest-screen";
 export * from "./screens/sort/sort-screen";
 export * from "./screens/sort/confirm-sort-screen";

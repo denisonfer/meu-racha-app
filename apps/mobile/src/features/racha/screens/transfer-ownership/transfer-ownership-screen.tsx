@@ -1,9 +1,21 @@
-import { ConfirmBottomSheet } from "@/ui/components";
+import { ConfirmBottomSheet, NoticeBanner } from "@/ui/components";
+import {
+  PIX_TRANSFER_TITLE,
+  pixTransferText,
+} from "../../utils/racha-messages";
 import { useTransferOwnershipScreen } from "./use-transfer-ownership-screen";
 
 export const TransferOwnershipScreen = () => {
-  const { rachaName, name, isTransferring, failureMessage, confirm, cancel } =
-    useTransferOwnershipScreen();
+  const {
+    hasPixKey,
+    isPixKeyLoading,
+    rachaName,
+    name,
+    isTransferring,
+    failureMessage,
+    confirm,
+    cancel,
+  } = useTransferOwnershipScreen();
 
   if (!name || !rachaName) return null;
 
@@ -14,9 +26,18 @@ export const TransferOwnershipScreen = () => {
       confirmLabel="Passar o racha"
       busyLabel="Passando"
       isBusy={isTransferring}
+      isConfirmDisabled={isPixKeyLoading}
       failureMessage={failureMessage}
       onConfirm={confirm}
       onCancel={cancel}
-    />
+    >
+      {hasPixKey ? (
+        <NoticeBanner
+          tone="warning"
+          title={PIX_TRANSFER_TITLE}
+          text={pixTransferText(name)}
+        />
+      ) : null}
+    </ConfirmBottomSheet>
   );
 };

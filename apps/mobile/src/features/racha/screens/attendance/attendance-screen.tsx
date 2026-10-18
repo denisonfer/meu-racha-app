@@ -7,6 +7,7 @@ import {
   Text,
 } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { PaymentCard } from "./payment-card";
 import { AttendanceRow } from "../../components/attendance-row";
 import {
   ATTENDANCE_ADD_GUEST,
@@ -31,6 +32,7 @@ export const AttendanceScreen = () => {
     presentPayersText,
     myCreditText,
     myAttendance,
+    paymentCard,
     selfPositionNotice,
     pendingNotice,
     sortNotice,
@@ -121,6 +123,8 @@ export const AttendanceScreen = () => {
               accessibilityLabel={myAttendance.title}
             />
           ) : null}
+
+          {paymentCard ? <PaymentCard {...paymentCard} /> : null}
 
           {selfPositionNotice ? (
             <NoticeBanner

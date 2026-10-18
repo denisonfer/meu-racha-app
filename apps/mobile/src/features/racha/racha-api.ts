@@ -20,6 +20,7 @@ import {
   type TMatchFinishPreview,
   type TMemberCard,
   type TMyProfileCard,
+  type TPixKeyType,
   type TPositionDetail,
   type TPublishedSort,
   type TRachaRules,
@@ -56,6 +57,8 @@ import {
   TRachaNotice,
   TRachaSettings,
   TMatchListState,
+  TRachaPixKey,
+  TPayment,
 } from "./racha-types";
 import { attendancePaymentNote } from "./utils/racha-messages";
 
@@ -63,6 +66,11 @@ import { attendancePaymentNote } from "./utils/racha-messages";
 const RAISE_EXCEPTION_CODES = [
   "not_authenticated",
   "name_not_allowed",
+  "email_not_verified",
+  "not_owner",
+  "invalid_pix_key",
+  "not_in_event",
+  "event_closed",
   "plan_owner_limit",
   "already_resolved",
   "not_allowed",
@@ -599,6 +607,8 @@ async function listOpenEvents(rachaId: string): Promise<TOpenEvent[]> {
     price: row.price ?? null,
     spotLimit: row.spot_limit ?? null,
     payerTarget: row.payer_target ?? null,
+    // o tipo gerado diz string; só Dono e Admin recebem, e sem chave vem null
+    pixKey: row.pix_key ?? null,
     conductorId: row.conductor_id ?? null,
     conductorName: row.conductor_name ?? null,
     confirmedCount: row.confirmed_count,
@@ -678,6 +688,57 @@ async function updateEvent(eventId: string, input: TEventInput): Promise<void> {
     throwEventConstraintViolation(error);
     throw toCodedError(error, status);
   }
+}
+
+async function getRachaPixKey(rachaId: string): Promise<TRachaPixKey> {
+  const { data, error, status } = await supabase.rpc("get_racha_pix_key", {
+    p_racha_id: rachaId,
+  });
+  if (error) throw toCodedError(error, status);
+  const row = data[0];
+  // o tipo gerado diz string; sem chave vem null
+  return {
+    pixKey: row?.pix_key ?? null,
+    hasOpenEventKey: row?.has_open_event_key ?? false,
+  };
+}
+
+async function getPayment(eventId: string): Promise<TPayment> {
+  const { data, error, status } = await supabase.rpc("get_payment", {
+    p_event_id: eventId,
+  });
+  if (error) throw toCodedError(error, status);
+  const row = data[0];
+  if (!row) throw new Error("not_in_event");
+  // o tipo gerado diz string; sem chave vem null
+  return {
+    dailyPrice: row.daily_price,
+    creditAvailable: row.credit_available,
+    creditBalance: row.credit_balance,
+    amountDue: row.amount_due,
+    isPaid: row.is_paid,
+    isWaitlisted: row.is_waitlisted,
+    isOwner: row.is_owner,
+    recipientName: row.recipient_name,
+    pixKey: row.pix_key ?? null,
+    pixKeyType: (row.pix_key_type ?? null) as TPixKeyType | null,
+  };
+}
+
+async function setRachaPixKey(rachaId: string, key: string): Promise<void> {
+  const { error, status } = await supabase.rpc("set_racha_pix_key", {
+    p_racha_id: rachaId,
+    p_key: key,
+  });
+  if (error) throw toCodedError(error, status);
+}
+
+async function setEventPixKey(eventId: string, key: string): Promise<void> {
+  const { error, status } = await supabase.rpc("set_event_pix_key", {
+    p_event_id: eventId,
+    p_key: key,
+  });
+  if (error) throw toCodedError(error, status);
 }
 
 async function cancelEvent(eventId: string): Promise<void> {
@@ -1425,6 +1486,10 @@ export const rachaApi = {
   listMyRachaEvents,
   createEvent,
   updateEvent,
+  getRachaPixKey,
+  getPayment,
+  setRachaPixKey,
+  setEventPixKey,
   cancelEvent,
   assumeEventConduction,
   finishEvent,

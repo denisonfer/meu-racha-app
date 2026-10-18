@@ -49,6 +49,8 @@ export type Database = {
           max_consecutive_wins: number;
           outfield_per_team: number;
           payer_target: number | null;
+          pix_key: string | null;
+          pix_key_type: string | null;
           place: string;
           price: number | null;
           racha_id: string;
@@ -76,6 +78,8 @@ export type Database = {
           max_consecutive_wins: number;
           outfield_per_team: number;
           payer_target?: number | null;
+          pix_key?: string | null;
+          pix_key_type?: string | null;
           place: string;
           price?: number | null;
           racha_id: string;
@@ -103,6 +107,8 @@ export type Database = {
           max_consecutive_wins?: number;
           outfield_per_team?: number;
           payer_target?: number | null;
+          pix_key?: string | null;
+          pix_key_type?: string | null;
           place?: string;
           price?: number | null;
           racha_id?: string;
@@ -1343,6 +1349,7 @@ export type Database = {
           birth_date: string | null;
           created_at: string;
           display_name: string;
+          email_verified_at: string | null;
           id: string;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position: Database["public"]["Enums"]["position"] | null;
@@ -1356,6 +1363,7 @@ export type Database = {
           birth_date?: string | null;
           created_at?: string;
           display_name: string;
+          email_verified_at?: string | null;
           id: string;
           plays_as: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
@@ -1369,6 +1377,7 @@ export type Database = {
           birth_date?: string | null;
           created_at?: string;
           display_name?: string;
+          email_verified_at?: string | null;
           id?: string;
           plays_as?: Database["public"]["Enums"]["plays_as"];
           primary_position?: Database["public"]["Enums"]["position"] | null;
@@ -1779,6 +1788,7 @@ export type Database = {
       cancel_attendance: { Args: { p_event_id: string }; Returns: undefined };
       cancel_event: { Args: { p_event_id: string }; Returns: undefined };
       confirm_attendance: { Args: { p_event_id: string }; Returns: undefined };
+      confirm_email_verified: { Args: never; Returns: string };
       confirm_event_sort: {
         Args: { p_event_id: string; p_version: number };
         Returns: Json;
@@ -1869,8 +1879,31 @@ export type Database = {
       };
       get_my_profile_card: { Args: never; Returns: Json };
       get_notifications: { Args: never; Returns: Json };
+      get_payment: {
+        Args: { p_event_id: string };
+        Returns: {
+          amount_due: number;
+          credit_available: number;
+          credit_balance: number;
+          daily_price: number;
+          is_owner: boolean;
+          is_paid: boolean;
+          is_waitlisted: boolean;
+          pix_key: string;
+          pix_key_type: string;
+          recipient_name: string;
+        }[];
+      };
       get_racha_cards: { Args: { p_racha_id: string }; Returns: Json };
       get_racha_last_resenha: { Args: { p_racha_id: string }; Returns: Json };
+      get_racha_pix_key: {
+        Args: { p_racha_id: string };
+        Returns: {
+          has_open_event_key: boolean;
+          pix_key: string;
+          pix_key_type: string;
+        }[];
+      };
       get_season_events: { Args: { p_racha_id: string }; Returns: Json };
       get_season_ranking: { Args: { p_racha_id: string }; Returns: Json };
       get_unseen_notifications_count: { Args: never; Returns: number };
@@ -1989,6 +2022,8 @@ export type Database = {
           next_home_team_number: number;
           outfield_per_team: number;
           payer_target: number;
+          pix_key: string;
+          pix_key_type: string;
           place: string;
           price: number;
           sort_confirmed: boolean;
@@ -2094,6 +2129,10 @@ export type Database = {
         };
         Returns: undefined;
       };
+      set_event_pix_key: {
+        Args: { p_event_id: string; p_key: string };
+        Returns: undefined;
+      };
       set_member_position_details: {
         Args: {
           p_primary: Database["public"]["Enums"]["position_detail"];
@@ -2113,6 +2152,10 @@ export type Database = {
         Returns: undefined;
       };
       set_push_enabled: { Args: { p_enabled: boolean }; Returns: undefined };
+      set_racha_pix_key: {
+        Args: { p_key: string; p_racha_id: string };
+        Returns: undefined;
+      };
       start_event_match: {
         Args: {
           p_away_goalkeeper?: string;

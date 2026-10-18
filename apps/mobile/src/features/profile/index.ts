@@ -3,3 +3,4 @@ export * from "./screens/profile/profile-screen";
 export * from "./screens/settings/settings-screen";
 export * from "./screens/delete-account/delete-account-screen";
 export * from "./screens/blocked-people/blocked-people-screen";
+export * from "./screens/confirm-email/confirm-email-screen";

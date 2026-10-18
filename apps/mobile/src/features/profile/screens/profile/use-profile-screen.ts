@@ -43,6 +43,8 @@ export function useProfileScreen() {
     isRetrying: isRefetching || cardQuery.isRefetching,
     signOut: () => signOut(),
     isSigningOut,
+    hasEmailAlert: profile?.isEmailVerified === false,
+    openConfirmEmail: () => router.push("/profile/confirm-email"),
     openSettings: () => router.push("/settings"),
   };
 }

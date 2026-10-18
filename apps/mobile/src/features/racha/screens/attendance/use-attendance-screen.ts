@@ -19,6 +19,7 @@ import {
   useAttendanceAdmin,
   useEventAttendance,
 } from "../../hooks/use-event-attendance";
+import { usePayment } from "../../hooks/use-payment";
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
 import { openEventsKey, useOpenEvents } from "../../hooks/use-open-events";
 import { useRacha } from "../../hooks/use-racha";
@@ -386,6 +387,15 @@ export function useAttendanceScreen() {
   const isMeCountedPending =
     isMePending && me !== undefined && confirmed.includes(me);
 
+  // o cartão só existe para quem ainda deve: o Dono recebe, não paga
+  const showPayment =
+    !!event?.isPaid &&
+    (event.status === "upcoming" || event.status === "active") &&
+    racha?.role !== "OWNER" &&
+    (me?.status === "confirmed" || me?.status === "waitlisted") &&
+    !me.isPaidEffective;
+  const payment = usePayment(id, eventId, showPayment).data;
+
   const myCta =
     isFinished || sortConfirmed ? null : attendanceCta(event?.myStatus ?? null);
 
@@ -463,6 +473,14 @@ export function useAttendanceScreen() {
           onPress: () => void onMyAttendancePress(),
         }
       : null,
+    paymentCard:
+      showPayment && payment && !payment.isPaid && !payment.isOwner
+        ? {
+            amountDue: payment.amountDue,
+            hasCredit: payment.amountDue < payment.dailyPrice,
+            onPress: () => router.push(`/racha/${id}/event/${eventId}/pay`),
+          }
+        : null,
     sortNotice: sortConfirmed
       ? {
           text: SORT_LEFT_ATTENDANCE_NOTE,

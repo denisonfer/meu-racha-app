@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleCheck,
+  Copy,
   CircleUserRound,
   CircleX,
   Clock,
@@ -64,6 +65,7 @@ export const iconMap = {
   flag: Flag,
   leave: LogOut,
   trophy: Trophy,
+  copy: Copy,
 } as const;
 
 export type TIconName = keyof typeof iconMap;

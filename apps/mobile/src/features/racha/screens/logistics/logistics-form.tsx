@@ -1,19 +1,12 @@
 import { DEFAULT_MIN_AGE } from "@meu-racha/domain";
-import { ScrollView, StyleSheet, Switch, TextInput, View } from "react-native";
-import {
-  Button,
-  Chip,
-  Input,
-  NoticeBanner,
-  ScreenFooter,
-  Text,
-} from "@/ui/components";
+import { ScrollView, StyleSheet, Switch, View } from "react-native";
+import { Button, Chip, Input, ScreenFooter, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { OptionalNumberField } from "../../components/optional-number-field";
+import { PixKeyField } from "../../components/pix-key-field";
 import { TRacha } from "../../racha-types";
 import {
   MONTHLY_PRICE_HINT,
-  PIX_LOCKED,
   PRICE_HINT,
   SLOT_HINT,
   SPOT_LIMIT_HINT,
@@ -31,7 +24,13 @@ const WEEKDAYS = [
   { value: 7, label: "Dom" },
 ] as const;
 
-export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
+export const LogisticsForm = ({
+  racha,
+  pixKey,
+}: {
+  racha: TRacha;
+  pixKey: string;
+}) => {
   const {
     values,
     errors,
@@ -39,6 +38,7 @@ export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
     isDirty,
     canSave,
     failureMessage,
+    pixField,
     setPlace,
     selectWeekday,
     setHour,
@@ -50,7 +50,7 @@ export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
     setSpotLimitText,
     setPayerTargetText,
     save,
-  } = useLogisticsForm(racha);
+  } = useLogisticsForm(racha, pixKey);
 
   return (
     <>
@@ -178,16 +178,7 @@ export const LogisticsForm = ({ racha }: { racha: TRacha }) => {
                 maxLength={4}
                 isDisabled={isSaving}
               />
-              <View style={styles.amount}>
-                <Text style={styles.bold}>Chave PIX</Text>
-                <TextInput
-                  value=""
-                  editable={false}
-                  accessibilityLabel="Chave PIX"
-                  style={styles.pixInput}
-                />
-                <NoticeBanner tone="warning" text={PIX_LOCKED} />
-              </View>
+              <PixKeyField {...pixField} isDisabled={isSaving} />
             </View>
           ) : null}
         </View>
@@ -260,16 +251,5 @@ const styles = StyleSheet.create({
     paddingBottom: theme.space[16],
     borderTopWidth: 1,
     borderColor: theme.colors.divider,
-  },
-  amount: { gap: theme.space[8] },
-  pixInput: {
-    minHeight: theme.minTouch,
-    paddingHorizontal: theme.space[16],
-    backgroundColor: theme.colors.surfaceDisabled,
-    borderRadius: theme.radius.control,
-    borderWidth: 1,
-    borderColor: theme.colors.mutedDisabled,
-    color: theme.colors.textDisabled,
-    ...theme.text.body,
   },
 });

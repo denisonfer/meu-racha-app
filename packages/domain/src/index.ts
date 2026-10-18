@@ -8,3 +8,4 @@ export * from "./bolinhas";
 export * from "./resenha";
 export * from "./season";
 export * from "./notification";
+export * from "./pix";

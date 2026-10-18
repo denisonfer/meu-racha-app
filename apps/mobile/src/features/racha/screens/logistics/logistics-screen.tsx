@@ -5,7 +5,7 @@ import { LogisticsForm } from "./logistics-form";
 import { useLogisticsScreen } from "./use-logistics-screen";
 
 export const LogisticsScreen = () => {
-  const { racha, isLoading, retry, isRetrying } = useLogisticsScreen();
+  const { racha, pixKey, isLoading, retry, isRetrying } = useLogisticsScreen();
 
   return (
     <Screen title="Logística" canGoBack>
@@ -20,7 +20,7 @@ export const LogisticsScreen = () => {
           isLoading={isRetrying}
         />
       ) : (
-        <LogisticsForm racha={racha} />
+        <LogisticsForm racha={racha} pixKey={pixKey} />
       )}
     </Screen>
   );

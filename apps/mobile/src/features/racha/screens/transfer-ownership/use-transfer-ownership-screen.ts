@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useRacha } from "../../hooks/use-racha";
+import { useRachaPixKey } from "../../hooks/use-racha-pix-key";
 import { useRachaMembers } from "../../hooks/use-racha-members";
 import { useTransferOwnership } from "../../hooks/use-transfer-ownership";
 import {
@@ -20,6 +21,8 @@ export function useTransferOwnershipScreen() {
   }>();
   const { data: racha } = useRacha(id);
   const { data: members } = useRachaMembers(id);
+  const pixQuery = useRachaPixKey(id);
+  const pixKey = pixQuery.data;
   const { transferOwnership } = useTransferOwnership(id);
   const hasRachaAccess = useHasRachaAccess(id);
   const navigation = useNavigation();
@@ -76,6 +79,10 @@ export function useTransferOwnershipScreen() {
   };
 
   return {
+    // sem saber da chave, avisa mesmo assim: melhor avisar demais que passar sem aviso
+    hasPixKey:
+      pixQuery.isError || Boolean(pixKey?.pixKey || pixKey?.hasOpenEventKey),
+    isPixKeyLoading: pixQuery.isPending,
     rachaName,
     name,
     isTransferring,

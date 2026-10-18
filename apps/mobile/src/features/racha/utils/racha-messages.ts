@@ -103,7 +103,56 @@ export const spotLimitTooSmall = (floor: number) =>
   `O limite precisa ser de pelo menos ${floor}, o dobro da linha por time.`;
 export const LINE_TOO_BIG_FOR_SPOT_LIMIT =
   "O limite de vagas ficou pequeno para essa linha. Aumente ou apague o limite na logística.";
-export const PIX_LOCKED = "Confirme seu e-mail para cadastrar a chave PIX.";
+export const PIX_KEY_LABEL = "Chave PIX";
+export const PIX_KEY_PLACEHOLDER = "Cole ou digite a chave";
+export const PIX_KEY_HINT = "CPF, CNPJ, e-mail, celular ou chave aleatória.";
+export const pixKeyTypeHint = (type: string) =>
+  `Chave de ${type}. O dinheiro das diárias vai direto para ela.`;
+export const PIX_KEY_RACHA_HINT = "Vale também para os eventos já marcados.";
+export const PIX_KEY_INVALID =
+  "Chave inválida. Use CPF, CNPJ, e-mail, celular ou chave aleatória.";
+export const PIX_LOCKED_TITLE = "Confirme seu e-mail";
+export const PIX_LOCKED =
+  "Só com o e-mail confirmado dá para cadastrar a chave PIX.";
+export const PIX_LOCKED_ACTION = "Confirmar e-mail";
+export const PIX_ONLY_OWNER_CHANGES = "Só o Dono do racha muda a chave PIX.";
+export const PIX_ONLY_OWNER_SETS = "Só o Dono do racha cadastra a chave PIX.";
+export const PIX_NO_KEY = "Nenhuma chave cadastrada";
+export const PIX_EVENT_HINT =
+  "Veio da Logística do racha. Trocar aqui vale só para este evento.";
+export const PIX_TRANSFER_TITLE = "A sua chave PIX sai do racha";
+export const pixTransferText = (name: string) =>
+  `Ela é apagada do racha e dos eventos ainda abertos. ${name} vai precisar cadastrar a dele.`;
+export const PAYMENT_CARD_LABEL = "Seu pagamento";
+export const PAYMENT_CARD_DAILY = "diária";
+export const PAYMENT_CARD_WITH_CREDIT = "já com o crédito";
+export const PAY = "Pagar";
+export const PAY_DUE = "A pagar";
+export const payRecipient = (name: string) => `para ${name}`;
+export const payKeyLine = (typeLabel: string, masked: string) =>
+  `Chave de ${typeLabel} · ${masked}`;
+export const PAY_COPY = "Copiar código PIX";
+export const PAY_COPY_HINT = "No app do banco: PIX › Copia e Cola.";
+export const PAY_COPIED = "Código copiado. Cole no app do banco.";
+export const PAY_REMINDER =
+  "O app não confirma pagamentos. Quem marca que você pagou é o organizador, na Presença.";
+export const PAY_WAITLIST_TITLE = "Você está na lista de espera";
+export const PAY_WAITLIST_TEXT =
+  "Pagar não garante a vaga. Se não abrir vaga, o valor vira Crédito neste racha.";
+export const PAY_COVERED_CREDIT = "Coberto pelo Crédito";
+export const payCoveredCreditText = (left: number) =>
+  `Seu crédito paga esta diária. Sobram R$ ${left}.`;
+export const PAY_NO_KEY_TITLE = "Este evento não tem chave PIX";
+export const PAY_NO_KEY_TEXT = "Combine o pagamento com o organizador.";
+export const PAY_QR_FAILED_TITLE = "Não deu para mostrar o QR Code";
+export const PAY_QR_FAILED_TEXT = "Use o código abaixo no app do banco.";
+export const PAY_PAID_TITLE = "Diária paga";
+export const PAY_PAID_TEXT =
+  "O organizador marcou o seu pagamento. Nada a fazer.";
+export const PAY_ROW_DAILY = "Diária";
+export const PAY_ROW_CREDIT = "Crédito";
+export const PAY_ERROR_TITLE = "Não deu pra abrir o pagamento";
+export const PAY_ERROR_TEXT = "Confira a internet e tente de novo.";
 export const LOGISTICS_NOT_ALLOWED =
   "Você não pode mais mudar a logística deste racha.";
 export const SLOT_HINT = "Os dois ou nenhum. Vazio: o racha não é recorrente.";

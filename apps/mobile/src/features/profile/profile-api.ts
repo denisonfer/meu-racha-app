@@ -5,7 +5,9 @@ import { TAccountDeletionCheck, TMyProfile } from "./profile-types";
 async function getMyProfile(userId: string): Promise<TMyProfile> {
   const { data, error } = await supabase
     .from("profile")
-    .select("display_name, avatar_path, plays_as, primary_position")
+    .select(
+      "display_name, avatar_path, plays_as, primary_position, email_verified_at"
+    )
     .eq("id", userId)
     .single();
   if (error) throw error;
@@ -14,6 +16,7 @@ async function getMyProfile(userId: string): Promise<TMyProfile> {
     displayName: data.display_name,
     playsAs: data.plays_as,
     primaryPosition: data.primary_position,
+    isEmailVerified: data.email_verified_at !== null,
     photoUri: data.avatar_path
       ? supabase.storage.from(AVATAR_BUCKET).getPublicUrl(data.avatar_path).data
           .publicUrl
@@ -71,7 +74,35 @@ async function deleteMyAccount() {
   if (error) throw error;
 }
 
+// shouldCreateUser: false — a conta já existe; sem isso o OTP poderia criar outra
+async function sendEmailCode(email: string) {
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: false },
+  });
+  if (error) throw error;
+}
+
+async function verifyEmailCode(email: string, token: string) {
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "email",
+  });
+  if (error) throw error;
+}
+
+// separada do verifyOtp: o código é de uso único, então a falha aqui se repete só a RPC.
+// Ela só aceita sessão aberta por código (amr otp), que o verifyOtp acabou de abrir
+async function confirmEmailVerified() {
+  const { error } = await supabase.rpc("confirm_email_verified");
+  if (error) throw error;
+}
+
 export const profileApi = {
+  sendEmailCode,
+  verifyEmailCode,
+  confirmEmailVerified,
   getMyProfile,
   getAccountDeletionCheck,
   removeMyAvatarFiles,

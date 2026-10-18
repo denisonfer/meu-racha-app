@@ -8,7 +8,9 @@ export function useUpdateEvent(rachaId: string, eventId: string) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (input: TEventInput) => rachaApi.updateEvent(eventId, input),
+    // idOverride: Evento criado nesta tela, cujo id só existe depois do hook
+    mutationFn: ({ input, id }: { input: TEventInput; id?: string }) =>
+      rachaApi.updateEvent(id ?? eventId, input),
     // aguarda a agenda só no sucesso: no erro, sem rede a recarga demora e prenderia "Salvando".
     onSettled: (_data, error) => {
       const refreshList = queryClient.invalidateQueries({
@@ -28,5 +30,8 @@ export function useUpdateEvent(rachaId: string, eventId: string) {
     },
   });
 
-  return { updateEvent: mutation.mutateAsync };
+  return {
+    updateEvent: (input: TEventInput, id?: string) =>
+      mutation.mutateAsync({ input, id }),
+  };
 }

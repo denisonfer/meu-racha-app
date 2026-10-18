@@ -25,3 +25,4 @@ export * from "./notice-banner";
 export * from "./bolinha/bolinha";
 export * from "./bolinha/bolinha-mark";
 export * from "./penalty-card/penalty-card";
+export * from "./pix-qr-code/pix-qr-code";

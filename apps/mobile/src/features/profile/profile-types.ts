@@ -5,6 +5,7 @@ export type TMyProfile = {
   playsAs: TPlaysAs;
   primaryPosition: TPosition | null;
   photoUri: string | null;
+  isEmailVerified: boolean;
 };
 
 export type TAccountDeletionCheck = {

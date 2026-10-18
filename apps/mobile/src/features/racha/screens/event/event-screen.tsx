@@ -5,16 +5,17 @@ import { EventForm } from "./event-form";
 import { useEventScreen } from "./use-event-screen";
 
 export const EventScreen = () => {
-  const { mode, racha, event, isLoading, retry, isRetrying } = useEventScreen();
+  const { mode, racha, event, pixKey, isLoading, retry, isRetrying } =
+    useEventScreen();
 
   const editor =
     racha == null
       ? null
       : mode === "edit"
         ? event
-          ? { mode: "edit" as const, racha, event }
+          ? { mode: "edit" as const, racha, event, pixKey }
           : null
-        : { mode: "create" as const, racha };
+        : { mode: "create" as const, racha, pixKey };
 
   return (
     <Screen

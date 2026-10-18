@@ -1,4 +1,9 @@
-import { PRICE_MAX, PRICE_MIN, spotLimitFloor } from "@meu-racha/domain";
+import {
+  PRICE_MAX,
+  PRICE_MIN,
+  pixKeyTypeLabel,
+  spotLimitFloor,
+} from "@meu-racha/domain";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   router,
@@ -10,17 +15,26 @@ import { usePreventRemove } from "expo-router/react-navigation";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useSession } from "@/features/auth";
+import { profileKey } from "@/features/profile";
 import { useToast } from "@/ui/components";
 import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
+import { usePixKeyMode } from "../../hooks/use-pix-key-mode";
 import { useRacha, rachaKey } from "../../hooks/use-racha";
+import { useRachaPixKey } from "../../hooks/use-racha-pix-key";
+import { useSetRachaPixKey } from "../../hooks/use-set-racha-pix-key";
 import { useUpdateRachaLogistics } from "../../hooks/use-update-racha-logistics";
 import { rachaApi } from "../../racha-api";
 import { TRacha, TRachaLogistics } from "../../racha-types";
 import { isNoAccessError } from "../../utils/no-access";
+import { checkPixKeyInput } from "../../utils/pix-key-input";
 import {
   DISCARD_CHANGES_TITLE,
   LOGISTICS_NOT_ALLOWED,
+  PIX_KEY_HINT,
+  PIX_KEY_INVALID,
+  PIX_KEY_RACHA_HINT,
+  pixKeyTypeHint,
   RACHA_SAVED,
   SAVE_RACHA_FAILED,
 } from "../../utils/racha-messages";
@@ -63,6 +77,8 @@ export function useLogisticsScreen() {
     isRefetching,
   } = useRacha(id);
   const isNoAccess = useLeaveOnNoAccess(error, fetchStatus, id);
+  // a RPC da chave só responde a Dono e Admin
+  const pixQuery = useRachaPixKey(id, racha != null && racha.role !== "PLAYER");
 
   // cache velho no remount não expulsa um Admin: só com a consulta parada
   const isPlayer = racha?.role === "PLAYER" && fetchStatus === "idle";
@@ -73,21 +89,35 @@ export function useLogisticsScreen() {
   }, [isPlayer, id]);
 
   return {
-    racha: isPlayer || isStalePlayer || isNoAccess ? undefined : racha,
-    isLoading: isPending || isNoAccess || isPlayer || isStalePlayer,
-    retry: () => void refetch(),
-    isRetrying: isRefetching,
+    racha:
+      isPlayer || isStalePlayer || isNoAccess || pixQuery.data === undefined
+        ? undefined
+        : racha,
+    pixKey: pixQuery.data?.pixKey ?? "",
+    isLoading:
+      isPending ||
+      isNoAccess ||
+      isPlayer ||
+      isStalePlayer ||
+      (pixQuery.isPending && pixQuery.fetchStatus !== "idle"),
+    retry: () => {
+      void refetch();
+      if (pixQuery.isError) void pixQuery.refetch();
+    },
+    isRetrying: isRefetching || pixQuery.isRefetching,
   };
 }
 
-export function useLogisticsForm(racha: TRacha) {
+export function useLogisticsForm(racha: TRacha, savedPixKey: string) {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const showToast = useToast();
   const { session } = useSession();
   const queryClient = useQueryClient();
   const { updateRachaLogistics } = useUpdateRachaLogistics(racha.id);
+  const { setRachaPixKey } = useSetRachaPixKey(racha.id);
   const hasRachaAccess = useHasRachaAccess(racha.id);
+  const { mode: pixMode, openConfirmEmail } = usePixKeyMode(racha.role);
 
   // uma recarga do Racha no meio da edição não pode reescrever o que foi digitado
   const [initial] = useState<TLogisticsForm>(() => ({
@@ -106,16 +136,32 @@ export function useLogisticsForm(racha: TRacha) {
   const [outfieldPerTeam, setOutfieldPerTeam] = useState(
     racha.rules.outfieldPerTeam
   );
+  const [pixText, setPixText] = useState(savedPixKey);
+  const [pixRefusedText, setPixRefusedText] = useState<string | null>(null);
   const [failedValues, setFailedValues] = useState<TLogisticsForm | null>(null);
+  const [failedPixText, setFailedPixText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [leaveMode, setLeaveMode] = useState<"back" | "home" | null>(null);
 
   const parsed = buildLogisticsSchema(outfieldPerTeam).safeParse(values);
   const issues = parsed.success ? [] : parsed.error.issues;
-  const isDirty = !isSameLogistics(values, initial);
+  // a chave só vale com o Pago ligado: fechado, o campo some e o que foi digitado fica de lado
+  const canEditPix = pixMode === "edit" && values.isPaid;
+  const pixInput = checkPixKeyInput(pixText);
+  const pixError = !canEditPix
+    ? undefined
+    : pixInput.isInvalid || pixRefusedText === pixText
+      ? PIX_KEY_INVALID
+      : undefined;
+  const isPixChanged =
+    canEditPix && !pixInput.isInvalid && pixInput.key !== savedPixKey;
+  const isDirty = !isSameLogistics(values, initial) || isPixChanged;
 
   const failureMessage =
-    failedValues !== null && !isSaving && isSameLogistics(failedValues, values)
+    failedValues !== null &&
+    !isSaving &&
+    isSameLogistics(failedValues, values) &&
+    failedPixText === pixText
       ? SAVE_RACHA_FAILED
       : null;
 
@@ -146,10 +192,15 @@ export function useLogisticsForm(racha: TRacha) {
     if (leaveMode === "home") router.dismissTo(`/racha/${racha.id}`);
   }, [leaveMode, racha.id]);
 
+  const markFailed = () => {
+    setFailedValues(values);
+    setFailedPixText(pixText);
+  };
+
   const showFreshSpotLimitError = async () => {
     const userId = session?.userId;
     if (!userId) {
-      setFailedValues(values);
+      markFailed();
       return;
     }
     try {
@@ -162,21 +213,43 @@ export function useLogisticsForm(racha: TRacha) {
       setOutfieldPerTeam(fresh.rules.outfieldPerTeam);
       // a linha recarregada ainda comporta o número: não é erro deste campo
       if (values.spotLimit === null || values.spotLimit >= floor) {
-        setFailedValues(values);
+        markFailed();
       }
     } catch (reloadError) {
-      if (!isNoAccessError(reloadError)) setFailedValues(values);
+      if (!isNoAccessError(reloadError)) markFailed();
     }
+  };
+
+  const failWith = (message: string) => {
+    if (message === "invalid_pix_key") {
+      setPixRefusedText(pixText);
+      return;
+    }
+    if (message === "email_not_verified") {
+      // o campo passa a travado com o aviso do Perfil
+      void queryClient.invalidateQueries({
+        queryKey: profileKey(session?.userId),
+      });
+      return;
+    }
+    markFailed();
+    setFailedPixText(pixText);
   };
 
   const persist = async (logistics: TRachaLogistics) => {
     setIsSaving(true);
     try {
       await updateRachaLogistics(logistics);
+      // se a chave falhar, a logística já foi: o formulário segue sujo e o
+      // próximo Salvar repete o update (idempotente) e tenta a chave de novo
+      if (isPixChanged) await setRachaPixKey(pixInput.key);
       showToast(RACHA_SAVED, "success");
       setLeaveMode("back");
     } catch (error) {
-      if (error instanceof Error && error.message === "not_allowed") {
+      if (
+        error instanceof Error &&
+        (error.message === "not_allowed" || error.message === "not_owner")
+      ) {
         const stillMember = await hasRachaAccess();
         // quem perdeu o Racha sai pelo useLeaveOnNoAccess, sem este toast
         if (stillMember) {
@@ -192,7 +265,7 @@ export function useLogisticsForm(racha: TRacha) {
         await showFreshSpotLimitError();
         return;
       }
-      setFailedValues(values);
+      failWith(error instanceof Error ? error.message : "");
     } finally {
       setIsSaving(false);
     }
@@ -236,9 +309,19 @@ export function useLogisticsForm(racha: TRacha) {
       spotLimit: messageFor(issues, "spotLimit"),
       payerTarget: messageFor(issues, "payerTarget"),
     },
+    pixField: {
+      mode: pixMode,
+      value: pixText,
+      error: pixError,
+      hint: pixInput.type
+        ? `${pixKeyTypeHint(pixKeyTypeLabel(pixInput.type))} ${PIX_KEY_RACHA_HINT}`
+        : `${PIX_KEY_HINT} ${PIX_KEY_RACHA_HINT}`,
+      onChangeText: setPixText,
+      onConfirmEmail: openConfirmEmail,
+    },
     isSaving,
     isDirty,
-    canSave: parsed.success && isDirty,
+    canSave: parsed.success && isDirty && !pixError,
     failureMessage,
     setPlace: (place: string) =>
       setValues((current) => ({ ...current, place })),

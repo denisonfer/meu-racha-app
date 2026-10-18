@@ -12,6 +12,8 @@ export type TConfirmBottomSheetProps = {
   cancelLabel?: string;
   busyLabel: string;
   isBusy: boolean;
+  /** Segura a confirmação sem o estado de ocupado (ex.: dado ainda carregando). */
+  isConfirmDisabled?: boolean;
   failureMessage: string | null;
   onConfirm: () => void;
   onCancel: () => void;
@@ -26,6 +28,7 @@ export const ConfirmBottomSheet = ({
   cancelLabel = "Cancelar",
   busyLabel,
   isBusy,
+  isConfirmDisabled = false,
   failureMessage,
   onConfirm,
   onCancel,
@@ -49,6 +52,7 @@ export const ConfirmBottomSheet = ({
         preset="destructive"
         onPress={onConfirm}
         isLoading={isBusy}
+        isDisabled={isConfirmDisabled}
         accessibilityLabel={isBusy ? busyLabel : confirmLabel}
         style={styles.confirmButton}
       />

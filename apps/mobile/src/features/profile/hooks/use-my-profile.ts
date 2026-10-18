@@ -15,3 +15,7 @@ export function useMyProfile() {
     enabled: Boolean(userId),
   });
 }
+
+export function useProfileEmailVerified(): boolean | undefined {
+  return useMyProfile().data?.isEmailVerified;
+}
