@@ -1,0 +1,38 @@
+appId: app.meuracha
+name: Login com a conta do seed
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+    arguments:
+      RCT_jsLocation: "localhost:8082"
+- extendedWaitUntil:
+    visible: "Entrar"
+    timeout: 20000
+- tapOn: "ze.pequeno@email.com"
+- inputText: ${E2E_EMAIL}
+- tapOn: "sua senha"
+- inputText: ${E2E_PASSWORD}
+# hideKeyboard no campo de senha vira "retorno" e já envia o login
+- tapOn: "Organize. Sorteie. Jogue."
+- tapOn: "Entrar"
+
+# "Salvar Senha?" e o pedido de notificação escondem a home enquanto abertos e
+# chegam em ordem e tempo variáveis: responde até passar um tempo sem nenhum
+- extendedWaitUntil:
+    visible: "Você ainda não está em nenhum racha|Agora Não|Not Now|Permitir|Allow"
+    timeout: 20000
+- extendedWaitUntil:
+    visible: "Agora Não|Not Now|Permitir|Allow"
+    timeout: 5000
+    optional: true
+- repeat:
+    while:
+      visible: "Agora Não|Not Now|Permitir|Allow"
+    commands:
+      - tapOn: "Agora Não|Not Now|Permitir|Allow"
+      - extendedWaitUntil:
+          visible: "Agora Não|Not Now|Permitir|Allow"
+          timeout: 3000
+          optional: true
+- assertVisible: "Você ainda não está em nenhum racha"

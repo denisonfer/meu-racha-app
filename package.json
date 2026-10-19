@@ -11,7 +11,7 @@
     "ios": "cd apps/mobile && bunx expo run:ios",
     "android": "cd apps/mobile && bunx expo run:android",
     "e2e:metro": "cd apps/mobile && EXPO_PUBLIC_E2E=1 bunx expo start --port 8082",
-    "e2e": "cd apps/mobile && MAESTRO_CLI_NO_ANALYTICS=1 maestro -p ios test .maestro",
+    "e2e": "bun apps/mobile/.maestro/run.ts",
     "test": "bun run functions:check && bun run --filter '*' test",
     "functions:build": "bun build packages/domain/src/notification/push.ts --target=browser --format=esm --outfile supabase/functions/_shared/domain-push.js",
     "functions:check": "out=\"${TMPDIR:-/tmp}/meu-racha-domain-push.js\" && bun build packages/domain/src/notification/push.ts --target=browser --format=esm --outfile \"$out\" > /dev/null && cmp -s \"$out\" supabase/functions/_shared/domain-push.js || { echo 'supabase/functions/_shared/domain-push.js desatualizado: rode bun functions:build'; exit 1; }",

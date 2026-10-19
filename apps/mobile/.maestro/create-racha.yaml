@@ -1,0 +1,33 @@
+appId: app.meuracha
+name: Criar racha
+---
+- runFlow: subflows/login.yaml
+- tapOn: "Criar racha"
+- extendedWaitUntil:
+    visible: "Nome do racha"
+    timeout: 15000
+- tapOn: "Ex.: Racha da Quadra do Zé"
+- inputText: "Racha E2E"
+# o rótulo vem antes do campo com o mesmo nome; o campo não tem placeholder
+- tapOn:
+    text: "Local"
+    index: 1
+- inputText: "Quadra E2E"
+- hideKeyboard
+# o título da tela tem o mesmo nome do botão
+- tapOn:
+    text: "Criar racha"
+    index: 1
+# o convite só existe na home do racha: o nome sozinho já estava no formulário
+- extendedWaitUntil:
+    visible: "Compartilhar convite"
+    timeout: 20000
+# a linha da Logística é um botão só: o nome junta título e local
+- assertVisible: ".*Quadra E2E.*"
+
+- tapOn: "Voltar"
+# o card da lista é um elemento só, com nome, papel e membros
+- extendedWaitUntil:
+    visible: "Racha E2E, Dono, 1 membro"
+    timeout: 15000
+- assertNotVisible: "Você ainda não está em nenhum racha"

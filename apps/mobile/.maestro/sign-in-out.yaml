@@ -1,0 +1,18 @@
+appId: app.meuracha
+name: Login e sair
+---
+- runFlow: subflows/login.yaml
+- tapOn: "Perfil"
+- extendedWaitUntil:
+    visible: "Sair"
+    timeout: 15000
+- tapOn: "Sair"
+- extendedWaitUntil:
+    visible: "Entrar"
+    timeout: 15000
+
+# a sessão saiu do Keychain: reabrir o app não loga de novo
+- launchApp
+- extendedWaitUntil:
+    visible: "Entrar"
+    timeout: 20000
