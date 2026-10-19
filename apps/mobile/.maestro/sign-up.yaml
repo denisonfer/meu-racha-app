@@ -8,16 +8,9 @@ name: Cadastro
     # o Metro do E2E (bun e2e:metro) silencia o LogBox
     arguments:
       RCT_jsLocation: "localhost:8082"
-# o pedido de notificação do iOS pode abrir por cima do login
 - extendedWaitUntil:
-    visible: "Entrar|Permitir|Allow"
+    visible: "Entrar"
     timeout: 20000
-- runFlow:
-    when:
-      visible: "Permitir|Allow"
-    commands:
-      - tapOn: "Permitir|Allow"
-- assertVisible: "Entrar"
 - tapOn: "Criar conta"
 # em debug o Metro carrega cada rota na primeira visita
 - extendedWaitUntil:
@@ -68,9 +61,15 @@ name: Cadastro
     point: "5%,50%"
 - tapOn: "Criar conta"
 
+# o pedido de notificação abre ao chegar na home; com o alerta aberto, só ele
+# aparece. Responder sempre: um alerta pendente reaparece na próxima abertura.
 - extendedWaitUntil:
     visible: "Você ainda não está em nenhum racha|Permitir|Allow"
     timeout: 20000
+- extendedWaitUntil:
+    visible: "Permitir|Allow"
+    timeout: 5000
+    optional: true
 - runFlow:
     when:
       visible: "Permitir|Allow"
