@@ -1,0 +1,79 @@
+appId: app.meuracha
+name: Cadastro
+---
+# a sessão fica no Keychain: sem limpar, o app abre já logado
+- launchApp:
+    clearState: true
+    clearKeychain: true
+    # o Metro do E2E (bun e2e:metro) silencia o LogBox
+    arguments:
+      RCT_jsLocation: "localhost:8082"
+# o pedido de notificação do iOS pode abrir por cima do login
+- extendedWaitUntil:
+    visible: "Entrar|Permitir|Allow"
+    timeout: 20000
+- runFlow:
+    when:
+      visible: "Permitir|Allow"
+    commands:
+      - tapOn: "Permitir|Allow"
+- assertVisible: "Entrar"
+- tapOn: "Criar conta"
+# em debug o Metro carrega cada rota na primeira visita
+- extendedWaitUntil:
+    visible: "Como te chamam no racha"
+    timeout: 30000
+
+# etapa 1
+- tapOn: "José Pequeno"
+- inputRandomPersonName
+- tapOn: "ze.pequeno@email.com"
+# domínio .test é reservado: nenhum e-mail sai para gente de verdade
+- inputText: ${"e2e" + Date.now() + "@meuracha.test"}
+- tapOn: "mínimo de 8 caracteres"
+- inputText: "senha-e2e-123"
+- hideKeyboard
+- tapOn: "Continuar"
+
+# etapa 2
+# o iOS oferece salvar a senha ao sair do campo; com o alerta aberto, só ele aparece
+- extendedWaitUntil:
+    visible: "Sobre você|Agora Não|Not Now"
+    timeout: 15000
+- runFlow:
+    when:
+      visible: "Agora Não|Not Now"
+    commands:
+      - tapOn: "Agora Não|Not Now"
+- assertVisible: "Sobre você"
+- tapOn: "Adicionar foto"
+# uma foto só: a galeria inteira também se chama "Foto, ..., Foto, ..."
+- tapOn: "Foto, [^,]+, [0-9:]+"
+# recorte do allowsEditing: o texto vem em inglês mesmo com o simulador em pt-BR
+- tapOn: "Choose|Escolher"
+- assertVisible: "Trocar foto"
+# TODAS dispensa a secundária, que repetiria os rótulos da principal
+- tapOn: "TODAS"
+- tapOn: "Continuar"
+
+# etapa 3
+- assertVisible: "Só mais um passo"
+- tapOn: "DD/MM/AAAA"
+- inputText: "01011990"
+# o teclado numérico não tem "retorno": tocar fora do campo é o que fecha
+- tapOn: "Só mais um passo"
+# a caixa fica na ponta esquerda; o meio da linha é o link dos Termos
+- tapOn:
+    text: "Li e aceito os Termos de Uso e a Política de Privacidade"
+    point: "5%,50%"
+- tapOn: "Criar conta"
+
+- extendedWaitUntil:
+    visible: "Você ainda não está em nenhum racha|Permitir|Allow"
+    timeout: 20000
+- runFlow:
+    when:
+      visible: "Permitir|Allow"
+    commands:
+      - tapOn: "Permitir|Allow"
+- assertVisible: "Você ainda não está em nenhum racha"

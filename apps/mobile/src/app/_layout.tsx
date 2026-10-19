@@ -2,13 +2,16 @@ import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { LogBox, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { queryClient } from "@/lib/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ToastProvider } from "@/ui/components";
 
 SplashScreen.preventAutoHideAsync();
+
+// o toast de avisos do LogBox cobre o rodapé e rouba o toque do Maestro
+if (process.env.EXPO_PUBLIC_E2E === "1") LogBox.ignoreAllLogs();
 
 // Com o app aberto o banner também aparece (decisão do dono, 10/10/2026).
 Notifications.setNotificationHandler({
