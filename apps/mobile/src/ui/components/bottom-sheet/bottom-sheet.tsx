@@ -3,8 +3,15 @@ import GorhomBottomSheet, {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { router, useNavigation } from "expo-router";
-import { PropsWithChildren, ReactNode, useEffect, useRef } from "react";
+import {
+  PropsWithChildren,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { BackHandler, Pressable, StyleSheet, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useAppSafeArea } from "@/ui/hooks/use-app-safe-area";
 import { theme } from "@/ui/theme";
 import { Icon } from "../icon";
@@ -57,6 +64,10 @@ export const BottomSheet = ({
   const sheetRef = useRef<GorhomBottomSheet>(null);
   const close = useBottomSheetClose();
   const { bottom } = useAppSafeArea();
+  // sem gesto no miolo (o arrasto está desligado), o toque numa View comum
+  // da folha descia até o toque do fundo no Android e fechava a folha; este
+  // nunca ativa, então só para a busca e não tira o toque dos Pressable
+  const blockFallThrough = useMemo(() => Gesture.Manual(), []);
 
   useEffect(() => {
     if (!isBusy) return;
@@ -87,33 +98,35 @@ export const BottomSheet = ({
       backgroundStyle={styles.background}
       handleIndicatorStyle={styles.handle}
     >
-      <BottomSheetView
-        accessibilityViewIsModal
-        style={[styles.sheet, { paddingBottom: bottom }]}
-      >
-        <View style={styles.header}>
-          {leading}
-          <View style={styles.headerTexts}>
-            <Text preset="h2" accessibilityRole="header">
-              {title}
-            </Text>
-            {supporting}
+      <GestureDetector gesture={blockFallThrough}>
+        <BottomSheetView
+          accessibilityViewIsModal
+          style={[styles.sheet, { paddingBottom: bottom }]}
+        >
+          <View style={styles.header}>
+            {leading}
+            <View style={styles.headerTexts}>
+              <Text preset="h2" accessibilityRole="header">
+                {title}
+              </Text>
+              {supporting}
+            </View>
+            {hasCloseButton ? (
+              <Pressable
+                onPress={() => sheetRef.current?.close()}
+                disabled={isBusy}
+                accessibilityRole="button"
+                accessibilityLabel="Fechar"
+                accessibilityState={{ disabled: isBusy }}
+                style={styles.closeButton}
+              >
+                <Icon name="close" size={22} />
+              </Pressable>
+            ) : null}
           </View>
-          {hasCloseButton ? (
-            <Pressable
-              onPress={() => sheetRef.current?.close()}
-              disabled={isBusy}
-              accessibilityRole="button"
-              accessibilityLabel="Fechar"
-              accessibilityState={{ disabled: isBusy }}
-              style={styles.closeButton}
-            >
-              <Icon name="close" size={22} />
-            </Pressable>
-          ) : null}
-        </View>
-        {children}
-      </BottomSheetView>
+          {children}
+        </BottomSheetView>
+      </GestureDetector>
     </GorhomBottomSheet>
   );
 };
