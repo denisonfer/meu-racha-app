@@ -8,6 +8,7 @@ export const ResetPasswordScreen = () => {
   const {
     status,
     retry,
+    email,
     control,
     isPending,
     isPasswordChanged,
@@ -70,6 +71,11 @@ export const ResetPasswordScreen = () => {
     <Screen>
       <View style={styles.content}>
         <Text preset="h2">Nova senha</Text>
+        {email ? (
+          <Text preset="body">
+            Para a conta <Text style={styles.bold}>{email}</Text>
+          </Text>
+        ) : null}
         <Text preset="body" color="muted">
           Ao trocar, as outras sessões são encerradas. Só esta continua.
         </Text>
@@ -102,6 +108,7 @@ export const ResetPasswordScreen = () => {
 
 const styles = StyleSheet.create({
   loading: { flex: 1 },
+  bold: { fontFamily: "Manrope-Bold" },
   content: {
     gap: theme.space[16],
     paddingTop: theme.space[16],

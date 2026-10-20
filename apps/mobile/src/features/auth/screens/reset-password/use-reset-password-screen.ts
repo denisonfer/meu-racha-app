@@ -25,6 +25,8 @@ export function useResetPasswordScreen() {
   return {
     status,
     retry,
+    // o link pode ser de outra conta: a pessoa vê de quem é a senha antes de trocar
+    email: session?.email ?? null,
     control,
     isPending,
     isPasswordChanged,
