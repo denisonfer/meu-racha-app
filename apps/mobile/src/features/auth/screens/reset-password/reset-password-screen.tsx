@@ -47,8 +47,8 @@ export const ResetPasswordScreen = () => {
         <View style={styles.content}>
           <Text preset="h2">Esse link não vale mais</Text>
           <Text preset="body" color="muted">
-            O link vale 1 hora e serve uma vez só. Esse já foi usado ou passou
-            do prazo.
+            O link vale 10 minutos e serve uma vez só. Esse já foi usado ou
+            passou do prazo.
           </Text>
           <Text preset="small" color="muted">
             Peça outro: ele chega no mesmo e-mail.

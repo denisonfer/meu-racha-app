@@ -130,6 +130,7 @@ begin
       ('joão@x.com', 'invalid_pix_key'),
       ('sem-arroba.com', 'invalid_pix_key'),
       ('a@b', 'invalid_pix_key'),
+      ('a@b@c.co', 'invalid_pix_key'),
       ('(11) 99999-9999', '+5511999999999|phone'),
       ('  (11) 99999-9999 ', '+5511999999999|phone'),
       ('11999999999', '+5511999999999|phone'),
@@ -307,12 +308,12 @@ begin
   perform pg_temp.assert_that(pg_temp.event_key(v_next) = '11222333000181|cnpj', 'recorrência copia');
   raise notice 'PASS: 11 recorrência copia a chave';
 
-  -- 12. Passagem apaga a chave do Racha e dos abertos; o encerrado fica
+  -- 12. Passagem apaga a chave do Racha e de todos os Eventos, também do encerrado
   perform public.transfer_ownership(v_racha, v_admin);
   perform pg_temp.assert_that(pg_temp.racha_key(v_racha) = 'null', 'Passagem apaga do Racha');
   perform pg_temp.assert_that(pg_temp.event_key(v_next) = 'null' and pg_temp.event_key(v_active) = 'null',
     'Passagem apaga dos abertos');
-  perform pg_temp.assert_that(pg_temp.event_key(v_fin) = 'antiga@x.com|email', 'finished fica');
+  perform pg_temp.assert_that(pg_temp.event_key(v_fin) = 'null', 'Passagem apaga do encerrado');
   raise notice 'PASS: 12 Passagem apaga a chave';
 end $$;
 
@@ -332,6 +333,7 @@ declare
   v_racha uuid := pg_temp.racha('Racha Pagar', 'PXPGAA');
   v_event uuid;
   v_free uuid;
+  v_closed uuid;
   v_p uuid;
   v_row record;
   v_err text;
@@ -430,6 +432,19 @@ begin
   perform pg_temp.assert_that(v_row.pix_key is null and v_row.pix_key_type is null,
     'grátis: ' || row_to_json(v_row)::text);
   raise notice 'PASS: 19 Evento grátis sem chave';
+
+  -- 20. Evento encerrado não entrega a chave, nem a quem confirmou
+  delete from public.event where id = v_free;
+  v_closed := pg_temp.event(v_racha, 'upcoming', null, 3);
+  perform public.confirm_attendance(v_closed);
+  update public.event
+    set status = 'finished', ended_at = now(), ended_by = v_owner, conductor_id = v_owner
+    where id = v_closed;
+  perform pg_temp.assert_that(pg_temp.event_key(v_closed) = 'ana@x.com|email', 'encerrado guarda a chave');
+  select * into v_row from public.get_payment(v_closed);
+  perform pg_temp.assert_that(v_row.pix_key is null and v_row.pix_key_type is null,
+    'encerrado: ' || row_to_json(v_row)::text);
+  raise notice 'PASS: 20 Evento encerrado sem chave';
 end $$;
 
 rollback;

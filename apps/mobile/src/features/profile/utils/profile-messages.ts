@@ -11,7 +11,7 @@ export const CONFIRM_EMAIL_CODE_HEADING = "Digite o código";
 export const CONFIRM_EMAIL_CODE_TEXT = "Mandamos 6 números para";
 export const CONFIRM_EMAIL_CODE_LABEL = "Código";
 export const CONFIRM_EMAIL_CODE_HINT =
-  "Vale por 1 hora. Não chegou? Olhe o spam.";
+  "Vale por 10 minutos. Não chegou? Olhe o spam.";
 export const CONFIRM_EMAIL_CONFIRM = "Confirmar";
 export const confirmEmailResendIn = (mmss: string) =>
   `Reenviar código em ${mmss}`;

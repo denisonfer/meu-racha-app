@@ -4,7 +4,9 @@ const UUID_V4 =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 // Limite de 77 caracteres do e-mail na chave PIX (Manual de Padrões para Iniciação do Pix).
 // Só ASCII imprimível: o BR Code conta o comprimento em bytes e o CRC é sobre bytes ASCII.
-const EMAIL = /^[\x21-\x7e]+@[\x21-\x7e]+\.[\x21-\x7e]+$/;
+// "@" fica fora das partes: o e-mail da chave tem um só.
+const EMAIL =
+  /^[\x21-\x3f\x41-\x7e]+@[\x21-\x3f\x41-\x7e]+\.[\x21-\x3f\x41-\x7e]+$/;
 const MOBILE_11 = /^[1-9]{2}9\d{8}$/;
 
 // Dígito verificador módulo 11 sobre os `length` primeiros dígitos, com os pesos dados da esquerda para a direita.

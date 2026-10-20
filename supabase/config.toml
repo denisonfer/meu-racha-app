@@ -230,7 +230,8 @@ max_frequency = "1s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+# 10 minutos: o código de 6 dígitos também abre sessão e não tem limite por tentativa.
+otp_expiry = 600
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]

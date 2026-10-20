@@ -36,6 +36,7 @@ describe("normalizePixKey", () => {
     expect(normalizePixKey("joão@x.com")).toBeNull();
     expect(normalizePixKey("sem-arroba.com")).toBeNull();
     expect(normalizePixKey("a@b")).toBeNull();
+    expect(normalizePixKey("a@b@c.co")).toBeNull();
   });
 
   test("celular com máscara, só DDD+número ou com +55 vira +55DDDNÚMERO", () => {

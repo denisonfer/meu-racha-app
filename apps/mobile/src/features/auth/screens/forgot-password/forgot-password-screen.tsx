@@ -46,8 +46,8 @@ export const ForgotPasswordScreen = () => {
       <View style={styles.content}>
         <Text preset="h2">Recuperar senha</Text>
         <Text preset="body" color="muted">
-          Mandamos um link para o e-mail do seu cadastro. Ele vale por 1 hora e
-          serve uma vez só.
+          Mandamos um link para o e-mail do seu cadastro. Ele vale por 10
+          minutos e serve uma vez só.
         </Text>
         <FormInput
           control={control}
