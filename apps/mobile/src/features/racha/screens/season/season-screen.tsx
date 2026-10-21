@@ -7,6 +7,7 @@ import {
   Text,
 } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { TermHelp } from "../../components/term-help";
 import { ResenhaCard } from "../racha-home/resenha-card";
 import {
   SEASON_EMPTY_TEXT,
@@ -46,7 +47,15 @@ export const SeasonScreen = () => {
   } = useSeasonScreen();
 
   return (
-    <Screen canGoBack title={title}>
+    <Screen
+      canGoBack
+      title={title}
+      headerRight={
+        <View style={styles.headerRight}>
+          <TermHelp term="season" />
+        </View>
+      }
+    >
       <View style={styles.body}>
         <SegmentedControl
           options={[
@@ -140,6 +149,7 @@ export const SeasonScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  headerRight: { marginVertical: -10, marginRight: -10 },
   body: { flex: 1, gap: theme.space[16] },
   pane: { flex: 1, gap: theme.space[16] },
   listPane: { flex: 1 },

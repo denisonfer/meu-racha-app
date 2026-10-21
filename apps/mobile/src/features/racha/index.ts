@@ -41,6 +41,8 @@ export * from "./screens/transfer-ownership/transfer-ownership-screen";
 export * from "./screens/leave-racha/leave-racha-screen";
 export * from "./screens/resenha/resenha-screen";
 export * from "./screens/season/season-screen";
+export * from "./screens/term/term-screen";
+export { TermHelp } from "./components/term-help";
 export * from "./hooks/use-my-rachas";
 export { myProfileCardKey, loadMyProfileCard } from "./hooks/use-racha-cards";
 export { memberCardProps } from "./utils/member-card";

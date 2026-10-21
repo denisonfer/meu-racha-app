@@ -2,7 +2,9 @@ import { initialsOf } from "@meu-racha/domain";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Icon, PenaltyCard, PlayerCardMini, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import type { TTerm } from "../utils/racha-messages";
 import type { TSortRowAction } from "./sort-team-card";
+import { TermHelp } from "./term-help";
 
 export type TSortPersonListRow = {
   key: string;
@@ -22,6 +24,7 @@ export type TSortPersonListRow = {
 type TSortPersonListProps = {
   title: string;
   hint?: string;
+  helpTerm?: TTerm;
   rows: TSortPersonListRow[];
 };
 
@@ -58,11 +61,19 @@ const RowAction = ({ action }: { action: TSortRowAction }) => (
 );
 
 /** Lista de pessoas do Sorteio fora dos cartões: Goleiros, fila do gol, Aguardando inclusão e Saíram. */
-export const SortPersonList = ({ title, hint, rows }: TSortPersonListProps) => (
+export const SortPersonList = ({
+  title,
+  hint,
+  helpTerm,
+  rows,
+}: TSortPersonListProps) => (
   <View style={styles.section}>
-    <Text preset="h3" accessibilityRole="header">
-      {title}
-    </Text>
+    <View style={styles.titleRow}>
+      <Text preset="h3" accessibilityRole="header">
+        {title}
+      </Text>
+      {helpTerm ? <TermHelp term={helpTerm} /> : null}
+    </View>
     {hint ? (
       <Text preset="small" color="muted">
         {hint}
@@ -132,6 +143,7 @@ export const SortPersonList = ({ title, hint, rows }: TSortPersonListProps) => (
 );
 
 const styles = StyleSheet.create({
+  titleRow: { flexDirection: "row", alignItems: "center", marginVertical: -12 },
   section: { gap: theme.space[8] },
   card: {
     borderRadius: theme.radius.card,

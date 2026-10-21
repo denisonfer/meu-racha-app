@@ -6,6 +6,7 @@ import {
   MATCH_VIEW,
   SORT_CONFIRMED_TITLE,
   SORT_INCLUDE_PERSON,
+  type TTerm,
 } from "../utils/racha-messages";
 import { ChangeNote } from "./change-note";
 import { TeamsDefinedTag } from "./teams-defined-tag";
@@ -19,6 +20,7 @@ export type TSortPublishedSection = {
   key: string;
   title: string;
   hint?: string;
+  helpTerm?: TTerm;
   rows: TSortPersonListRow[];
 };
 
@@ -127,6 +129,7 @@ export const SortPublishedView = ({
           key={section.key}
           title={section.title}
           hint={section.hint}
+          helpTerm={section.helpTerm}
           rows={section.rows}
         />
       ))}

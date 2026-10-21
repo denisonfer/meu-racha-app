@@ -1,7 +1,8 @@
-import { ActivityIndicator, ScrollView, StyleSheet } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import { Button, Screen, ScreenFooter, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { SortPersonList } from "../../components/sort-person-list";
+import { TermHelp } from "../../components/term-help";
 import {
   SORT_INCLUDE_BACK_TO_LIST,
   SORT_INCLUDE_GUEST,
@@ -30,7 +31,15 @@ export const IncludeSortScreen = () => {
   if (isMissing) return null;
 
   return (
-    <Screen title={SORT_INCLUDE_TITLE} canGoBack>
+    <Screen
+      title={SORT_INCLUDE_TITLE}
+      canGoBack
+      headerRight={
+        <View style={styles.headerRight}>
+          <TermHelp term="inclusion" />
+        </View>
+      }
+    >
       {mode === "guest" ? (
         <GuestForm
           {...guestForm}
@@ -85,4 +94,5 @@ export const IncludeSortScreen = () => {
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
+  headerRight: { marginVertical: -10, marginRight: -10 },
 });

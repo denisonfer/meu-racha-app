@@ -4,6 +4,7 @@ import { theme } from "@/ui/theme";
 import { MatchLiveTag } from "../../components/match-live-tag";
 import { TeamsDefinedTag } from "../../components/teams-defined-tag";
 import { EventAttendanceCta } from "../../components/event-attendance-cta";
+import { TermHelp } from "../../components/term-help";
 import { TAttendanceStatus } from "../../racha-types";
 import {
   MATCH_VIEW,
@@ -171,9 +172,12 @@ export const EventCard = ({
       </View>
     ) : null}
     {conductorLine ? (
-      <Text preset="small" color="muted">
-        {conductorLine}
-      </Text>
+      <View style={styles.conductor}>
+        <Text preset="small" color="muted" style={styles.shrink}>
+          {conductorLine}
+        </Text>
+        <TermHelp term="conductor" />
+      </View>
     ) : null}
     <EventAttendanceCta
       confirmedCount={confirmedCount}
@@ -203,9 +207,12 @@ export const EventCard = ({
           Próximo agendado · {upcoming.when}
         </Text>
         {upcoming.conductorLine ? (
-          <Text preset="small" color="muted">
-            {upcoming.conductorLine}
-          </Text>
+          <View style={styles.conductor}>
+            <Text preset="small" color="muted" style={styles.shrink}>
+              {upcoming.conductorLine}
+            </Text>
+            <TermHelp term="conductor" />
+          </View>
         ) : null}
         {upcoming.onEdit || upcoming.onCancel ? (
           <View style={styles.upcomingActions}>
@@ -242,6 +249,13 @@ export const EventCard = ({
 );
 
 const styles = StyleSheet.create({
+  // o "?" tem 44 de toque, mas não pode engordar a linha de texto
+  conductor: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: -12,
+  },
+  shrink: { flexShrink: 1 },
   card: {
     gap: 12,
     padding: theme.space[16],

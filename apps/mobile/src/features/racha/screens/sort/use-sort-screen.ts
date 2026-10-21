@@ -518,6 +518,7 @@ export function useSortScreen() {
         key: "left",
         title: sortLeftTitle(leftRows.length),
         hint: destination,
+        helpTerm: "return" as const,
         rows: leftRows,
       },
     ].filter((section) => section.rows.length > 0);

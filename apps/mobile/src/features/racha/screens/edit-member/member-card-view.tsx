@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Icon, PlayerCard, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { RoleChip } from "../../components/role-chip";
+import { TermHelp } from "../../components/term-help";
 import { TRachaMember } from "../../racha-types";
 import { starsLabel } from "../../utils/racha-labels";
 import { memberCardProps } from "../../utils/member-card";
@@ -28,6 +29,7 @@ export const MemberCardView = ({
       width={CARD_WIDTH}
       {...memberCardProps(member, member.isSuperStar, card, rachaName)}
     />
+    <TermHelp term="overall" hasLabel />
     {member.role !== "PLAYER" ? <RoleChip role={member.role} /> : null}
     {member.stars !== null ? (
       <View style={styles.stars}>

@@ -1,4 +1,6 @@
+import { StyleSheet, View } from "react-native";
 import { Screen } from "@/ui/components";
+import { TermHelp } from "../../components/term-help";
 import { GuestForm } from "./guest-form";
 import { useGuestScreen } from "./use-guest-screen";
 
@@ -18,7 +20,15 @@ export const GuestScreen = () => {
   if (isMissing) return null;
 
   return (
-    <Screen title="Adicionar avulso" canGoBack>
+    <Screen
+      title="Adicionar avulso"
+      canGoBack
+      headerRight={
+        <View style={styles.headerRight}>
+          <TermHelp term="guest" />
+        </View>
+      }
+    >
       <GuestForm
         values={values}
         errors={errors}
@@ -32,3 +42,7 @@ export const GuestScreen = () => {
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  headerRight: { marginVertical: -10, marginRight: -10 },
+});

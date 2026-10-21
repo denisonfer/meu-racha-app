@@ -1118,3 +1118,42 @@ export const resenhaSummarySegments = (
     { text: `, ${count} ${count === 1 ? "gol" : "gols"}` },
   ];
 };
+
+export const TERMS = {
+  overall: {
+    title: "Overall",
+    text: "O seu nível neste Racha, de 40 a 99. Sobe com gols, assistências e vitórias. No Gol, sobe quando o seu time sofre poucos gols. Começa em 40 e atualiza quando o Evento é encerrado.",
+  },
+  conductor: {
+    title: "Condutor",
+    text: "O Dono ou Admin que comanda o jogo do dia. Só ele sorteia os times, grava placar e cartões, chama Reforço e encerra o Evento. Outro Admin pode assumir no lugar dele.",
+  },
+  reinforcement: {
+    title: "Reforço",
+    text: "Alguém parou de jogar no meio da Partida? Um time da fila cede um jogador para completar quem ficou com um a menos. Quem entra passa a ser desse time. Cartão não chama Reforço.",
+  },
+  inclusion: {
+    title: "Inclusão",
+    text: "Coloca no jogo quem chegou depois do Sorteio, Membro ou Avulso. A pessoa vai para o time incompleto mais atrás na fila, sem passar na frente de quem já espera.",
+  },
+  return: {
+    title: "Volta",
+    text: "Devolve ao jogo quem tinha saído. Entra como na Inclusão: vai para o time incompleto mais atrás na fila, não para o time em que estava antes.",
+  },
+  guest: {
+    title: "Avulso",
+    text: "Quem joga hoje sem ter conta no app. Entra no Sorteio e nos times normalmente, mas não tem Card nem entra no Ranking. No próximo Evento, começa do zero.",
+  },
+  bolinhas: {
+    title: "Bolinhas",
+    text: "Ajusta os times no meio do dia: um time cede jogadores para completar outro, e o app sorteia quem vai. O Goleiro nunca entra no sorteio.",
+  },
+  season: {
+    title: "Temporada",
+    text: "Um ano de racha, contado a partir do dia em que o Racha foi criado. Quando vira, o Overall volta a 40 e o Ranking recomeça. O que aconteceu fica guardado no álbum da Temporada.",
+  },
+} as const;
+
+export type TTerm = keyof typeof TERMS;
+
+export const termHelpLabel = (term: TTerm) => `O que é ${TERMS[term].title}?`;

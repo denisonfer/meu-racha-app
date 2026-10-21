@@ -8,6 +8,7 @@ import {
   Screen,
   ScreenFooter,
 } from "@/ui/components";
+import { TermHelp } from "@/features/racha";
 import { theme } from "@/ui/theme";
 import {
   EMAIL_ALERT_ACTION,
@@ -80,6 +81,7 @@ export const ProfileScreen = () => {
               isLoading={isChangingPhoto}
               onPress={changePhoto}
             />
+            <TermHelp term="overall" hasLabel />
           </View>
         ) : (
           <EmptyState

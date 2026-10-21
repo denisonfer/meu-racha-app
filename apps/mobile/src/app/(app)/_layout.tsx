@@ -59,6 +59,7 @@ export default function AppLayout() {
         name="racha/[id]/position-detail"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}
       />
+      <Stack.Screen name="term/[term]" options={BOTTOM_SHEET_SCREEN_OPTIONS} />
       <Stack.Screen
         name="racha/[id]/event/[eventId]/assume"
         options={BOTTOM_SHEET_SCREEN_OPTIONS}

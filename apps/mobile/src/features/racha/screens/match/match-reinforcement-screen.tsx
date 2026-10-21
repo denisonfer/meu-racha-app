@@ -8,6 +8,7 @@ import {
   Text,
 } from "@/ui/components";
 import { theme } from "@/ui/theme";
+import { TermHelp } from "../../components/term-help";
 import {
   MATCH_REINFORCE_BACK,
   MATCH_REINFORCE_DRAW,
@@ -40,7 +41,14 @@ export const MatchReinforcementScreen = () => {
   return (
     <BottomSheet
       title={title}
-      supporting={<Text color="muted">{supporting}</Text>}
+      supporting={
+        <View style={styles.supporting}>
+          <Text color="muted" style={styles.shrink}>
+            {supporting}
+          </Text>
+          {result ? null : <TermHelp term="reinforcement" />}
+        </View>
+      }
       hasCloseButton={false}
       isBusy={isBusy}
     >
@@ -96,6 +104,8 @@ export const MatchReinforcementScreen = () => {
 
 const styles = StyleSheet.create({
   body: { gap: theme.space[16] },
+  supporting: { flexDirection: "row", alignItems: "center", gap: 4 },
+  shrink: { flexShrink: 1 },
   card: {
     flexDirection: "row",
     alignItems: "center",

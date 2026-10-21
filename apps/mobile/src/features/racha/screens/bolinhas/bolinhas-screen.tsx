@@ -1,7 +1,8 @@
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Button, NoticeBanner, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { SortPage } from "../../components/sort-page";
+import { TermHelp } from "../../components/term-help";
 import {
   BOLINHAS,
   BOLINHAS_BACK_TO_TEAMS,
@@ -74,7 +75,15 @@ export const BolinhasScreen = () => {
           : BOLINHAS_DRAW;
 
   return (
-    <Screen title={BOLINHAS} canGoBack>
+    <Screen
+      title={BOLINHAS}
+      canGoBack
+      headerRight={
+        <View style={styles.headerRight}>
+          <TermHelp term="bolinhas" />
+        </View>
+      }
+    >
       <SortPage
         footer={
           <>
@@ -114,3 +123,7 @@ export const BolinhasScreen = () => {
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  headerRight: { marginVertical: -10, marginRight: -10 },
+});
