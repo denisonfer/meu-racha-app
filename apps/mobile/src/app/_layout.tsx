@@ -6,7 +6,8 @@ import { LogBox, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { queryClient } from "@/lib/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ToastProvider } from "@/ui/components";
+import { environment } from "@/lib/environment";
+import { EnvironmentBadge, ToastProvider } from "@/ui/components";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -45,6 +46,7 @@ export default function RootLayout() {
             {/* home autenticada: gesto não pode voltar ao login */}
             <Stack.Screen name="(app)" options={{ gestureEnabled: false }} />
           </Stack>
+          {environment.name === "staging" && <EnvironmentBadge />}
         </ToastProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

@@ -24,11 +24,16 @@ export function useSignInScreen() {
     });
   };
 
+  const openDevHub = () => {
+    router.push("/dev-hub");
+  };
+
   return {
     control,
     isPending,
     submit: handleSubmit((values) => signIn(values)),
     navigateToSignUp,
     navigateToForgotPassword,
+    openDevHub,
   };
 }

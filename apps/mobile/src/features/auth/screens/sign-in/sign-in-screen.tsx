@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { Button, FormInput, LogoLockup, Screen, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { useSignInScreen } from "./use-sign-in-screen";
@@ -11,6 +11,7 @@ export const SignInScreen = () => {
     submit,
     navigateToSignUp,
     navigateToForgotPassword,
+    openDevHub,
   } = useSignInScreen();
 
   const passwordRef = useRef<TextInput>(null);
@@ -18,7 +19,10 @@ export const SignInScreen = () => {
   return (
     <Screen>
       <View style={styles.header}>
-        <LogoLockup height={44} />
+        {/* gesto escondido: sem onPress e sem accessibilityRole para não aparecer como botão */}
+        <Pressable onLongPress={openDevHub} delayLongPress={3000}>
+          <LogoLockup height={44} />
+        </Pressable>
         <Text preset="body" color="muted">
           Organize. Sorteie. Jogue.
         </Text>

@@ -1,10 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { AppState } from "react-native";
 import type { Database } from "./database.types";
+import { environment } from "./environment";
 import { authStorage } from "./storage";
 
-const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+const { url, anonKey } = environment.config;
 
 if (!url || !anonKey) {
   throw new Error(

@@ -400,6 +400,9 @@ deno_version = 2
 [functions.send-push]
 verify_jwt = false
 
+[functions.devhub-staging-config]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
