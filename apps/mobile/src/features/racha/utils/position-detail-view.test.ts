@@ -14,7 +14,8 @@ describe("positionDetailSlots", () => {
     expect(slots[0]?.accessibilityLabel).toBe("Na defesa, principal");
     expect(slots[0]?.options.map((o) => o.label)).toEqual([
       "Zagueiro",
-      "Lateral",
+      "Lateral Esquerdo",
+      "Lateral Direito",
     ]);
     expect(slots[1]?.options).toEqual([]);
     expect(slots[1]?.noChoiceText).toBe("Atacante. Não precisa escolher.");

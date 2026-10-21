@@ -2,11 +2,16 @@ import type { TPlaysAs, TPosition } from "../profile/types";
 
 // espelham o enum public.position_detail e o texto de private.position_layer
 export type TPositionDetail =
-  "CENTER_BACK" | "FULL_BACK" | "DEFENSIVE_MID" | "ATTACKING_MID";
+  | "CENTER_BACK"
+  | "LEFT_BACK"
+  | "RIGHT_BACK"
+  | "DEFENSIVE_MID"
+  | "ATTACKING_MID";
 
 export type TPositionLayer =
   | "CENTER_BACK"
-  | "FULL_BACK"
+  | "LEFT_BACK"
+  | "RIGHT_BACK"
   | "DEFENDER"
   | "DEFENSIVE_MID"
   | "ATTACKING_MID"
@@ -17,7 +22,8 @@ export type TPositionLayer =
 // mesma ordem de private.sort_layer_ix (defesa → ataque); TODAS fica por último
 export const POSITION_LAYERS = [
   "CENTER_BACK",
-  "FULL_BACK",
+  "LEFT_BACK",
+  "RIGHT_BACK",
   "DEFENDER",
   "DEFENSIVE_MID",
   "ATTACKING_MID",
@@ -38,17 +44,18 @@ export const asksPositionDetail = (outfieldPerTeam: number) =>
 
 export const POSITION_DETAIL_LABELS: Record<TPositionDetail, string> = {
   CENTER_BACK: "Zagueiro",
-  FULL_BACK: "Lateral",
+  LEFT_BACK: "Lateral Esquerdo",
+  RIGHT_BACK: "Lateral Direito",
   DEFENSIVE_MID: "Volante",
   ATTACKING_MID: "Meia",
 };
 
 const DETAILS_BY_ZONE: Partial<Record<TPosition, TPositionDetail[]>> = {
-  DEFENDER: ["CENTER_BACK", "FULL_BACK"],
+  DEFENDER: ["CENTER_BACK", "LEFT_BACK", "RIGHT_BACK"],
   MIDFIELDER: ["DEFENSIVE_MID", "ATTACKING_MID"],
 };
 
-/** As duas opções da zona; ATACANTE e TODAS não têm o que escolher. */
+/** As opções da zona; ATACANTE e TODAS não têm o que escolher. */
 export function positionDetailOptions(
   zone: TPosition | null
 ): { value: TPositionDetail; label: string }[] {
@@ -78,7 +85,8 @@ export type TLayerGroupKey = "GOALKEEPER" | TPositionLayer | "PENDING";
 export const LAYER_GROUPS: { key: TLayerGroupKey; label: string }[] = [
   { key: "GOALKEEPER", label: "Goleiros" },
   { key: "CENTER_BACK", label: "Zagueiros" },
-  { key: "FULL_BACK", label: "Laterais" },
+  { key: "LEFT_BACK", label: "Laterais Esquerdos" },
+  { key: "RIGHT_BACK", label: "Laterais Direitos" },
   { key: "DEFENDER", label: "Defensores" },
   { key: "DEFENSIVE_MID", label: "Volantes" },
   { key: "ATTACKING_MID", label: "Meias" },

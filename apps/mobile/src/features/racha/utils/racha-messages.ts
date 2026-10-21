@@ -315,9 +315,9 @@ export const POSITION_DETAIL_SORT_TEXT =
   "Eles vieram e precisam completar a posição antes do Sorteio.";
 export const positionDetailMemberPending = (name: string) =>
   `Sem a subdivisão, ${name} não entra no Sorteio quando vier.`;
-/** Erro junto ao seletor: as duas opções da zona. */
+/** Erro junto ao seletor: as opções da zona, "A, B ou C". */
 export const positionDetailChoose = (labels: string[]) =>
-  `Escolha ${labels.join(" ou ")} para continuar.`;
+  `Escolha ${[labels.slice(0, -1).join(", "), labels.at(-1)].filter(Boolean).join(" ou ")} para continuar.`;
 export const positionDetailCompleteLabel = (name: string) =>
   `Completar a posição de ${name}`;
 /** position_detail_pending: o banco manda os nomes de quem veio e está pendente. */

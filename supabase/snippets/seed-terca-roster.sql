@@ -17,18 +17,18 @@ create temporary table roster (
 insert into roster (slug, display_name, is_owner, plays_as, pos1, pos2, stars, is_super) values
   ('magno',           'Magno',           false, 'GOALKEEPER', null,  null,  null, false),
   ('fernando',        'Fernando',        false, 'GOALKEEPER', null,  null,  null, false),
-  ('fran',            'Fran',            false, 'OUTFIELD',   'ZAG', 'LAT', 3,    false),
+  ('fran',            'Fran',            false, 'OUTFIELD',   'ZAG', 'LE',  3,    false),
   ('darley',          'Darley',          false, 'OUTFIELD',   'ZAG', 'VOL', 3,    false),
   ('brenno',          'Brenno',          false, 'OUTFIELD',   'ZAG', 'VOL', 3,    false),
   ('menague',         'Menague',         false, 'OUTFIELD',   'ZAG', 'VOL', 3,    false),
   ('genilson',        'Genilson',        false, 'OUTFIELD',   'ZAG', 'VOL', 3,    false),
-  ('bruno',           'Bruno',           false, 'OUTFIELD',   'ZAG', 'LAT', 3,    false),
-  ('flavio',          'Flávio',          false, 'OUTFIELD',   'LAT', 'ZAG', 3,    false),
-  ('leo',             'Léo',             false, 'OUTFIELD',   'LAT', 'ATA', 3,    false),
-  ('jecivaldo',       'Gessivaldo',      false, 'OUTFIELD',   'LAT', 'VOL', 3,    false),
-  ('willami',         'Willami',         false, 'OUTFIELD',   'LAT', 'VOL', 3,    false),
-  ('laercio',         'Laércio',         false, 'OUTFIELD',   'LAT', 'VOL', 3,    false),
-  ('italo',           'Italo',           false, 'OUTFIELD',   'LAT', 'VOL', 3,    false),
+  ('bruno',           'Bruno',           false, 'OUTFIELD',   'ZAG', 'LD',  3,    false),
+  ('flavio',          'Flávio',          false, 'OUTFIELD',   'LE',  'ZAG', 3,    false),
+  ('leo',             'Léo',             false, 'OUTFIELD',   'LD',  'ATA', 3,    false),
+  ('jecivaldo',       'Gessivaldo',      false, 'OUTFIELD',   'LE',  'VOL', 3,    false),
+  ('willami',         'Willami',         false, 'OUTFIELD',   'LD',  'VOL', 3,    false),
+  ('laercio',         'Laércio',         false, 'OUTFIELD',   'LE',  'VOL', 3,    false),
+  ('italo',           'Italo',           false, 'OUTFIELD',   'LD',  'VOL', 3,    false),
   ('douglas',         'Douglas',         false, 'OUTFIELD',   'VOL', 'MEI', 3,    false),
   ('mauricio',        'Maurício',        false, 'OUTFIELD',   'VOL', 'MEI', 3,    true),
   ('jardson',         'Jardson',         false, 'OUTFIELD',   'VOL', 'MEI', 3,    false),
@@ -38,7 +38,7 @@ insert into roster (slug, display_name, is_owner, plays_as, pos1, pos2, stars, i
   ('cesinha',         'Cesinha',         false, 'OUTFIELD',   'MEI', 'ATA', 3,    true),
   ('leonardo',        'Leonardo',        false, 'OUTFIELD',   'MEI', 'VOL', 3,    true),
   ('brendo',          'Brendo',          false, 'OUTFIELD',   'MEI', 'ATA', 3,    true),
-  ('superman',        'Superman',        true,  'OUTFIELD',   'ATA', 'LAT', 3,    false),
+  ('superman',        'Superman',        true,  'OUTFIELD',   'ATA', 'LE',  3,    false),
   ('paulo.robson',    'Paulo Robson',    false, 'OUTFIELD',   'ATA', 'MEI', 3,    false),
   ('anderson',        'Anderson',        false, 'OUTFIELD',   'ATA', 'MEI', 3,    false),
   ('fernandinho',     'Fernandinho',     false, 'OUTFIELD',   'ATA', 'MEI', 3,    false),
@@ -48,14 +48,15 @@ insert into roster (slug, display_name, is_owner, plays_as, pos1, pos2, stars, i
   ('daniel',          'Daniel',          false, 'OUTFIELD',   'ATA', 'MEI', 3,    false),
   ('adailson',        'Adailson',        false, 'OUTFIELD',   'ATA', 'MEI', 3,    false);
 
--- Zona ampla + subdivisão. Par da mesma zona (VOL/MEI, ZAG/LAT) não cabe
+-- Zona ampla + subdivisão. Par da mesma zona (VOL/MEI, ZAG/LE/LD) não cabe
 -- no check do Membro: a secundária vira a zona vizinha.
 create function pg_temp.zone_of(p text)
 returns public.position
 language sql immutable as $$
   select case p
     when 'ZAG' then 'DEFENDER'::public.position
-    when 'LAT' then 'DEFENDER'::public.position
+    when 'LE' then 'DEFENDER'::public.position
+    when 'LD' then 'DEFENDER'::public.position
     when 'VOL' then 'MIDFIELDER'::public.position
     when 'MEI' then 'MIDFIELDER'::public.position
     when 'ATA' then 'FORWARD'::public.position
@@ -67,7 +68,8 @@ returns public.position_detail
 language sql immutable as $$
   select case p
     when 'ZAG' then 'CENTER_BACK'::public.position_detail
-    when 'LAT' then 'FULL_BACK'::public.position_detail
+    when 'LE' then 'LEFT_BACK'::public.position_detail
+    when 'LD' then 'RIGHT_BACK'::public.position_detail
     when 'VOL' then 'DEFENSIVE_MID'::public.position_detail
     when 'MEI' then 'ATTACKING_MID'::public.position_detail
   end;
@@ -78,7 +80,8 @@ returns public.position
 language sql immutable as $$
   select case p
     when 'ZAG' then 'MIDFIELDER'::public.position
-    when 'LAT' then 'MIDFIELDER'::public.position
+    when 'LE' then 'MIDFIELDER'::public.position
+    when 'LD' then 'MIDFIELDER'::public.position
     when 'VOL' then 'FORWARD'::public.position
     when 'MEI' then 'DEFENDER'::public.position
   end;

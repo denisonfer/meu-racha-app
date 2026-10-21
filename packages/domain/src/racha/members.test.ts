@@ -180,7 +180,8 @@ describe("groupMembersByPosition por camada (Evento 8+)", () => {
         person("Dani", "ANY"),
         person("Maria", "DEFENSIVE_MID"),
         person("Lucas", "ATTACKING_MID"),
-        person("Ana", "FULL_BACK"),
+        person("Ana", "LEFT_BACK"),
+        person("Caio", "RIGHT_BACK"),
         person("João", "CENTER_BACK"),
         person("Marcos", null, "GOALKEEPER"),
       ],
@@ -191,7 +192,8 @@ describe("groupMembersByPosition por camada (Evento 8+)", () => {
     expect(groups.map((group) => group.label)).toEqual([
       "Goleiros",
       "Zagueiros",
-      "Laterais",
+      "Laterais Esquerdos",
+      "Laterais Direitos",
       "Volantes",
       "Meias",
       "Atacantes",
@@ -199,8 +201,8 @@ describe("groupMembersByPosition por camada (Evento 8+)", () => {
       "Posição pendente",
     ]);
     expect(groups[0]!.members[0]!.displayName).toBe("Marcos");
-    expect(groups[7]!.key).toBe("PENDING");
-    expect(groups[7]!.members[0]!.displayName).toBe("Rita");
+    expect(groups[8]!.key).toBe("PENDING");
+    expect(groups[8]!.members[0]!.displayName).toBe("Rita");
   });
 
   test("só grupos não vazios, em ordem alfabética dentro do grupo", () => {
@@ -221,7 +223,7 @@ describe("groupMembersByPosition por camada (Evento 8+)", () => {
   test("Goleiro com camada nula não é pendente", () => {
     expect(isLayerPending(person("Marcos", null, "GOALKEEPER"))).toBe(false);
     expect(isLayerPending(person("Rita", null))).toBe(true);
-    expect(isLayerPending(person("Ana", "FULL_BACK"))).toBe(false);
+    expect(isLayerPending(person("Ana", "LEFT_BACK"))).toBe(false);
   });
 
   test("padrão continua pela zona ampla (aba Membros)", () => {
@@ -266,7 +268,8 @@ describe("subdivisão de posição", () => {
   test("só DEFENSOR e MEIO_CAMPO têm opções", () => {
     expect(positionDetailOptions("DEFENDER").map((o) => o.label)).toEqual([
       "Zagueiro",
-      "Lateral",
+      "Lateral Esquerdo",
+      "Lateral Direito",
     ]);
     expect(positionDetailOptions("MIDFIELDER").map((o) => o.label)).toEqual([
       "Volante",
@@ -281,12 +284,14 @@ describe("subdivisão de posição", () => {
     expect(positionDetailFits("DEFENDER", "CENTER_BACK")).toBe(true);
     expect(positionDetailFits("DEFENDER", "DEFENSIVE_MID")).toBe(false);
     expect(positionDetailFits("MIDFIELDER", "ATTACKING_MID")).toBe(true);
-    expect(positionDetailFits("FORWARD", "FULL_BACK")).toBe(false);
+    expect(positionDetailFits("DEFENDER", "RIGHT_BACK")).toBe(true);
+    expect(positionDetailFits("MIDFIELDER", "LEFT_BACK")).toBe(false);
+    expect(positionDetailFits("FORWARD", "LEFT_BACK")).toBe(false);
     expect(positionDetailFits("FORWARD", null)).toBe(true);
   });
 
   test("camada desconhecida vira nula", () => {
-    expect(toPositionLayer("FULL_BACK")).toBe("FULL_BACK");
+    expect(toPositionLayer("RIGHT_BACK")).toBe("RIGHT_BACK");
     expect(toPositionLayer("GOALKEEPER")).toBeNull();
     expect(toPositionLayer(null)).toBeNull();
   });

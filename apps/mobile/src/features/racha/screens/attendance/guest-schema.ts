@@ -21,7 +21,8 @@ import {
 const POSITIONS = ["ANY", "DEFENDER", "MIDFIELDER", "FORWARD"] as const;
 const POSITION_DETAILS = [
   "CENTER_BACK",
-  "FULL_BACK",
+  "LEFT_BACK",
+  "RIGHT_BACK",
   "DEFENSIVE_MID",
   "ATTACKING_MID",
 ] as const;

@@ -119,9 +119,14 @@ describe("posição pendente", () => {
     );
   });
 
-  test("erro do seletor traz as duas opções da zona", () => {
-    expect(positionDetailChoose(["Zagueiro", "Lateral"])).toBe(
-      "Escolha Zagueiro ou Lateral para continuar."
+  test("erro do seletor traz as opções da zona", () => {
+    expect(positionDetailChoose(["Volante", "Meia"])).toBe(
+      "Escolha Volante ou Meia para continuar."
+    );
+    expect(
+      positionDetailChoose(["Zagueiro", "Lateral Esquerdo", "Lateral Direito"])
+    ).toBe(
+      "Escolha Zagueiro, Lateral Esquerdo ou Lateral Direito para continuar."
     );
   });
 });

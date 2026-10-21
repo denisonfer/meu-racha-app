@@ -147,13 +147,13 @@ begin
   perform pg_temp.assert_that(pg_temp.err(format('insert into public.join_request (racha_id) values (%L)', v_r8))
     = 'position_detail_required', 'ATACANTE/DEFENSOR em Racha 8 responde pela secundária');
   perform pg_temp.assert_that(pg_temp.err(format($f$insert into public.join_request (racha_id, primary_position_detail,
-    secondary_position_detail) values (%L, 'CENTER_BACK', 'FULL_BACK')$f$, v_r8)) = 'position_detail_mismatch',
+    secondary_position_detail) values (%L, 'CENTER_BACK', 'LEFT_BACK')$f$, v_r8)) = 'position_detail_mismatch',
     'subdivisão na zona ATACANTE: position_detail_mismatch');
-  insert into public.join_request (racha_id, secondary_position_detail) values (v_r8, 'FULL_BACK');
+  insert into public.join_request (racha_id, secondary_position_detail) values (v_r8, 'LEFT_BACK');
 
   perform set_config('request.jwt.claim.sub', v_dm2::text, true);
   insert into public.join_request (racha_id, primary_position_detail, secondary_position_detail)
-  values (v_r8, 'FULL_BACK', 'DEFENSIVE_MID');
+  values (v_r8, 'LEFT_BACK', 'DEFENSIVE_MID');
 
   reset role;
 
@@ -177,7 +177,7 @@ begin
   select id into v_req from public.join_request where racha_id = v_r8 and profile_id = v_fd;
   perform public.approve_join_request(v_req, 3::smallint, false);
   select * into v_m from public.member where racha_id = v_r8 and profile_id = v_fd;
-  perform pg_temp.assert_that(v_m.primary_position_detail is null and v_m.secondary_position_detail = 'FULL_BACK',
+  perform pg_temp.assert_that(v_m.primary_position_detail is null and v_m.secondary_position_detail = 'LEFT_BACK',
     'ATACANTE/DEFENSOR: só a secundária');
 
   update public.profile set primary_position = 'MIDFIELDER', secondary_position = 'FORWARD' where id = v_dm2;
@@ -193,10 +193,10 @@ begin
   update public.member set is_active = false where racha_id = v_r8 and profile_id = v_dm;
   delete from public.join_request where racha_id = v_r8 and profile_id = v_dm;
   insert into public.join_request (racha_id, profile_id, primary_position_detail, secondary_position_detail)
-  values (v_r8, v_dm, 'FULL_BACK', 'DEFENSIVE_MID') returning id into v_req;
+  values (v_r8, v_dm, 'LEFT_BACK', 'DEFENSIVE_MID') returning id into v_req;
   perform public.approve_join_request(v_req, 3::smallint, false);
   select * into v_m from public.member where racha_id = v_r8 and profile_id = v_dm;
-  perform pg_temp.assert_that(v_m.is_active and v_m.primary_position_detail = 'FULL_BACK'
+  perform pg_temp.assert_that(v_m.is_active and v_m.primary_position_detail = 'LEFT_BACK'
     and v_m.secondary_position_detail = 'DEFENSIVE_MID', 'reativação sobrescreve as subdivisões');
   raise notice 'PASS: aprovação copia, zera a que não combina com a zona atual e sobrescreve na reativação';
 end $$;
@@ -230,18 +230,18 @@ begin
     from public.member where racha_id = v_racha and profile_id = v_m), 'o próprio Membro completa');
 
   perform set_config('request.jwt.claim.sub', v_admin::text, true);
-  perform public.set_member_position_details(v_racha, v_m, 'FULL_BACK', 'ATTACKING_MID');
-  perform pg_temp.assert_that((select primary_position_detail = 'FULL_BACK' and secondary_position_detail = 'ATTACKING_MID'
+  perform public.set_member_position_details(v_racha, v_m, 'LEFT_BACK', 'ATTACKING_MID');
+  perform pg_temp.assert_that((select primary_position_detail = 'LEFT_BACK' and secondary_position_detail = 'ATTACKING_MID'
     from public.member where racha_id = v_racha and profile_id = v_m), 'o Admin edita');
 
   perform set_config('request.jwt.claim.sub', v_owner::text, true);
   perform public.set_member_position_details(v_racha, v_m, 'CENTER_BACK', 'ATTACKING_MID');
 
   perform set_config('request.jwt.claim.sub', v_other::text, true);
-  perform pg_temp.assert_that(pg_temp.err(format($f$select public.set_member_position_details(%L, %L, 'FULL_BACK', 'DEFENSIVE_MID')$f$,
+  perform pg_temp.assert_that(pg_temp.err(format($f$select public.set_member_position_details(%L, %L, 'LEFT_BACK', 'DEFENSIVE_MID')$f$,
     v_racha, v_m)) = 'not_allowed', 'outro Membro: not_allowed');
   perform set_config('request.jwt.claim.sub', gen_random_uuid()::text, true);
-  perform pg_temp.assert_that(pg_temp.err(format($f$select public.set_member_position_details(%L, %L, 'FULL_BACK', 'DEFENSIVE_MID')$f$,
+  perform pg_temp.assert_that(pg_temp.err(format($f$select public.set_member_position_details(%L, %L, 'LEFT_BACK', 'DEFENSIVE_MID')$f$,
     v_racha, v_m)) = 'not_allowed', 'não Membro: not_allowed');
 
   perform set_config('request.jwt.claim.sub', v_m::text, true);
@@ -281,14 +281,14 @@ begin
       ('ANY', null, 7, 'ANY'),
       ('DEFENDER', 'CENTER_BACK', 3, 'DEFENDER'),
       ('DEFENDER', 'CENTER_BACK', 8, 'CENTER_BACK'),
-      ('DEFENDER', 'FULL_BACK', 8, 'FULL_BACK'),
+      ('DEFENDER', 'LEFT_BACK', 8, 'LEFT_BACK'),
       ('DEFENDER', null, 8, null),
       ('MIDFIELDER', 'DEFENSIVE_MID', 8, 'DEFENSIVE_MID'),
       ('MIDFIELDER', 'ATTACKING_MID', 8, 'ATTACKING_MID'),
       ('MIDFIELDER', null, 8, null),
       ('FORWARD', null, 8, 'FORWARD'),
       ('ANY', null, 8, 'ANY'),
-      ('DEFENDER', 'FULL_BACK', 10, 'FULL_BACK'),
+      ('DEFENDER', 'RIGHT_BACK', 10, 'RIGHT_BACK'),
       ('MIDFIELDER', null, 10, null),
       (null, null, 8, null)
     ) as x(zone, detail, per_team, expected)
@@ -301,8 +301,9 @@ begin
 
   for r in
     select * from (values
-      ('DEFENDER', null, true), ('DEFENDER', 'CENTER_BACK', true), ('DEFENDER', 'FULL_BACK', true),
-      ('DEFENDER', 'DEFENSIVE_MID', false), ('MIDFIELDER', 'ATTACKING_MID', true), ('MIDFIELDER', 'FULL_BACK', false),
+      ('DEFENDER', null, true), ('DEFENDER', 'CENTER_BACK', true), ('DEFENDER', 'LEFT_BACK', true),
+      ('DEFENDER', 'RIGHT_BACK', true), ('DEFENDER', 'DEFENSIVE_MID', false), ('MIDFIELDER', 'ATTACKING_MID', true),
+      ('MIDFIELDER', 'LEFT_BACK', false), ('MIDFIELDER', 'RIGHT_BACK', false),
       ('FORWARD', 'CENTER_BACK', false), ('ANY', 'ATTACKING_MID', false), ('FORWARD', null, true),
       (null, 'CENTER_BACK', false), (null, null, true)
     ) as x(zone, detail, expected)
@@ -377,11 +378,11 @@ begin
   update public.event set consider_position = true where id = v_event;
   perform pg_temp.assert_that(not exists (select 1 from public.event_sort where event_id = v_event), 'nada foi gravado');
 
-  perform public.set_member_position_details(v_racha, v_b, 'FULL_BACK', 'DEFENSIVE_MID');
+  perform public.set_member_position_details(v_racha, v_b, 'LEFT_BACK', 'DEFENSIVE_MID');
   v_pr := public.prepare_event_sort(v_event);
   perform pg_temp.assert_that(v_pr ->> 'state' = 'ready' and (v_pr ->> 'line_count')::integer = 7, 'completo, prepara com 7 de linha');
   perform pg_temp.assert_that(pg_temp.layer_of(v_pr -> 'teams', v_a) = 'CENTER_BACK'
-    and pg_temp.layer_of(v_pr -> 'teams', v_b) = 'FULL_BACK' and pg_temp.layer_of(v_pr -> 'teams', v_f[1]) = 'ANY',
+    and pg_temp.layer_of(v_pr -> 'teams', v_b) = 'LEFT_BACK' and pg_temp.layer_of(v_pr -> 'teams', v_f[1]) = 'ANY',
     'proposta: primary_layer de cada jogador');
   perform pg_temp.assert_that((select primary_position_detail_snapshot = 'CENTER_BACK' and secondary_position_detail_snapshot = 'ATTACKING_MID'
     from public.event_sort_team_player where event_id = v_event and profile_id = v_a), 'retrato das subdivisões de A');
@@ -391,12 +392,12 @@ begin
   perform pg_temp.assert_that(public.get_event_sort_proposal(v_event) ->> 'state' = 'stale', 'mudar subdivisão invalida a proposta');
   perform pg_temp.assert_that(pg_temp.err_detail(format('select public.confirm_event_sort(%L, %s)', v_event, v_pr ->> 'version'))
     = 'position_detail_pending ["Bia Pendente"]', 'confirmar com pendente: position_detail_pending');
-  perform public.set_member_position_details(v_racha, v_b, 'FULL_BACK', 'DEFENSIVE_MID');
+  perform public.set_member_position_details(v_racha, v_b, 'LEFT_BACK', 'DEFENSIVE_MID');
   v_pub := public.confirm_event_sort(v_event, (v_pr ->> 'version')::integer);
   perform pg_temp.assert_that(v_pub ->> 'state' = 'published', 'confirma depois de completar');
   perform pg_temp.assert_that(not exists (select 1 from public.event_sort_team_player where event_id = v_event and profile_id = v_c),
     'C (sem veio) continua fora');
-  perform pg_temp.assert_that(pg_temp.layer_of(public.get_event_sort(v_event) -> 'teams', v_b) = 'FULL_BACK',
+  perform pg_temp.assert_that(pg_temp.layer_of(public.get_event_sort(v_event) -> 'teams', v_b) = 'LEFT_BACK',
     'Times publicados: primary_layer');
   raise notice 'PASS: bloqueio por pendência no preparo e na confirmação (só elegíveis, com Posição ligada e desligada)';
 
@@ -424,13 +425,13 @@ begin
   perform pg_temp.assert_that(not exists (select 1 from public.event_guest where event_id = v_event
     and display_name in ('Avulso Zaga', 'Avulso Meia')), 'recusa não deixa Avulso');
   v_pub := public.include_event_sort_guest(v_event, 'Avulso Zaga', 'OUTFIELD', 'DEFENDER', 'MIDFIELDER', 3::smallint, false,
-    'FULL_BACK', 'DEFENSIVE_MID');
-  perform pg_temp.assert_that((select g.primary_position_detail = 'FULL_BACK' and g.secondary_position_detail = 'DEFENSIVE_MID'
-      and tp.primary_position_detail_snapshot = 'FULL_BACK' and tp.secondary_position_detail_snapshot = 'DEFENSIVE_MID'
+    'LEFT_BACK', 'DEFENSIVE_MID');
+  perform pg_temp.assert_that((select g.primary_position_detail = 'LEFT_BACK' and g.secondary_position_detail = 'DEFENSIVE_MID'
+      and tp.primary_position_detail_snapshot = 'LEFT_BACK' and tp.secondary_position_detail_snapshot = 'DEFENSIVE_MID'
     from public.event_guest g join public.event_sort_team_player tp on tp.guest_id = g.id
     where g.event_id = v_event and g.display_name = 'Avulso Zaga'), 'Avulso incluído com subdivisões gravadas e no retrato');
   perform pg_temp.assert_that((select primary_layer from public.list_event_attendance(v_event) a join public.event_guest g on g.id = a.guest_id
-    where g.event_id = v_event and g.display_name = 'Avulso Zaga') = 'FULL_BACK', 'Presença: camada do Avulso incluído');
+    where g.event_id = v_event and g.display_name = 'Avulso Zaga') = 'LEFT_BACK', 'Presença: camada do Avulso incluído');
   v_pub := public.include_event_sort_guest(v_event, 'Avulso Todas', 'OUTFIELD', 'ANY', null, 3::smallint, false);
   perform pg_temp.assert_that(exists (select 1 from public.event_sort_team_player tp join public.event_guest g on g.id = tp.guest_id
     where tp.event_id = v_event and g.display_name = 'Avulso Todas'), 'Avulso TODAS incluído');
@@ -558,12 +559,12 @@ declare
   v_seed integer;
   r record;
 begin
-  -- 2 Times de 3. CENTER_BACK (1) vai para o Time 1; na serpentina contínua os dois FULL_BACK
+  -- 2 Times de 3. CENTER_BACK (1) vai para o Time 1; na serpentina contínua os dois LEFT_BACK
   -- caíam na virada, ambos no Time 2, e o ajuste fino não troca dentro do mesmo Time.
   v_pl := jsonb_build_array(
     jsonb_build_object('id', md5('zc1')::uuid, 'stars', 3, 'super', false, 'main', 'CENTER_BACK', 'sec', null),
-    jsonb_build_object('id', md5('zl1')::uuid, 'stars', 3, 'super', false, 'main', 'FULL_BACK', 'sec', null),
-    jsonb_build_object('id', md5('zl2')::uuid, 'stars', 3, 'super', false, 'main', 'FULL_BACK', 'sec', null),
+    jsonb_build_object('id', md5('zl1')::uuid, 'stars', 3, 'super', false, 'main', 'LEFT_BACK', 'sec', null),
+    jsonb_build_object('id', md5('zl2')::uuid, 'stars', 3, 'super', false, 'main', 'LEFT_BACK', 'sec', null),
     jsonb_build_object('id', md5('zf1')::uuid, 'stars', 3, 'super', false, 'main', 'FORWARD', 'sec', null),
     jsonb_build_object('id', md5('zf2')::uuid, 'stars', 3, 'super', false, 'main', 'FORWARD', 'sec', null),
     jsonb_build_object('id', md5('zf3')::uuid, 'stars', 3, 'super', false, 'main', 'FORWARD', 'sec', null));
@@ -584,9 +585,9 @@ begin
   for r in
     select * from (values
       ('16/8 ZAG3 LAT3 VOL3 MEIA3 ATA4', 8,
-        array['CENTER_BACK', 'FULL_BACK', 'DEFENSIVE_MID', 'ATTACKING_MID', 'FORWARD'], array[3, 3, 3, 3, 4]),
+        array['CENTER_BACK', 'LEFT_BACK', 'DEFENSIVE_MID', 'ATTACKING_MID', 'FORWARD'], array[3, 3, 3, 3, 4]),
       ('24/8 ZAG5 LAT5 VOL4 MEIA5 ATA5', 8,
-        array['CENTER_BACK', 'FULL_BACK', 'DEFENSIVE_MID', 'ATTACKING_MID', 'FORWARD'], array[5, 5, 4, 5, 5]),
+        array['CENTER_BACK', 'LEFT_BACK', 'DEFENSIVE_MID', 'ATTACKING_MID', 'FORWARD'], array[5, 5, 4, 5, 5]),
       ('10/5 DEF3 MEI3 ATA4', 5, array['DEFENDER', 'MIDFIELDER', 'FORWARD'], array[3, 3, 4])
     ) as x(label, per_team, layers, sizes)
   loop
@@ -605,7 +606,7 @@ begin
   for v_seed in 1..40 loop
     v_pl := (select jsonb_agg(jsonb_build_object('id', md5('e8' || i)::uuid, 'stars', 1 + (i * v_seed) % 5,
               'super', i % 7 = v_seed % 7,
-              'main', (array['CENTER_BACK', 'FULL_BACK', 'DEFENSIVE_MID', 'ATTACKING_MID', 'FORWARD'])[1 + (i * 3 + v_seed) % 5],
+              'main', (array['CENTER_BACK', 'LEFT_BACK', 'DEFENSIVE_MID', 'ATTACKING_MID', 'FORWARD'])[1 + (i * 3 + v_seed) % 5],
               'sec', null) order by i)
              from generate_series(1, 16) i);
     v_r := private.sort_teams(v_pl, '{}', 8, true, null, v_seed / 50.0);
@@ -616,7 +617,7 @@ begin
 
   -- Posição desligada: mesmo resultado de antes da migration (md5 capturado no banco antes de aplicá-la)
   v_pl := (select jsonb_agg(jsonb_build_object('id', md5('pd' || i)::uuid, 'stars', 1 + (i * 3 % 5), 'super', i in (2, 9),
-            'main', (array['CENTER_BACK', 'FULL_BACK', 'DEFENSIVE_MID', 'ATTACKING_MID', 'FORWARD', 'ANY'])[1 + i % 6],
+            'main', (array['CENTER_BACK', 'LEFT_BACK', 'DEFENSIVE_MID', 'ATTACKING_MID', 'FORWARD', 'ANY'])[1 + i % 6],
             'sec', null) order by i)
            from generate_series(1, 16) i);
   perform pg_temp.assert_that(md5(private.sort_teams(v_pl, '{}', 8, false, null, 0.42)::text) = 'ba4cb082dfba1a02929f9d61ee64d8c5',
@@ -624,6 +625,59 @@ begin
   perform pg_temp.assert_that(md5(private.sort_teams(v_pl, '{}', 5, false, null, 0.7)::text) = 'd82fe87c7e86de2f52c56000d4f03207',
     'Posição desligada, 5 por Time, seed 0.7: igual a antes');
   raise notice 'PASS: Posição desligada inalterada com p_seed fixo';
+end $$;
+
+-- ============================================================
+-- 11b. Sorteio de Evento 8+: Lateral Esquerdo e Lateral Direito são camadas separadas
+-- ============================================================
+do $$
+declare
+  v_owner uuid := gen_random_uuid();
+  v_p uuid[] := array(select gen_random_uuid() from generate_series(1, 16));
+  v_racha uuid;
+  v_event uuid;
+  v_pr jsonb;
+  v_i integer;
+begin
+  perform pg_temp.new_user(v_owner, 'Dono Laterais', 'OUTFIELD', 'ANY', null);
+  for v_i in 1..16 loop
+    perform pg_temp.new_user(v_p[v_i], 'Lado ' || chr(64 + v_i), 'OUTFIELD',
+      case when v_i <= 4 then 'DEFENDER' else 'FORWARD' end, case when v_i <= 4 then 'FORWARD' else 'MIDFIELDER' end);
+  end loop;
+  v_racha := pg_temp.new_racha('ZZZPLD', 8, v_owner);
+  -- 1–2 Lateral Esquerdo (5 e 2 Estrelas), 3–4 Lateral Direito (4 e 3), o resto ATACANTE. Numa
+  -- camada só de Laterais, 5→Time 1, 4→Time 2, 3→Time 2, 2→Time 1 juntaria os dois Esquerdos.
+  -- Sem TODAS, o ajuste fino só troca dentro da camada e não desfaz a divisão; com todas as
+  -- camadas pares, trocar para a secundária só pioraria o resto por Time.
+  insert into public.member (racha_id, profile_id, role, plays_as, primary_position, secondary_position, stars,
+    primary_position_detail, secondary_position_detail)
+  select v_racha, v_p[i], 'PLAYER', 'OUTFIELD',
+    case when i <= 4 then 'DEFENDER' else 'FORWARD' end::public.position,
+    case when i <= 4 then 'FORWARD' else 'MIDFIELDER' end::public.position,
+    coalesce((array[5, 2, 4, 3])[i], 1 + i % 5),
+    case when i <= 2 then 'LEFT_BACK' when i <= 4 then 'RIGHT_BACK' end::public.position_detail,
+    case when i > 4 then 'DEFENSIVE_MID' end::public.position_detail
+  from generate_series(1, 16) i;
+
+  v_event := pg_temp.new_event(v_racha, 21, true);
+  perform set_config('request.jwt.claim.sub', v_owner::text, true);
+  perform public.assume_event_conduction(v_event);
+  for v_i in 1..16 loop
+    perform pg_temp.attend(v_event, v_p[v_i], v_owner, true);
+  end loop;
+  perform set_config('request.jwt.claim.sub', v_owner::text, true);
+
+  v_pr := public.prepare_event_sort(v_event);
+  perform pg_temp.assert_that(v_pr ->> 'state' = 'ready' and jsonb_array_length(v_pr -> 'teams') = 2, '2 Times de 8');
+  perform pg_temp.assert_that(pg_temp.layer_of(v_pr -> 'teams', v_p[1]) = 'LEFT_BACK'
+    and pg_temp.layer_of(v_pr -> 'teams', v_p[3]) = 'RIGHT_BACK', 'camada de cada lado');
+  perform pg_temp.assert_that((select bool_and(le = 1 and ld = 1) from (
+      select count(*) filter (where pl ->> 'primary_layer' = 'LEFT_BACK') as le,
+             count(*) filter (where pl ->> 'primary_layer' = 'RIGHT_BACK') as ld
+      from jsonb_array_elements(v_pr -> 'teams') t, jsonb_array_elements(t -> 'players') pl
+      group by t) s),
+    'cada Time com 1 Lateral Esquerdo e 1 Lateral Direito');
+  raise notice 'PASS: Sorteio de Evento 8+ espalha Lateral Esquerdo e Lateral Direito em camadas separadas';
 end $$;
 
 -- ============================================================

@@ -32,7 +32,7 @@ describe("Avulso em Evento 8+", () => {
       issuePaths(true, {
         ...values,
         primaryPositionDetail: "DEFENSIVE_MID",
-        secondaryPositionDetail: "FULL_BACK",
+        secondaryPositionDetail: "RIGHT_BACK",
       })
     ).toEqual([]);
   });

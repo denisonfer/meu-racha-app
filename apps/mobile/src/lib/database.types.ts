@@ -64,6 +64,7 @@ export type Database = {
           yellow_card_mode: Database["public"]["Enums"]["yellow_card_mode"];
           yellow_out_min: number;
         };
+        ComputedFields: never;
         Insert: {
           conduction_seq?: number | null;
           conductor_id?: string | null;
@@ -154,6 +155,7 @@ export type Database = {
           status: Database["public"]["Enums"]["attendance_status"];
           waitlisted_at: string | null;
         };
+        ComputedFields: never;
         Insert: {
           did_attend?: boolean;
           event_id: string;
@@ -195,6 +197,7 @@ export type Database = {
           id: string;
           receiver_team_id: string;
         };
+        ComputedFields: never;
         Insert: {
           all_move: boolean;
           created_at?: string;
@@ -253,6 +256,7 @@ export type Database = {
           id: string;
           profile_id: string | null;
         };
+        ComputedFields: never;
         Insert: {
           bolinhas_id: string;
           color: Database["public"]["Enums"]["event_bolinhas_color"];
@@ -311,6 +315,7 @@ export type Database = {
             Database["public"]["Enums"]["position_detail"] | null;
           stars: number | null;
         };
+        ComputedFields: never;
         Insert: {
           did_attend?: boolean;
           display_name: string;
@@ -370,13 +375,14 @@ export type Database = {
           number: number;
           paused_at: string | null;
           paused_seconds: number;
-          queue_before: Json;
+          queue_before: NonNullable<Json>;
           seq: number;
           started_at: string;
           started_by: string;
           status: Database["public"]["Enums"]["event_match_status"];
           winner_team_id: string | null;
         };
+        ComputedFields: never;
         Insert: {
           away_team_id: string;
           challenger_team_id?: string | null;
@@ -391,7 +397,7 @@ export type Database = {
           number: number;
           paused_at?: string | null;
           paused_seconds?: number;
-          queue_before: Json;
+          queue_before: NonNullable<Json>;
           seq?: number;
           started_at?: string;
           started_by: string;
@@ -412,7 +418,7 @@ export type Database = {
           number?: number;
           paused_at?: string | null;
           paused_seconds?: number;
-          queue_before?: Json;
+          queue_before?: NonNullable<Json>;
           seq?: number;
           started_at?: string;
           started_by?: string;
@@ -488,6 +494,7 @@ export type Database = {
             Database["public"]["Enums"]["event_match_card_red_reason"] | null;
           team_id: string;
         };
+        ComputedFields: never;
         Insert: {
           color: Database["public"]["Enums"]["event_match_card_color"];
           created_at?: string;
@@ -498,7 +505,7 @@ export type Database = {
           is_goalkeeper: boolean;
           match_id: string;
           match_second: number;
-          person_id?: string | null;
+          person_id?: never;
           profile_id?: string | null;
           red_reason?:
             Database["public"]["Enums"]["event_match_card_red_reason"] | null;
@@ -514,7 +521,7 @@ export type Database = {
           is_goalkeeper?: boolean;
           match_id?: string;
           match_second?: number;
-          person_id?: string | null;
+          person_id?: never;
           profile_id?: string | null;
           red_reason?:
             Database["public"]["Enums"]["event_match_card_red_reason"] | null;
@@ -577,11 +584,12 @@ export type Database = {
           scorer_profile_id: string | null;
           team_id: string;
         };
+        ComputedFields: never;
         Insert: {
           assist_guest_id?: string | null;
-          assist_id?: string | null;
+          assist_id?: never;
           assist_profile_id?: string | null;
-          conceded_goalkeeper_id?: string | null;
+          conceded_goalkeeper_id?: never;
           conceded_guest_id?: string | null;
           conceded_profile_id?: string | null;
           created_at?: string;
@@ -591,15 +599,15 @@ export type Database = {
           match_id: string;
           request_key: string;
           scorer_guest_id?: string | null;
-          scorer_id?: string | null;
+          scorer_id?: never;
           scorer_profile_id?: string | null;
           team_id: string;
         };
         Update: {
           assist_guest_id?: string | null;
-          assist_id?: string | null;
+          assist_id?: never;
           assist_profile_id?: string | null;
-          conceded_goalkeeper_id?: string | null;
+          conceded_goalkeeper_id?: never;
           conceded_guest_id?: string | null;
           conceded_profile_id?: string | null;
           created_at?: string;
@@ -609,7 +617,7 @@ export type Database = {
           match_id?: string;
           request_key?: string;
           scorer_guest_id?: string | null;
-          scorer_id?: string | null;
+          scorer_id?: never;
           scorer_profile_id?: string | null;
           team_id?: string;
         };
@@ -688,6 +696,7 @@ export type Database = {
           role: Database["public"]["Enums"]["event_match_role"];
           team_id: string;
         };
+        ComputedFields: never;
         Insert: {
           entered_at?: string;
           entry_kind?: Database["public"]["Enums"]["event_match_lineup_entry_kind"];
@@ -698,7 +707,7 @@ export type Database = {
           left_by_red?: boolean;
           left_by_self?: boolean;
           match_id: string;
-          person_id?: string | null;
+          person_id?: never;
           profile_id?: string | null;
           role: Database["public"]["Enums"]["event_match_role"];
           team_id: string;
@@ -713,7 +722,7 @@ export type Database = {
           left_by_red?: boolean;
           left_by_self?: boolean;
           match_id?: string;
-          person_id?: string | null;
+          person_id?: never;
           profile_id?: string | null;
           role?: Database["public"]["Enums"]["event_match_role"];
           team_id?: string;
@@ -763,6 +772,7 @@ export type Database = {
           team_drawn: boolean;
           to_team_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           entered_guest_id?: string | null;
@@ -857,6 +867,7 @@ export type Database = {
           profile_id: string;
           racha_id: string;
         };
+        ComputedFields: never;
         Insert: {
           cancelled_at?: string | null;
           cash_paid_amount?: number;
@@ -920,9 +931,10 @@ export type Database = {
           signature: string;
           status: Database["public"]["Enums"]["event_sort_status"];
           super_diff: number;
-          super_warning: Json;
+          super_warning: NonNullable<Json>;
           version: number;
         };
+        ComputedFields: never;
         Insert: {
           balance_diff: number;
           balance_label: string;
@@ -938,7 +950,7 @@ export type Database = {
           signature: string;
           status?: Database["public"]["Enums"]["event_sort_status"];
           super_diff: number;
-          super_warning?: Json;
+          super_warning?: NonNullable<Json>;
           version?: number;
         };
         Update: {
@@ -956,7 +968,7 @@ export type Database = {
           signature?: string;
           status?: Database["public"]["Enums"]["event_sort_status"];
           super_diff?: number;
-          super_warning?: Json;
+          super_warning?: NonNullable<Json>;
           version?: number;
         };
         Relationships: [
@@ -986,11 +998,12 @@ export type Database = {
           queue_order: number | null;
           team_id: string | null;
         };
+        ComputedFields: never;
         Insert: {
           event_id: string;
           guest_id?: string | null;
           id?: string;
-          person_id?: string | null;
+          person_id?: never;
           profile_id?: string | null;
           queue_order?: number | null;
           team_id?: string | null;
@@ -999,7 +1012,7 @@ export type Database = {
           event_id?: string;
           guest_id?: string | null;
           id?: string;
-          person_id?: string | null;
+          person_id?: never;
           profile_id?: string | null;
           queue_order?: number | null;
           team_id?: string | null;
@@ -1043,6 +1056,7 @@ export type Database = {
           team_number: number;
           win_streak: number;
         };
+        ComputedFields: never;
         Insert: {
           event_id: string;
           id?: string;
@@ -1087,6 +1101,7 @@ export type Database = {
           stars_snapshot: number;
           team_id: string;
         };
+        ComputedFields: never;
         Insert: {
           entered_at?: string;
           event_id: string;
@@ -1094,7 +1109,7 @@ export type Database = {
           id?: string;
           is_super_star_snapshot: boolean;
           left_at?: string | null;
-          person_id?: string | null;
+          person_id?: never;
           primary_position_detail_snapshot?:
             Database["public"]["Enums"]["position_detail"] | null;
           primary_position_snapshot: Database["public"]["Enums"]["position"];
@@ -1113,7 +1128,7 @@ export type Database = {
           id?: string;
           is_super_star_snapshot?: boolean;
           left_at?: string | null;
-          person_id?: string | null;
+          person_id?: never;
           primary_position_detail_snapshot?:
             Database["public"]["Enums"]["position_detail"] | null;
           primary_position_snapshot?: Database["public"]["Enums"]["position"];
@@ -1163,6 +1178,7 @@ export type Database = {
             Database["public"]["Enums"]["position_detail"] | null;
           status: Database["public"]["Enums"]["join_request_status"];
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           id?: string;
@@ -1231,6 +1247,7 @@ export type Database = {
             Database["public"]["Enums"]["position_detail"] | null;
           stars: number | null;
         };
+        ComputedFields: never;
         Insert: {
           id?: string;
           is_active?: boolean;
@@ -1291,12 +1308,13 @@ export type Database = {
           id: string;
           join_request_id: string | null;
           kind: string;
-          payload: Json;
+          payload: NonNullable<Json>;
           racha_id: string;
           racha_name: string;
           recipient_id: string;
           seen_at: string | null;
         };
+        ComputedFields: never;
         Insert: {
           actor_id?: string | null;
           actor_name?: string | null;
@@ -1305,7 +1323,7 @@ export type Database = {
           id?: string;
           join_request_id?: string | null;
           kind: string;
-          payload?: Json;
+          payload?: NonNullable<Json>;
           racha_id: string;
           racha_name: string;
           recipient_id: string;
@@ -1319,7 +1337,7 @@ export type Database = {
           id?: string;
           join_request_id?: string | null;
           kind?: string;
-          payload?: Json;
+          payload?: NonNullable<Json>;
           racha_id?: string;
           racha_name?: string;
           recipient_id?: string;
@@ -1357,6 +1375,7 @@ export type Database = {
           secondary_position: Database["public"]["Enums"]["position"] | null;
           terms_accepted_at: string;
         };
+        ComputedFields: never;
         Insert: {
           anonymized_at?: string | null;
           avatar_path?: string | null;
@@ -1393,6 +1412,7 @@ export type Database = {
           blocker_id: string;
           created_at: string;
         };
+        ComputedFields: never;
         Insert: {
           blocked_id: string;
           blocker_id: string;
@@ -1412,6 +1432,7 @@ export type Database = {
           token: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           platform: string;
           profile_id: string;
@@ -1460,6 +1481,7 @@ export type Database = {
           yellow_card_mode: Database["public"]["Enums"]["yellow_card_mode"];
           yellow_out_min: number;
         };
+        ComputedFields: never;
         Insert: {
           consider_position?: boolean;
           created_at?: string;
@@ -1525,6 +1547,7 @@ export type Database = {
           source_event_id: string;
           source_grant_id: string | null;
         };
+        ComputedFields: never;
         Insert: {
           amount_delta: number;
           created_at?: string;
@@ -1579,6 +1602,7 @@ export type Database = {
           racha_id: string;
           year_month: string;
         };
+        ComputedFields: never;
         Insert: {
           profile_id: string;
           racha_id: string;
@@ -1615,6 +1639,7 @@ export type Database = {
           racha_id: string;
           racha_name: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           id?: string;
@@ -1654,6 +1679,7 @@ export type Database = {
           target_racha_id: string | null;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           details?: string | null;
@@ -1711,6 +1737,7 @@ export type Database = {
           racha_id: string;
           starts_on: string;
         };
+        ComputedFields: never;
         Insert: {
           closed?: boolean;
           ends_on: string;
@@ -1788,7 +1815,10 @@ export type Database = {
       cancel_attendance: { Args: { p_event_id: string }; Returns: undefined };
       cancel_event: { Args: { p_event_id: string }; Returns: undefined };
       confirm_attendance: { Args: { p_event_id: string }; Returns: undefined };
-      confirm_email_verified: { Args: never; Returns: string };
+      confirm_email_verified: {
+        Args: Record<PropertyKey, never>;
+        Returns: string;
+      };
       confirm_event_sort: {
         Args: { p_event_id: string; p_version: number };
         Returns: Json;
@@ -1828,7 +1858,10 @@ export type Database = {
       };
       delete_event_match_card: { Args: { p_card_id: string }; Returns: Json };
       delete_event_match_goal: { Args: { p_goal_id: string }; Returns: Json };
-      delete_my_account: { Args: never; Returns: undefined };
+      delete_my_account: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       discard_event_match: { Args: { p_match_id: string }; Returns: Json };
       draw_event_bolinhas: {
         Args: {
@@ -1851,9 +1884,12 @@ export type Database = {
         Args: { p_match_id: string; p_penalty_winner?: string };
         Returns: Json;
       };
-      get_account_deletion_check: { Args: never; Returns: Json };
+      get_account_deletion_check: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
       get_blocked_profiles: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           avatar_path: string;
           display_name: string;
@@ -1877,8 +1913,8 @@ export type Database = {
           racha_id: string;
         }[];
       };
-      get_my_profile_card: { Args: never; Returns: Json };
-      get_notifications: { Args: never; Returns: Json };
+      get_my_profile_card: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_notifications: { Args: Record<PropertyKey, never>; Returns: Json };
       get_payment: {
         Args: { p_event_id: string };
         Returns: {
@@ -1906,7 +1942,10 @@ export type Database = {
       };
       get_season_events: { Args: { p_racha_id: string }; Returns: Json };
       get_season_ranking: { Args: { p_racha_id: string }; Returns: Json };
-      get_unseen_notifications_count: { Args: never; Returns: number };
+      get_unseen_notifications_count: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
       include_event_sort_guest: {
         Args: {
           p_display_name: string;
@@ -1978,14 +2017,14 @@ export type Database = {
         }[];
       };
       list_my_join_requests: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           racha_id: string;
           racha_name: string;
         }[];
       };
       list_my_racha_events: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           confirmed_count: number;
           id: string;
@@ -2050,7 +2089,10 @@ export type Database = {
           stars: number;
         }[];
       };
-      mark_notifications_seen: { Args: never; Returns: undefined };
+      mark_notifications_seen: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       my_racha_role: {
         Args: { p_racha_id: string };
         Returns: Database["public"]["Enums"]["member_role"];
@@ -2243,7 +2285,11 @@ export type Database = {
       plays_as: "OUTFIELD" | "GOALKEEPER";
       position: "ANY" | "DEFENDER" | "MIDFIELDER" | "FORWARD";
       position_detail:
-        "CENTER_BACK" | "FULL_BACK" | "DEFENSIVE_MID" | "ATTACKING_MID";
+        | "CENTER_BACK"
+        | "LEFT_BACK"
+        | "RIGHT_BACK"
+        | "DEFENSIVE_MID"
+        | "ATTACKING_MID";
       racha_notice_kind: "RACHA_DELETED" | "REMOVED" | "OWNERSHIP_RECEIVED";
       tie_return_order: "RANDOM" | "TEAM_ORDER";
       tie_rule: "BOTH_OUT" | "BOTH_STAY" | "PENALTIES" | "CHALLENGER_WINS";
@@ -2400,7 +2446,8 @@ export const Constants = {
       position: ["ANY", "DEFENDER", "MIDFIELDER", "FORWARD"],
       position_detail: [
         "CENTER_BACK",
-        "FULL_BACK",
+        "LEFT_BACK",
+        "RIGHT_BACK",
         "DEFENSIVE_MID",
         "ATTACKING_MID",
       ],
