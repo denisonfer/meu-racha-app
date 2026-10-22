@@ -1,6 +1,6 @@
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
-import { SplashScreen, Stack } from "expo-router";
+import { DarkTheme, SplashScreen, Stack, ThemeProvider } from "expo-router";
 import { useEffect } from "react";
 import { LogBox, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -8,6 +8,7 @@ import { queryClient } from "@/lib/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { environment } from "@/lib/environment";
 import { EnvironmentBadge, ToastProvider } from "@/ui/components";
+import { theme } from "@/ui/theme";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,6 +24,16 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 });
+
+// sem tema a navegação pinta o fundo claro padrão, que pisca entre telas
+const navigationTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: theme.colors.background,
+    card: theme.colors.background,
+  },
+};
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -41,13 +52,15 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            {/* home autenticada: gesto não pode voltar ao login */}
-            <Stack.Screen name="(app)" options={{ gestureEnabled: false }} />
-          </Stack>
-          {environment.name === "staging" && <EnvironmentBadge />}
-        </ToastProvider>
+        <ThemeProvider value={navigationTheme}>
+          <ToastProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              {/* home autenticada: gesto não pode voltar ao login */}
+              <Stack.Screen name="(app)" options={{ gestureEnabled: false }} />
+            </Stack>
+            {environment.name === "staging" && <EnvironmentBadge />}
+          </ToastProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

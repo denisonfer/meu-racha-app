@@ -7,6 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "meuracha",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#07180F",
     "ios": {
       "bundleIdentifier": "app.meuracha",
       "appleTeamId": "F7MJN7SK3C"
