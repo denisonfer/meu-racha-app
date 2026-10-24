@@ -99,6 +99,18 @@ language sql as $$
     'null')
 $$;
 
+create function pg_temp.event_holder(p_event uuid) returns text
+language sql as $$
+  select coalesce(e.pix_key_holder, 'null') from public.event e where e.id = p_event
+$$;
+
+create function pg_temp.racha_holder(p_racha uuid) returns text
+language sql as $$
+  select coalesce(
+    (select k.pix_key_holder from private.racha_pix_key k where k.racha_id = p_racha),
+    'null')
+$$;
+
 create function pg_temp.norm(p_raw text) returns text
 language plpgsql as $$
 declare
@@ -185,60 +197,81 @@ begin
   -- Eventos antes de existir chave: nascem sem.
   v_active := pg_temp.event(v_racha, 'active', v_owner, 0);
   v_fin := pg_temp.event(v_racha, 'finished', v_owner, -7);
-  update public.event set pix_key = 'antiga@x.com', pix_key_type = 'email' where id = v_fin;
+  update public.event set pix_key = 'antiga@x.com', pix_key_type = 'email', pix_key_holder = 'Antigo' where id = v_fin;
   perform pg_temp.assert_that(pg_temp.event_key(v_active) = 'null', 'evento sem chave no Racha nasce sem');
 
   -- 2. set_racha_pix_key: travas
   perform pg_temp.as_(v_owner2);
-  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L)', v_racha2, 'ana@x.com'));
+  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L, %L)', v_racha2, 'ana@x.com', 'Ana Titular'));
   perform pg_temp.assert_that(v_err = 'email_not_verified', 'Dono não confirmado: ' || v_err);
   perform pg_temp.as_(v_admin);
-  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L)', v_racha, 'ana@x.com'));
+  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L, %L)', v_racha, 'ana@x.com', 'Ana Titular'));
   perform pg_temp.assert_that(v_err = 'not_owner', 'Admin: ' || v_err);
   perform pg_temp.as_(v_player);
-  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L)', v_racha, 'ana@x.com'));
+  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L, %L)', v_racha, 'ana@x.com', 'Ana Titular'));
   perform pg_temp.assert_that(v_err = 'not_owner', 'Jogador: ' || v_err);
   perform pg_temp.as_(v_owner);
-  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L)', v_racha, '529.982.247-24'));
+  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L, %L)', v_racha, '529.982.247-24', 'Ana Titular'));
   perform pg_temp.assert_that(v_err = 'invalid_pix_key', 'chave inválida: ' || v_err);
   perform pg_temp.assert_that(pg_temp.racha_key(v_racha) = 'null', 'nada gravado nas recusas');
   raise notice 'PASS: 2 set_racha_pix_key recusa não confirmado, Admin, Jogador e inválida';
 
+  -- 2b. Com chave, o titular é obrigatório: 2 a 60 caracteres depois de aparar
+  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L, null)', v_racha, 'ana@x.com'));
+  perform pg_temp.assert_that(v_err = 'invalid_pix_key_holder', 'titular nulo: ' || v_err);
+  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L, %L)', v_racha, 'ana@x.com', '  A  '));
+  perform pg_temp.assert_that(v_err = 'invalid_pix_key_holder', 'titular de 1: ' || v_err);
+  v_err := pg_temp.err(format('select public.set_racha_pix_key(%L, %L, %L)', v_racha, 'ana@x.com', repeat('a', 61)));
+  perform pg_temp.assert_that(v_err = 'invalid_pix_key_holder', 'titular de 61: ' || v_err);
+  perform pg_temp.assert_that(pg_temp.racha_key(v_racha) = 'null', 'nada gravado sem titular');
+  raise notice 'PASS: 2b titular obrigatório e com tamanho';
+
   -- 3. Gravar no Racha normaliza e copia para os abertos; o encerrado fica
-  perform public.set_racha_pix_key(v_racha, ' ANA@X.COM ');
+  perform public.set_racha_pix_key(v_racha, ' ANA@X.COM ', '  Ana Titular ');
   perform pg_temp.assert_that(pg_temp.racha_key(v_racha) = 'ana@x.com|email', 'Racha normalizado');
+  perform pg_temp.assert_that(pg_temp.racha_holder(v_racha) = 'Ana Titular', 'titular aparado');
   perform pg_temp.assert_that(pg_temp.event_key(v_active) = 'ana@x.com|email', 'active recebe');
+  perform pg_temp.assert_that(pg_temp.event_holder(v_active) = 'Ana Titular', 'active recebe o titular');
   perform pg_temp.assert_that(pg_temp.event_key(v_fin) = 'antiga@x.com|email', 'finished intocado');
+  perform pg_temp.assert_that(pg_temp.event_holder(v_fin) = 'Antigo', 'titular do finished intocado');
   raise notice 'PASS: 3 chave do Racha vai para os Eventos abertos';
 
   -- 4. create_event nasce com a chave do Racha
   v_up := public.create_event(v_racha, current_date + 3, time '19:00', 'Quadra Racha Pix',
     true, 25, null::smallint, 2);
   perform pg_temp.assert_that(pg_temp.event_key(v_up) = 'ana@x.com|email', 'create_event copia');
+  perform pg_temp.assert_that(pg_temp.event_holder(v_up) = 'Ana Titular', 'create_event copia o titular');
   raise notice 'PASS: 4 create_event copia a chave';
 
   -- 5. set_event_pix_key
-  perform public.set_event_pix_key(v_up, '(11) 99999-9999');
+  v_err := pg_temp.err(format('select public.set_event_pix_key(%L, %L, %L)', v_up, 'bia@x.com', 'B'));
+  perform pg_temp.assert_that(v_err = 'invalid_pix_key_holder', 'titular curto no Evento: ' || v_err);
+  perform public.set_event_pix_key(v_up, '(11) 99999-9999', ' Bia do Dia ');
   perform pg_temp.assert_that(pg_temp.event_key(v_up) = '+5511999999999|phone', 'chave do dia');
+  perform pg_temp.assert_that(pg_temp.event_holder(v_up) = 'Bia do Dia', 'titular do dia');
+  perform pg_temp.assert_that(pg_temp.racha_holder(v_racha) = 'Ana Titular', 'titular do Racha não muda');
   perform pg_temp.assert_that(pg_temp.racha_key(v_racha) = 'ana@x.com|email', 'Racha não muda');
-  v_err := pg_temp.err(format('select public.set_event_pix_key(%L, %L)', v_fin, 'ana@x.com'));
+  v_err := pg_temp.err(format('select public.set_event_pix_key(%L, %L, %L)', v_fin, 'ana@x.com', 'Ana Titular'));
   perform pg_temp.assert_that(v_err = 'event_closed', 'finished: ' || v_err);
-  v_err := pg_temp.err(format('select public.set_event_pix_key(%L, %L)', v_up, 'xx'));
+  v_err := pg_temp.err(format('select public.set_event_pix_key(%L, %L, %L)', v_up, 'xx', 'Ana Titular'));
   perform pg_temp.assert_that(v_err = 'invalid_pix_key', 'inválida no Evento: ' || v_err);
   update public.profile set email_verified_at = null where id = v_owner;
-  v_err := pg_temp.err(format('select public.set_event_pix_key(%L, %L)', v_up, 'ana@x.com'));
+  v_err := pg_temp.err(format('select public.set_event_pix_key(%L, %L, %L)', v_up, 'ana@x.com', 'Ana Titular'));
   perform pg_temp.assert_that(v_err = 'email_not_verified', 'Dono não confirmado no Evento: ' || v_err);
   update public.profile set email_verified_at = now() where id = v_owner;
   perform pg_temp.as_(v_admin);
-  v_err := pg_temp.err(format('select public.set_event_pix_key(%L, %L)', v_up, 'ana@x.com'));
+  v_err := pg_temp.err(format('select public.set_event_pix_key(%L, %L, %L)', v_up, 'ana@x.com', 'Ana Titular'));
   perform pg_temp.assert_that(v_err = 'not_owner', 'Admin no Evento: ' || v_err);
   perform pg_temp.assert_that(pg_temp.event_key(v_up) = '+5511999999999|phone', 'recusas não mudam');
   raise notice 'PASS: 5 set_event_pix_key só do Dono confirmado, só aberto';
 
   -- 6. Trocar no Racha sobrescreve até a chave própria do Evento (decisão 10)
   perform pg_temp.as_(v_owner);
-  perform public.set_racha_pix_key(v_racha, '529.982.247-25');
+  perform public.set_racha_pix_key(v_racha, '529.982.247-25', 'Liandra');
   perform pg_temp.assert_that(pg_temp.event_key(v_up) = '52998224725|cpf', 'upcoming sobrescrito');
+  perform pg_temp.assert_that(pg_temp.event_holder(v_up) = 'Liandra'
+    and pg_temp.event_holder(v_active) = 'Liandra', 'titular dos abertos sobrescrito');
+  perform pg_temp.assert_that(pg_temp.event_holder(v_fin) = 'Antigo', 'titular do finished intocado 2');
   perform pg_temp.assert_that(pg_temp.event_key(v_active) = '52998224725|cpf', 'active sobrescrito');
   perform pg_temp.assert_that(pg_temp.event_key(v_fin) = 'antiga@x.com|email', 'finished intocado 2');
   raise notice 'PASS: 6 trocar no Racha sobrescreve os abertos';
@@ -257,30 +290,33 @@ begin
   perform public.update_event(v_up, current_date + 4, time '20:00', 'Quadra Nova',
     false, null::integer, null::smallint, null::integer);
   perform pg_temp.assert_that(pg_temp.event_key(v_up) = '52998224725|cpf', 'grátis guarda');
-  update public.event set pix_key = null, pix_key_type = null where id = v_up;
+  update public.event set pix_key = null, pix_key_type = null, pix_key_holder = null where id = v_up;
   perform public.update_event(v_up, current_date + 4, time '20:00', 'Quadra Nova',
     true, 25, null::smallint, 2);
   perform pg_temp.assert_that(pg_temp.event_key(v_up) = '52998224725|cpf', 'vira pago e copia');
+  perform pg_temp.assert_that(pg_temp.event_holder(v_up) = 'Liandra', 'vira pago e copia o titular');
   raise notice 'PASS: 8 Evento que vira pago pega a chave do Racha';
 
   -- 9. Leituras: Dono e Admin leem; Jogador não
   perform pg_temp.as_(v_owner);
   select * into v_row from public.get_racha_pix_key(v_racha);
   perform pg_temp.assert_that(v_row.pix_key = '52998224725' and v_row.pix_key_type = 'cpf'
-    and v_row.has_open_event_key, 'get_racha_pix_key do Dono');
+    and v_row.pix_key_holder = 'Liandra' and v_row.has_open_event_key, 'get_racha_pix_key do Dono');
   select count(*) into v_count from public.list_open_events(v_racha) e
-    where e.pix_key = '52998224725' and e.pix_key_type = 'cpf';
+    where e.pix_key = '52998224725' and e.pix_key_type = 'cpf' and e.pix_key_holder = 'Liandra';
   perform pg_temp.assert_that(v_count = 2, 'list_open_events do Dono traz a chave');
   perform pg_temp.as_(v_admin);
   select * into v_row from public.get_racha_pix_key(v_racha);
-  perform pg_temp.assert_that(v_row.pix_key = '52998224725', 'get_racha_pix_key do Admin');
-  select count(*) into v_count from public.list_open_events(v_racha) e where e.pix_key is not null;
+  perform pg_temp.assert_that(v_row.pix_key = '52998224725' and v_row.pix_key_holder = 'Liandra',
+    'get_racha_pix_key do Admin');
+  select count(*) into v_count from public.list_open_events(v_racha) e
+    where e.pix_key is not null and e.pix_key_holder = 'Liandra';
   perform pg_temp.assert_that(v_count = 2, 'list_open_events do Admin traz a chave');
   perform pg_temp.as_(v_player);
   v_err := pg_temp.err(format('select public.get_racha_pix_key(%L)', v_racha));
   perform pg_temp.assert_that(v_err = 'not_allowed', 'get_racha_pix_key do Jogador: ' || v_err);
   select count(*) into v_count from public.list_open_events(v_racha) e
-    where e.pix_key is null and e.pix_key_type is null;
+    where e.pix_key is null and e.pix_key_type is null and e.pix_key_holder is null;
   perform pg_temp.assert_that(v_count = 2, 'list_open_events do Jogador sem chave');
   set local role authenticated;
   v_err := pg_temp.err('select * from private.racha_pix_key');
@@ -290,10 +326,22 @@ begin
 
   -- 10. Chave vazia apaga do Racha e dos abertos
   perform pg_temp.as_(v_owner);
-  perform public.set_racha_pix_key(v_racha, '  ');
+  perform public.set_racha_pix_key(v_racha, '  ', 'Ana Titular');
   perform pg_temp.assert_that(pg_temp.racha_key(v_racha) = 'null', 'Racha apagado');
   perform pg_temp.assert_that(pg_temp.event_key(v_up) = 'null' and pg_temp.event_key(v_active) = 'null',
     'abertos apagados');
+  perform pg_temp.assert_that(pg_temp.event_holder(v_up) = 'null' and pg_temp.event_holder(v_active) = 'null',
+    'titular dos abertos apagado');
+  perform public.set_event_pix_key(v_up, 'bia@x.com', 'Bia do Dia');
+  perform public.set_event_pix_key(v_up, '', '');
+  perform pg_temp.assert_that(pg_temp.event_key(v_up) = 'null' and pg_temp.event_holder(v_up) = 'null',
+    'chave vazia no Evento apaga o titular');
+  v_err := pg_temp.err(format(
+    'update public.event set pix_key_holder = %L where id = %L', 'Antigo', v_up));
+  perform pg_temp.assert_that(v_err like '%event_pix_key_holder_both%', 'titular sem chave: ' || v_err);
+  v_err := pg_temp.err(format(
+    'update public.event set pix_key_holder = %L where id = %L', 'A', v_fin));
+  perform pg_temp.assert_that(v_err like '%event_pix_key_holder_length%', 'titular de 1 no Evento: ' || v_err);
   perform pg_temp.assert_that(pg_temp.event_key(v_fin) = 'antiga@x.com|email', 'finished intocado 3');
   select * into v_row from public.get_racha_pix_key(v_racha);
   perform pg_temp.assert_that(v_row.pix_key is null and not v_row.has_open_event_key,
@@ -301,11 +349,12 @@ begin
   raise notice 'PASS: 10 chave vazia apaga';
 
   -- 11. Recorrência nasce com a chave do Racha
-  perform public.set_racha_pix_key(v_racha, '11.222.333/0001-81');
+  perform public.set_racha_pix_key(v_racha, '11.222.333/0001-81', repeat('L', 60));
   delete from public.event where id = v_up;
   v_next := private.create_next_recurring_event(v_racha, v_fin, current_date - 7,
     time '19:00', now());
   perform pg_temp.assert_that(pg_temp.event_key(v_next) = '11222333000181|cnpj', 'recorrência copia');
+  perform pg_temp.assert_that(pg_temp.event_holder(v_next) = repeat('L', 60), 'recorrência copia o titular de 60');
   raise notice 'PASS: 11 recorrência copia a chave';
 
   -- 12. Passagem apaga a chave do Racha e de todos os Eventos, também do encerrado
@@ -314,6 +363,9 @@ begin
   perform pg_temp.assert_that(pg_temp.event_key(v_next) = 'null' and pg_temp.event_key(v_active) = 'null',
     'Passagem apaga dos abertos');
   perform pg_temp.assert_that(pg_temp.event_key(v_fin) = 'null', 'Passagem apaga do encerrado');
+  perform pg_temp.assert_that(pg_temp.racha_holder(v_racha) = 'null'
+    and pg_temp.event_holder(v_next) = 'null' and pg_temp.event_holder(v_active) = 'null'
+    and pg_temp.event_holder(v_fin) = 'null', 'Passagem apaga o titular');
   raise notice 'PASS: 12 Passagem apaga a chave';
 end $$;
 
@@ -344,7 +396,7 @@ begin
   end loop;
 
   perform pg_temp.as_(v_owner);
-  perform public.set_racha_pix_key(v_racha, 'ana@x.com');
+  perform public.set_racha_pix_key(v_racha, 'ana@x.com', 'Liandra Souza');
   v_event := pg_temp.event(v_racha, 'upcoming', null, 3);
   perform public.set_monthly_pass(v_racha, v_d,
     (select private.event_civil_year_month(e.starts_on, e.starts_at)
@@ -368,7 +420,7 @@ begin
   select * into v_row from public.get_payment(v_event);
   perform pg_temp.assert_that(v_row.daily_price = 25 and v_row.credit_available = 0
     and v_row.amount_due = 25 and not v_row.is_paid and not v_row.is_waitlisted
-    and not v_row.is_owner and v_row.recipient_name = 'Dono Pagar'
+    and not v_row.is_owner and v_row.recipient_name = 'Liandra Souza'
     and v_row.pix_key = 'ana@x.com' and v_row.pix_key_type = 'email',
     'diária cheia: ' || row_to_json(v_row)::text);
   raise notice 'PASS: 13 diária cheia, sem Crédito';
@@ -429,8 +481,8 @@ begin
   perform pg_temp.as_(v_a);
   perform public.confirm_attendance(v_free);
   select * into v_row from public.get_payment(v_free);
-  perform pg_temp.assert_that(v_row.pix_key is null and v_row.pix_key_type is null,
-    'grátis: ' || row_to_json(v_row)::text);
+  perform pg_temp.assert_that(v_row.pix_key is null and v_row.pix_key_type is null
+    and v_row.recipient_name = 'Dono Pagar', 'grátis: ' || row_to_json(v_row)::text);
   raise notice 'PASS: 19 Evento grátis sem chave';
 
   -- 20. Evento encerrado não entrega a chave, nem a quem confirmou

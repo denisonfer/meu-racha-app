@@ -7,8 +7,15 @@ export function useSetEventPixKey(rachaId: string) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({ eventId, key }: { eventId: string; key: string }) =>
-      rachaApi.setEventPixKey(eventId, key),
+    mutationFn: ({
+      eventId,
+      key,
+      holder,
+    }: {
+      eventId: string;
+      key: string;
+      holder: string;
+    }) => rachaApi.setEventPixKey(eventId, key, holder),
     onSettled: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: openEventsKey(rachaId) }),

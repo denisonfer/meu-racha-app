@@ -4,7 +4,9 @@ import { Button, Chip, Input, ScreenFooter, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { OptionalNumberField } from "../../components/optional-number-field";
 import { PixKeyField } from "../../components/pix-key-field";
+import { PixKeyHolderField } from "../../components/pix-key-holder-field";
 import { TRacha } from "../../racha-types";
+import { TPixKeyValue } from "../../utils/pix-key-input";
 import {
   MONTHLY_PRICE_HINT,
   PRICE_HINT,
@@ -29,7 +31,7 @@ export const LogisticsForm = ({
   pixKey,
 }: {
   racha: TRacha;
-  pixKey: string;
+  pixKey: TPixKeyValue;
 }) => {
   const {
     values,
@@ -39,6 +41,7 @@ export const LogisticsForm = ({
     canSave,
     failureMessage,
     pixField,
+    holderField,
     setPlace,
     selectWeekday,
     setHour,
@@ -179,6 +182,7 @@ export const LogisticsForm = ({
                 isDisabled={isSaving}
               />
               <PixKeyField {...pixField} isDisabled={isSaving} />
+              <PixKeyHolderField {...holderField} isDisabled={isSaving} />
             </View>
           ) : null}
         </View>

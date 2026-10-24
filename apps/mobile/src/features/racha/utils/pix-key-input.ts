@@ -7,12 +7,27 @@ export type TPixKeyInput = {
   isInvalid: boolean;
 };
 
+type TSavedPixKey = { pixKey: string | null; pixKeyHolder: string | null };
+
+/** Chave e titular salvos, como o formulário parte deles; vazio quando não há. */
+export type TPixKeyValue = { key: string; holder: string };
+
 // O banco só copia a chave do Racha ao criar o Evento ou ao torná-lo pago; num Evento
-// pago já existente, chave vazia é escolha do Dono e não pode ser repovoada
-export const initialEventPixKey = (
-  event: { isPaid: boolean; pixKey: string | null } | undefined,
-  rachaKey: string | null
-) => (event?.isPaid ? (event.pixKey ?? "") : event?.pixKey || rachaKey || "");
+// pago já existente, chave vazia é escolha do Dono e não pode ser repovoada.
+// O titular vem sempre de onde veio a chave
+export function initialEventPixKey(
+  event: (TSavedPixKey & { isPaid: boolean }) | undefined,
+  racha: TSavedPixKey | undefined
+): TPixKeyValue {
+  const source = event?.isPaid || event?.pixKey ? event : racha;
+  return { key: source?.pixKey ?? "", holder: source?.pixKeyHolder ?? "" };
+}
+
+// o mesmo limite do check no banco, que conta caracteres e não unidades UTF-16
+export const isValidPixKeyHolder = (text: string) => {
+  const length = [...text.trim()].length;
+  return length >= 2 && length <= 60;
+};
 
 // a RPC recebe a chave já normalizada: o servidor apara menos espaços Unicode que o JS
 export function checkPixKeyInput(text: string): TPixKeyInput {

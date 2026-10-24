@@ -111,6 +111,11 @@ export const pixKeyTypeHint = (type: string) =>
 export const PIX_KEY_RACHA_HINT = "Vale também para os eventos já marcados.";
 export const PIX_KEY_INVALID =
   "Chave inválida. Use CPF, CNPJ, e-mail, celular ou chave aleatória.";
+export const PIX_KEY_HOLDER_LABEL = "Titular da chave";
+export const PIX_KEY_HOLDER_HINT =
+  "Nome de quem recebe o PIX. Aparece para quem paga.";
+export const PIX_KEY_HOLDER_INVALID =
+  "Informe o nome do titular (2 a 60 caracteres).";
 export const PIX_LOCKED_TITLE = "Confirme seu e-mail";
 export const PIX_LOCKED =
   "Só com o e-mail confirmado dá para cadastrar a chave PIX.";

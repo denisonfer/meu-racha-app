@@ -33,6 +33,8 @@ import { isNoAccessError } from "../../utils/no-access";
 import {
   checkPixKeyInput,
   initialEventPixKey,
+  isValidPixKeyHolder,
+  TPixKeyValue,
 } from "../../utils/pix-key-input";
 import {
   ATTENDANCE_EVENT_MONTH_LOCKED,
@@ -41,6 +43,7 @@ import {
   EVENT_NOT_ALLOWED,
   EVENT_START_PAST,
   PIX_EVENT_HINT,
+  PIX_KEY_HOLDER_INVALID,
   PIX_KEY_INVALID,
   pixKeyTypeHint,
   RACHA_SAVED,
@@ -122,11 +125,11 @@ const formFromEvent = (event: TOpenEvent): TEventForm => {
   };
 };
 
-// pixKey: a chave do Evento aberto, ou a do Racha ao criar
+// pixKey: a chave e o titular do Evento aberto, ou os do Racha ao criar
 export type TEventEditor = (
   | { mode: "create"; racha: TRacha }
   | { mode: "edit"; racha: TRacha; event: TOpenEvent }
-) & { pixKey: string };
+) & { pixKey: TPixKeyValue };
 
 export function useEventScreen() {
   const { id, eventId } = useLocalSearchParams<{
@@ -195,10 +198,7 @@ export function useEventScreen() {
     mode: isEdit ? ("edit" as const) : ("create" as const),
     racha: canEdit ? racha : undefined,
     event: canEdit && isEdit ? event : undefined,
-    pixKey: initialEventPixKey(
-      isEdit ? event : undefined,
-      pixQuery.data?.pixKey ?? null
-    ),
+    pixKey: initialEventPixKey(isEdit ? event : undefined, pixQuery.data),
     isLoading: isPending || isBlocked,
     retry: () => {
       void refetch();
@@ -222,12 +222,17 @@ export function useEventForm(editor: TEventEditor) {
   const { updateEvent } = useUpdateEvent(racha.id, event?.id ?? "");
   const { setEventPixKey } = useSetEventPixKey(racha.id);
   const hasRachaAccess = useHasRachaAccess(racha.id);
-  const { mode: pixMode, openConfirmEmail } = usePixKeyMode(racha.role);
+  const {
+    mode: pixMode,
+    ownerName,
+    openConfirmEmail,
+  } = usePixKeyMode(racha.role);
   // criado o Evento, uma nova tentativa só refaz a chave: criar de novo duplicaria
   const createdEventId = useRef<string | null>(null);
   // espelho do ref para renderizar: Evento criado e Salvar ainda não concluído mantém o formulário sujo
   const [hasCreatedEvent, setHasCreatedEvent] = useState(false);
-  const savedPixKey = editor.pixKey;
+  const savedPixKey = editor.pixKey.key;
+  const savedHolder = editor.pixKey.holder;
 
   // uma recarga no meio da edição não pode reescrever o que foi digitado
   const [initial] = useState<TEventForm>(() =>
@@ -241,8 +246,16 @@ export function useEventForm(editor: TEventEditor) {
   );
   const [pixText, setPixText] = useState(savedPixKey);
   const [pixRefusedText, setPixRefusedText] = useState<string | null>(null);
+  // null: ainda não mexido, vale o nome do Dono (o Perfil pode chegar depois)
+  const [holderText, setHolderText] = useState<string | null>(
+    savedHolder || null
+  );
+  const [holderRefusedText, setHolderRefusedText] = useState<string | null>(
+    null
+  );
   const [failedValues, setFailedValues] = useState<TEventForm | null>(null);
   const [failedPixText, setFailedPixText] = useState("");
+  const [failedHolderText, setFailedHolderText] = useState("");
   const [saveFailureReason, setSaveFailureReason] = useState<
     | "generic"
     | "past_date"
@@ -276,8 +289,18 @@ export function useEventForm(editor: TEventEditor) {
     : pixInput.isInvalid || pixRefusedText === pixText
       ? PIX_KEY_INVALID
       : undefined;
+  const holder = holderText ?? ownerName;
+  const hasKey = pixInput.key !== "";
+  const holderError =
+    canEditPix &&
+    hasKey &&
+    (!isValidPixKeyHolder(holder) || holderRefusedText === holder)
+      ? PIX_KEY_HOLDER_INVALID
+      : undefined;
   const isPixChanged =
-    canEditPix && !pixInput.isInvalid && pixInput.key !== savedPixKey;
+    canEditPix &&
+    !pixInput.isInvalid &&
+    (pixInput.key !== savedPixKey || (hasKey && holder.trim() !== savedHolder));
   const isDirty =
     !isSameEvent(values, initial) || isPixChanged || hasCreatedEvent;
 
@@ -285,7 +308,8 @@ export function useEventForm(editor: TEventEditor) {
     failedValues !== null &&
     !isSaving &&
     isSameEvent(failedValues, values) &&
-    failedPixText === pixText
+    failedPixText === pixText &&
+    failedHolderText === holder
       ? saveFailureReason === "past_date"
         ? EVENT_START_PAST
         : saveFailureReason === "spot_limit_below_occupancy"
@@ -324,6 +348,7 @@ export function useEventForm(editor: TEventEditor) {
   const markFailed = () => {
     setFailedValues(values);
     setFailedPixText(pixText);
+    setFailedHolderText(holder);
   };
 
   const showFreshSpotLimitError = async () => {
@@ -379,7 +404,11 @@ export function useEventForm(editor: TEventEditor) {
       // se a chave falhar, o Evento já foi gravado: o formulário segue sujo e o
       // próximo Salvar repete o update com os valores atuais (idempotente) e a chave
       if (isPixChanged && eventId) {
-        await setEventPixKey({ eventId, key: pixInput.key });
+        await setEventPixKey({
+          eventId,
+          key: pixInput.key,
+          holder: holder.trim(),
+        });
       }
       showToast(RACHA_SAVED, "success");
       setLeaveMode("home");
@@ -424,6 +453,13 @@ export function useEventForm(editor: TEventEditor) {
       }
       if (error instanceof Error && error.message === "invalid_pix_key") {
         setPixRefusedText(pixText);
+        return;
+      }
+      if (
+        error instanceof Error &&
+        error.message === "invalid_pix_key_holder"
+      ) {
+        setHolderRefusedText(holder);
         return;
       }
       if (error instanceof Error && error.message === "email_not_verified") {
@@ -505,11 +541,17 @@ export function useEventForm(editor: TEventEditor) {
       onChangeText: setPixText,
       onConfirmEmail: openConfirmEmail,
     },
+    holderField: {
+      mode: pixMode,
+      value: pixMode === "edit" ? holder : savedHolder,
+      error: holderError,
+      onChangeText: setHolderText,
+    },
     isSaving,
     isDatePickerOpen,
     today: nowCivil.slice(0, 10),
     isDirty,
-    canSave: parsed.success && isDirty && !pixError,
+    canSave: parsed.success && isDirty && !pixError && !holderError,
     failureMessage,
     setStartsOn: (startsOn: string) =>
       setValues((current) => ({ ...current, startsOn })),

@@ -69,6 +69,7 @@ const RAISE_EXCEPTION_CODES = [
   "email_not_verified",
   "not_owner",
   "invalid_pix_key",
+  "invalid_pix_key_holder",
   "not_in_event",
   "event_closed",
   "plan_owner_limit",
@@ -609,6 +610,7 @@ async function listOpenEvents(rachaId: string): Promise<TOpenEvent[]> {
     payerTarget: row.payer_target ?? null,
     // o tipo gerado diz string; só Dono e Admin recebem, e sem chave vem null
     pixKey: row.pix_key ?? null,
+    pixKeyHolder: row.pix_key_holder ?? null,
     conductorId: row.conductor_id ?? null,
     conductorName: row.conductor_name ?? null,
     confirmedCount: row.confirmed_count,
@@ -699,6 +701,7 @@ async function getRachaPixKey(rachaId: string): Promise<TRachaPixKey> {
   // o tipo gerado diz string; sem chave vem null
   return {
     pixKey: row?.pix_key ?? null,
+    pixKeyHolder: row?.pix_key_holder ?? null,
     hasOpenEventKey: row?.has_open_event_key ?? false,
   };
 }
@@ -725,18 +728,28 @@ async function getPayment(eventId: string): Promise<TPayment> {
   };
 }
 
-async function setRachaPixKey(rachaId: string, key: string): Promise<void> {
+async function setRachaPixKey(
+  rachaId: string,
+  key: string,
+  holder: string
+): Promise<void> {
   const { error, status } = await supabase.rpc("set_racha_pix_key", {
     p_racha_id: rachaId,
     p_key: key,
+    p_holder: holder,
   });
   if (error) throw toCodedError(error, status);
 }
 
-async function setEventPixKey(eventId: string, key: string): Promise<void> {
+async function setEventPixKey(
+  eventId: string,
+  key: string,
+  holder: string
+): Promise<void> {
   const { error, status } = await supabase.rpc("set_event_pix_key", {
     p_event_id: eventId,
     p_key: key,
+    p_holder: holder,
   });
   if (error) throw toCodedError(error, status);
 }

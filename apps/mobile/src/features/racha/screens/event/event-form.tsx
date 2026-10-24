@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, Switch, View } from "react-native";
 import { Button, Input, ScreenFooter, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import { PixKeyField } from "../../components/pix-key-field";
+import { PixKeyHolderField } from "../../components/pix-key-holder-field";
 import { OptionalNumberField } from "../../components/optional-number-field";
 import { PRICE_HINT, SPOT_LIMIT_HINT } from "../../utils/racha-messages";
 import { AmountField } from "../logistics/amount-field";
@@ -19,6 +20,7 @@ export const EventForm = ({ editor }: { editor: TEventEditor }) => {
     canSave,
     failureMessage,
     pixField,
+    holderField,
     setStartsOn,
     openDatePicker,
     closeDatePicker,
@@ -133,6 +135,7 @@ export const EventForm = ({ editor }: { editor: TEventEditor }) => {
                 isDisabled={isSaving}
               />
               <PixKeyField {...pixField} isDisabled={isSaving} />
+              <PixKeyHolderField {...holderField} isDisabled={isSaving} />
             </View>
           ) : null}
         </View>

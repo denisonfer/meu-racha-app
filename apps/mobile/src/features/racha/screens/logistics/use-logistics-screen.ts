@@ -27,11 +27,16 @@ import { useUpdateRachaLogistics } from "../../hooks/use-update-racha-logistics"
 import { rachaApi } from "../../racha-api";
 import { TRacha, TRachaLogistics } from "../../racha-types";
 import { isNoAccessError } from "../../utils/no-access";
-import { checkPixKeyInput } from "../../utils/pix-key-input";
+import {
+  checkPixKeyInput,
+  isValidPixKeyHolder,
+  TPixKeyValue,
+} from "../../utils/pix-key-input";
 import {
   DISCARD_CHANGES_TITLE,
   LOGISTICS_NOT_ALLOWED,
   PIX_KEY_HINT,
+  PIX_KEY_HOLDER_INVALID,
   PIX_KEY_INVALID,
   PIX_KEY_RACHA_HINT,
   pixKeyTypeHint,
@@ -93,7 +98,10 @@ export function useLogisticsScreen() {
       isPlayer || isStalePlayer || isNoAccess || pixQuery.data === undefined
         ? undefined
         : racha,
-    pixKey: pixQuery.data?.pixKey ?? "",
+    pixKey: {
+      key: pixQuery.data?.pixKey ?? "",
+      holder: pixQuery.data?.pixKeyHolder ?? "",
+    },
     isLoading:
       isPending ||
       isNoAccess ||
@@ -108,7 +116,8 @@ export function useLogisticsScreen() {
   };
 }
 
-export function useLogisticsForm(racha: TRacha, savedPixKey: string) {
+export function useLogisticsForm(racha: TRacha, saved: TPixKeyValue) {
+  const savedPixKey = saved.key;
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const showToast = useToast();
@@ -117,7 +126,11 @@ export function useLogisticsForm(racha: TRacha, savedPixKey: string) {
   const { updateRachaLogistics } = useUpdateRachaLogistics(racha.id);
   const { setRachaPixKey } = useSetRachaPixKey(racha.id);
   const hasRachaAccess = useHasRachaAccess(racha.id);
-  const { mode: pixMode, openConfirmEmail } = usePixKeyMode(racha.role);
+  const {
+    mode: pixMode,
+    ownerName,
+    openConfirmEmail,
+  } = usePixKeyMode(racha.role);
 
   // uma recarga do Racha no meio da edição não pode reescrever o que foi digitado
   const [initial] = useState<TLogisticsForm>(() => ({
@@ -138,8 +151,16 @@ export function useLogisticsForm(racha: TRacha, savedPixKey: string) {
   );
   const [pixText, setPixText] = useState(savedPixKey);
   const [pixRefusedText, setPixRefusedText] = useState<string | null>(null);
+  // null: ainda não mexido, vale o nome do Dono (o Perfil pode chegar depois)
+  const [holderText, setHolderText] = useState<string | null>(
+    saved.holder || null
+  );
+  const [holderRefusedText, setHolderRefusedText] = useState<string | null>(
+    null
+  );
   const [failedValues, setFailedValues] = useState<TLogisticsForm | null>(null);
   const [failedPixText, setFailedPixText] = useState("");
+  const [failedHolderText, setFailedHolderText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [leaveMode, setLeaveMode] = useState<"back" | "home" | null>(null);
 
@@ -153,15 +174,27 @@ export function useLogisticsForm(racha: TRacha, savedPixKey: string) {
     : pixInput.isInvalid || pixRefusedText === pixText
       ? PIX_KEY_INVALID
       : undefined;
+  const holder = holderText ?? ownerName;
+  const hasKey = pixInput.key !== "";
+  const holderError =
+    canEditPix &&
+    hasKey &&
+    (!isValidPixKeyHolder(holder) || holderRefusedText === holder)
+      ? PIX_KEY_HOLDER_INVALID
+      : undefined;
   const isPixChanged =
-    canEditPix && !pixInput.isInvalid && pixInput.key !== savedPixKey;
+    canEditPix &&
+    !pixInput.isInvalid &&
+    (pixInput.key !== savedPixKey ||
+      (hasKey && holder.trim() !== saved.holder));
   const isDirty = !isSameLogistics(values, initial) || isPixChanged;
 
   const failureMessage =
     failedValues !== null &&
     !isSaving &&
     isSameLogistics(failedValues, values) &&
-    failedPixText === pixText
+    failedPixText === pixText &&
+    failedHolderText === holder
       ? SAVE_RACHA_FAILED
       : null;
 
@@ -195,6 +228,7 @@ export function useLogisticsForm(racha: TRacha, savedPixKey: string) {
   const markFailed = () => {
     setFailedValues(values);
     setFailedPixText(pixText);
+    setFailedHolderText(holder);
   };
 
   const showFreshSpotLimitError = async () => {
@@ -225,6 +259,10 @@ export function useLogisticsForm(racha: TRacha, savedPixKey: string) {
       setPixRefusedText(pixText);
       return;
     }
+    if (message === "invalid_pix_key_holder") {
+      setHolderRefusedText(holder);
+      return;
+    }
     if (message === "email_not_verified") {
       // o campo passa a travado com o aviso do Perfil
       void queryClient.invalidateQueries({
@@ -242,7 +280,9 @@ export function useLogisticsForm(racha: TRacha, savedPixKey: string) {
       await updateRachaLogistics(logistics);
       // se a chave falhar, a logística já foi: o formulário segue sujo e o
       // próximo Salvar repete o update (idempotente) e tenta a chave de novo
-      if (isPixChanged) await setRachaPixKey(pixInput.key);
+      if (isPixChanged) {
+        await setRachaPixKey({ key: pixInput.key, holder: holder.trim() });
+      }
       showToast(RACHA_SAVED, "success");
       setLeaveMode("back");
     } catch (error) {
@@ -319,9 +359,15 @@ export function useLogisticsForm(racha: TRacha, savedPixKey: string) {
       onChangeText: setPixText,
       onConfirmEmail: openConfirmEmail,
     },
+    holderField: {
+      mode: pixMode,
+      value: pixMode === "edit" ? holder : saved.holder,
+      error: holderError,
+      onChangeText: setHolderText,
+    },
     isSaving,
     isDirty,
-    canSave: parsed.success && isDirty && !pixError,
+    canSave: parsed.success && isDirty && !pixError && !holderError,
     failureMessage,
     setPlace: (place: string) =>
       setValues((current) => ({ ...current, place })),

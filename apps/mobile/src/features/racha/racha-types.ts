@@ -73,6 +73,7 @@ export type TRachaLogistics = {
 
 export type TRachaPixKey = {
   pixKey: string | null;
+  pixKeyHolder: string | null;
   hasOpenEventKey: boolean;
 };
 
@@ -195,6 +196,7 @@ export type TOpenEvent = {
   payerTarget: number | null;
   /** Só Dono e Admin recebem a chave. */
   pixKey: string | null;
+  pixKeyHolder: string | null;
   outfieldPerTeam: number;
   conductorId: string | null;
   conductorName: string | null;

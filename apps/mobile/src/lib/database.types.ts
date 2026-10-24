@@ -50,6 +50,7 @@ export type Database = {
           outfield_per_team: number;
           payer_target: number | null;
           pix_key: string | null;
+          pix_key_holder: string | null;
           pix_key_type: string | null;
           place: string;
           price: number | null;
@@ -80,6 +81,7 @@ export type Database = {
           outfield_per_team: number;
           payer_target?: number | null;
           pix_key?: string | null;
+          pix_key_holder?: string | null;
           pix_key_type?: string | null;
           place: string;
           price?: number | null;
@@ -109,6 +111,7 @@ export type Database = {
           outfield_per_team?: number;
           payer_target?: number | null;
           pix_key?: string | null;
+          pix_key_holder?: string | null;
           pix_key_type?: string | null;
           place?: string;
           price?: number | null;
@@ -1937,6 +1940,7 @@ export type Database = {
         Returns: {
           has_open_event_key: boolean;
           pix_key: string;
+          pix_key_holder: string;
           pix_key_type: string;
         }[];
       };
@@ -2062,6 +2066,7 @@ export type Database = {
           outfield_per_team: number;
           payer_target: number;
           pix_key: string;
+          pix_key_holder: string;
           pix_key_type: string;
           place: string;
           price: number;
@@ -2172,7 +2177,7 @@ export type Database = {
         Returns: undefined;
       };
       set_event_pix_key: {
-        Args: { p_event_id: string; p_key: string };
+        Args: { p_event_id: string; p_holder: string; p_key: string };
         Returns: undefined;
       };
       set_member_position_details: {
@@ -2195,7 +2200,7 @@ export type Database = {
       };
       set_push_enabled: { Args: { p_enabled: boolean }; Returns: undefined };
       set_racha_pix_key: {
-        Args: { p_key: string; p_racha_id: string };
+        Args: { p_holder: string; p_key: string; p_racha_id: string };
         Returns: undefined;
       };
       start_event_match: {
