@@ -228,7 +228,7 @@ export const MATCH_READY = {
   next_arrival: { kind: "new_team", team_id: null, team_number: 3 },
 };
 
-/** Doador na fila com um jogador de linha. */
+/** Doador na fila com jogadores de linha. */
 export const MATCH_OPEN_DONOR = {
   ...MATCH_OPEN,
   reinforcement_donors: [
@@ -236,7 +236,11 @@ export const MATCH_OPEN_DONOR = {
       team_id: TEAM4,
       team_number: 4,
       queue_position: 1,
-      outfield_count: 1,
+      outfield_count: 2,
+      outfield: [
+        { person: PEDRO, primary_position: "MIDFIELDER" },
+        { person: GUEST, primary_position: "ANY" },
+      ],
     },
   ],
   next_arrival: { kind: "queue", team_id: TEAM4, team_number: 4 },

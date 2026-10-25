@@ -592,6 +592,10 @@ export const MATCH_REINFORCE_DRAW_TEAM_RESULT =
   "O Time sorteado fica com um jogador a menos.";
 export const MATCH_REINFORCE_DRAW = "Sortear jogador";
 export const MATCH_REINFORCE_BACK = "Voltar à partida";
+export const MATCH_REINFORCE_PICK = "Escolher quem entra";
+export const MATCH_REINFORCE_PICK_TITLE = "Quem entra?";
+export const MATCH_REINFORCE_PICK_CONFIRM = "Confirmar entrada";
+export const MATCH_REINFORCE_PICK_BACK = "Voltar";
 export const MATCH_EVENT_REINFORCEMENT = "Reforço";
 export const MATCH_EVENT_LEAVE = "Saída";
 export const MATCH_EVENT_INCLUSION = "Inclusão";
@@ -688,7 +692,14 @@ export const matchLeaveOnlyText = (team: number, n: number, cap: number) =>
 export const matchTeamPlaysWith = (team: number, n: number, cap: number) =>
   `O Time ${team} joga com ${n} de ${cap}.`;
 export const matchReinforceSubtitle = (team: number, name: string) =>
-  `Entra no Time ${team}, no lugar de ${name}. O app sorteia a pessoa dentro do Time escolhido.`;
+  `Entra no Time ${team}, no lugar de ${name}. O app sorteia a pessoa, ou você escolhe quem se ofereceu.`;
+export const matchReinforcePickSubtitle = (
+  from: number,
+  to: number,
+  name: string
+) => `Do Time ${from} para o Time ${to}, no lugar de ${name}.`;
+export const matchReinforcePickGone = (name: string, team: number) =>
+  `${name} não está mais no Time ${team}. Escolha outra pessoa.`;
 export const matchQueueOption = (
   pos: number,
   n: number,

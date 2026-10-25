@@ -121,6 +121,7 @@ const RAISE_EXCEPTION_CODES = [
   "already_reinforced",
   "invalid_donor",
   "no_donor",
+  "entering_not_active",
   "invalid_pair",
 ];
 
@@ -1347,12 +1348,20 @@ async function reinforceEventMatch(input: {
   profileId?: string | null;
   guestId?: string | null;
   donorTeamId?: string | null;
+  enteringProfileId?: string | null;
+  enteringGuestId?: string | null;
 }): Promise<TEventMatch> {
   const { data, error, status } = await supabase.rpc("reinforce_event_match", {
     p_match_id: input.matchId,
     ...(input.profileId ? { p_profile_id: input.profileId } : {}),
     ...(input.guestId ? { p_guest_id: input.guestId } : {}),
     ...(input.donorTeamId ? { p_donor_team_id: input.donorTeamId } : {}),
+    ...(input.enteringProfileId
+      ? { p_entering_profile_id: input.enteringProfileId }
+      : {}),
+    ...(input.enteringGuestId
+      ? { p_entering_guest_id: input.enteringGuestId }
+      : {}),
   });
   if (error) throw toCodedError(error, status);
   return parseMatchJson(data);

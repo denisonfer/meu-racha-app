@@ -216,9 +216,9 @@ begin
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
      where n.nspname = 'public' and p.proname = 'reinforce_event_match')
     and has_function_privilege('authenticated',
-      'public.reinforce_event_match(uuid, uuid, uuid, uuid)', 'execute')
+      'public.reinforce_event_match(uuid, uuid, uuid, uuid, uuid, uuid)', 'execute')
     and not has_function_privilege('anon',
-      'public.reinforce_event_match(uuid, uuid, uuid, uuid)', 'execute')
+      'public.reinforce_event_match(uuid, uuid, uuid, uuid, uuid, uuid)', 'execute')
     and not has_function_privilege('authenticated',
       'private.event_sort_arrival_destination(uuid)', 'execute'),
     'RPC pública autenticada; destino privado');
@@ -876,6 +876,161 @@ begin
     'Trocar goleiro grava entry_kind = goalkeeper');
 
   raise notice 'PASS: descarte, events de quem assiste, swap goleiro';
+end $$;
+
+-- ============================================================
+-- 3. Reforço escolhido: o Condutor aponta quem entra
+-- ============================================================
+do $$
+declare
+  v jsonb;
+  v_e uuid;
+  v_owner uuid;
+  v_t2 uuid;
+  v_t3 uuid;
+  v_t4 uuid;
+  v_lucas uuid;
+  v_pick uuid;
+  v_other uuid;
+  v_guest uuid;
+  v_match uuid;
+  v_j jsonb;
+  v_before2 integer;
+  v_before3 integer;
+  v_row_pick jsonb;
+  v_row_draw jsonb;
+begin
+  -- escolhido entra, erros de forma e retrato com pessoas
+  v := pg_temp.scene('pick', array[5, 5, 5, 3]);
+  v_e := (v ->> 'event')::uuid;
+  v_owner := (v ->> 'owner')::uuid;
+  v_t2 := (v #>> '{teams,1}')::uuid;
+  v_t3 := (v #>> '{teams,2}')::uuid;
+  v_t4 := (v #>> '{teams,3}')::uuid;
+  v_lucas := (v #>> '{line,1,0}')::uuid;
+  v_pick := (v #>> '{line,2,3}')::uuid;
+  v_other := (v #>> '{line,3,0}')::uuid;
+  perform pg_temp.as_(v_owner);
+  v_j := public.start_event_match(v_e);
+  v_match := (v_j #>> '{match,id}')::uuid;
+
+  perform pg_temp.assert_that(
+    jsonb_array_length(v_j #> '{reinforcement_donors,0,outfield}') = 5
+    and not exists (
+      select 1 from jsonb_array_elements(v_j #> '{reinforcement_donors,0,outfield}') o
+      where o -> 'person' is null or o ->> 'primary_position' is null
+        or o #>> '{person,person_id}' in (
+          select jsonb_array_elements_text(v -> 'gk'))
+    )
+    and jsonb_array_length(v_j #> '{reinforcement_donors,1,outfield}') = 3,
+    'retrato com pessoas: outfield com person e primary_position, sem goleiro');
+
+  v_before2 := pg_temp.outfield_n(v_t2);
+  v_before3 := pg_temp.outfield_n(v_t3);
+
+  perform pg_temp.assert_that(
+    pg_temp.err(format(
+      'select public.reinforce_event_match(%L, %L, null, null, %L, null)',
+      v_match, v_lucas, v_pick)) = 'not_allowed'
+    and pg_temp.outfield_n(v_t2) = v_before2
+    and pg_temp.outfield_n(v_t3) = v_before3,
+    'escolha sem Time: not_allowed e elencos intactos');
+
+  perform pg_temp.assert_that(
+    pg_temp.err(format(
+      'select public.reinforce_event_match(%L, %L, null, %L, %L, %L)',
+      v_match, v_lucas, v_t3, v_pick, v_pick)) = 'not_allowed',
+    'dois ids de quem entra: not_allowed');
+
+  perform pg_temp.assert_that(
+    pg_temp.err(format(
+      'select public.reinforce_event_match(%L, %L, null, %L, %L, null)',
+      v_match, v_lucas, v_t3, v_other)) = 'entering_not_active'
+    and exists (
+      select 1 from public.event_match_lineup l
+      where l.match_id = v_match and l.person_id = v_lucas and l.left_at is null
+    ),
+    'escolhido de outro Time: entering_not_active e a Saída não fica gravada');
+
+  v_j := public.reinforce_event_match(v_match, v_lucas, null, v_t3, v_pick, null);
+  perform pg_temp.assert_that(
+    exists (
+      select 1 from public.event_sort_team_player p
+      where p.team_id = v_t2 and p.profile_id = v_pick and p.left_at is null
+    )
+    and exists (
+      select 1 from public.event_sort_team_player p
+      where p.team_id = v_t3 and p.profile_id = v_pick and p.left_at is not null
+    )
+    and (pg_temp.events_of(v_j, 'reinforcement') -> 0 #>> '{entered,person_id}') = v_pick::text,
+    'escolhido entra no Time 2 e sai do Time 3');
+
+  select to_jsonb(r) - 'id' - 'created_at' - 'match_id' - 'event_id'
+    - 'left_profile_id' - 'entered_profile_id' - 'from_team_id' - 'to_team_id'
+  into v_row_pick
+  from public.event_match_reinforcement r where r.match_id = v_match;
+
+  -- registro igual ao do sorteio de pessoa com Time marcado
+  v := pg_temp.scene('pickref', array[5, 5, 5, 3]);
+  perform pg_temp.as_((v ->> 'owner')::uuid);
+  v_j := public.start_event_match((v ->> 'event')::uuid);
+  v_match := (v_j #>> '{match,id}')::uuid;
+  perform public.reinforce_event_match(
+    v_match, (v #>> '{line,1,0}')::uuid, null, (v #>> '{teams,2}')::uuid);
+  select to_jsonb(r) - 'id' - 'created_at' - 'match_id' - 'event_id'
+    - 'left_profile_id' - 'entered_profile_id' - 'from_team_id' - 'to_team_id'
+  into v_row_draw
+  from public.event_match_reinforcement r where r.match_id = v_match;
+  perform pg_temp.assert_that(
+    v_row_pick is not null and v_row_draw is not null
+    and (select array_agg(k order by k) from jsonb_object_keys(v_row_pick) k
+         where v_row_pick -> k <> 'null'::jsonb)
+      = (select array_agg(k order by k) from jsonb_object_keys(v_row_draw) k
+         where v_row_draw -> k <> 'null'::jsonb)
+    and (v_row_pick ->> 'team_drawn')::boolean = false
+    and (v_row_draw ->> 'team_drawn')::boolean = false,
+    'registro do escolhido tem as mesmas colunas do sorteio, team_drawn false');
+
+  -- escolhido já saiu
+  v := pg_temp.scene('gone', array[5, 5, 5]);
+  perform pg_temp.as_((v ->> 'owner')::uuid);
+  v_j := public.start_event_match((v ->> 'event')::uuid);
+  v_match := (v_j #>> '{match,id}')::uuid;
+  v_pick := (v #>> '{line,2,3}')::uuid;
+  update public.event_sort_team_player p set left_at = now()
+  where p.profile_id = v_pick and p.left_at is null;
+  perform pg_temp.assert_that(
+    pg_temp.err(format(
+      'select public.reinforce_event_match(%L, %L, null, %L, %L, null)',
+      v_match, (v #>> '{line,1,0}')::uuid, (v #>> '{teams,2}')::uuid, v_pick))
+      = 'entering_not_active',
+    'escolhido já saiu: entering_not_active');
+
+  -- Avulso escolhido
+  v := pg_temp.scene('guest', array[5, 5, 4]);
+  v_e := (v ->> 'event')::uuid;
+  v_t2 := (v #>> '{teams,1}')::uuid;
+  v_t3 := (v #>> '{teams,2}')::uuid;
+  insert into public.event_guest (event_id, display_name, plays_as, primary_position, stars)
+  values (v_e, 'Avulso Escolhido', 'OUTFIELD', 'ANY', 3)
+  returning id into v_guest;
+  insert into public.event_sort_team_player (
+    event_id, team_id, guest_id, stars_snapshot, is_super_star_snapshot,
+    primary_position_snapshot
+  ) values (v_e, v_t3, v_guest, 3, false, 'ANY');
+  perform pg_temp.as_((v ->> 'owner')::uuid);
+  v_j := public.start_event_match(v_e);
+  v_match := (v_j #>> '{match,id}')::uuid;
+  perform public.reinforce_event_match(
+    v_match, (v #>> '{line,1,0}')::uuid, null, v_t3, null, v_guest);
+  perform pg_temp.assert_that(
+    exists (
+      select 1 from public.event_sort_team_player p
+      where p.team_id = v_t2 and p.guest_id = v_guest and p.left_at is null
+    ),
+    'Avulso escolhido entra no Time 2');
+
+  raise notice 'PASS: reforço escolhido';
 end $$;
 
 rollback;

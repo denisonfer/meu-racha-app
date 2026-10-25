@@ -1,3 +1,4 @@
+import type { TPosition } from "../profile/types";
 import type { TPhotoResolver } from "../sorteio/parse";
 import type {
   TEventMatch,
@@ -7,6 +8,7 @@ import type {
   TMatchCardEvent,
   TMatchCardRedReason,
   TMatchEntryKind,
+  TMatchDonorPlayer,
   TMatchEvent,
   TMatchEventStatus,
   TMatchFinishPreview,
@@ -227,13 +229,36 @@ function matchCard(value: unknown, photo: TPhotoResolver): TMatchCard {
   };
 }
 
-function donor(value: unknown): TMatchReinforcementDonor {
+const POSITIONS = [
+  "ANY",
+  "DEFENDER",
+  "MIDFIELDER",
+  "FORWARD",
+] as const satisfies readonly TPosition[];
+
+function donorPlayer(value: unknown, photo: TPhotoResolver): TMatchDonorPlayer {
+  const raw = obj(value);
+  return {
+    person: person(raw.person, photo),
+    primaryPosition: oneOf(raw.primary_position, POSITIONS),
+  };
+}
+
+function donor(
+  value: unknown,
+  photo: TPhotoResolver
+): TMatchReinforcementDonor {
   const raw = obj(value);
   return {
     teamId: str(raw.team_id),
     teamNumber: num(raw.team_number),
     queuePosition: num(raw.queue_position),
     outfieldCount: num(raw.outfield_count),
+    // Ausente em retrato antigo, em cache: a lista vazia faz a tela sortear.
+    outfield:
+      raw.outfield == null
+        ? []
+        : list(raw.outfield).map((item) => donorPlayer(item, photo)),
   };
 }
 
@@ -420,7 +445,9 @@ export function parseEventMatch(
       matchItem(item, photo)
     ),
     viewer: viewer(raw.viewer),
-    reinforcementDonors: list(raw.reinforcement_donors).map(donor),
+    reinforcementDonors: list(raw.reinforcement_donors).map((item) =>
+      donor(item, photo)
+    ),
     pendingReinforcements: list(raw.pending_reinforcements).map((item) =>
       pending(item, photo)
     ),

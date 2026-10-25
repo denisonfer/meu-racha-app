@@ -2125,6 +2125,8 @@ export type Database = {
       reinforce_event_match: {
         Args: {
           p_donor_team_id?: string;
+          p_entering_guest_id?: string;
+          p_entering_profile_id?: string;
           p_guest_id?: string;
           p_match_id: string;
           p_profile_id?: string;

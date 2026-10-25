@@ -1,6 +1,6 @@
-import { initialsOf } from "@meu-racha/domain";
+import { initialsOf, roleBadge, type TMatchPerson } from "@meu-racha/domain";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AccessibilityInfo } from "react-native";
 import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useEventMatch } from "../../hooks/use-event-match";
@@ -10,9 +10,13 @@ import {
   MATCH_REINFORCE_DRAW_TEAM,
   MATCH_REINFORCE_DRAW_TEAM_RESULT,
   MATCH_REINFORCE_DRAW_TEAM_TEXT,
+  MATCH_INVALID_DONOR,
+  MATCH_REINFORCE_PICK_TITLE,
   MATCH_REINFORCE_TITLE,
   matchFailureMessage,
   matchQueueOption,
+  matchReinforcePickGone,
+  matchReinforcePickSubtitle,
   matchReinforceResult,
   matchReinforceSubtitle,
   matchTeamLeavesQueue,
@@ -26,6 +30,7 @@ type TReinforceResult = {
   title: string;
   supporting: string;
   name: string;
+  profileId: string | null;
   fromTeam: number;
   toTeam: number;
   photoUrl: string | null;
@@ -51,6 +56,8 @@ export function useMatchReinforcementScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [failureMessage, setFailureMessage] = useState<string | null>(null);
   const [result, setResult] = useState<TReinforceResult | null>(null);
+  const [step, setStep] = useState<"donor" | "pick">("donor");
+  const [pick, setPick] = useState<string | null>(null);
 
   const portrait = matchQuery.data;
   const match = portrait?.match ?? null;
@@ -67,6 +74,27 @@ export function useMatchReinforcementScreen() {
   const teamNumber = side?.teamNumber ?? 0;
   const displayName = name ?? "";
   const hasPerson = Boolean(profileId) !== Boolean(guestId);
+  const donor =
+    choice === DRAW
+      ? null
+      : (donors.find((item) => item.teamId === choice) ?? null);
+  const canPick = (donor?.outfieldCount ?? 0) > 1;
+  const pickRows = [...(donor?.outfield ?? [])]
+    .sort((a, b) =>
+      a.person.displayName.localeCompare(b.person.displayName, "pt-BR")
+    )
+    .map(({ person, primaryPosition }) => ({
+      value: person.personId,
+      title: person.displayName,
+      description: roleBadge("OUTFIELD", primaryPosition) ?? undefined,
+      profileId: person.profileId,
+      initials: initialsOf(person.displayName),
+      photoUrl: person.photoUrl,
+      overall: cardOverall(cardsQuery.data, person.profileId),
+    }));
+  const title =
+    result?.title ??
+    (step === "pick" ? MATCH_REINFORCE_PICK_TITLE : MATCH_REINFORCE_TITLE);
 
   const consequenceOf = (donorTeamId: string | typeof DRAW) => {
     if (donorTeamId === DRAW) return MATCH_REINFORCE_DRAW_TEAM_RESULT;
@@ -85,7 +113,15 @@ export function useMatchReinforcementScreen() {
     if (result) AccessibilityInfo.announceForAccessibility(result.title);
   }, [result]);
 
-  const draw = async () => {
+  // Só a troca de passo é anunciada; a abertura da folha já lê o título.
+  const announcedStep = useRef(step);
+  useEffect(() => {
+    if (announcedStep.current === step) return;
+    announcedStep.current = step;
+    AccessibilityInfo.announceForAccessibility(title);
+  }, [step, title]);
+
+  const draw = async (entering?: TMatchPerson) => {
     if (!match || !hasPerson || isSaving) return;
     const snapshot = donors;
     setFailureMessage(null);
@@ -96,6 +132,8 @@ export function useMatchReinforcementScreen() {
         profileId: profileId ?? null,
         guestId: guestId ?? null,
         donorTeamId: choice === DRAW ? null : choice,
+        enteringProfileId: entering?.profileId ?? null,
+        enteringGuestId: entering?.guestId ?? null,
       });
       const event = next.events[0];
       if (event?.kind !== "reinforcement") {
@@ -119,6 +157,7 @@ export function useMatchReinforcementScreen() {
         ),
         supporting,
         name: event.entered.displayName,
+        profileId: event.entered.profileId,
         fromTeam: event.fromTeamNumber,
         toTeam: event.toTeamNumber,
         photoUrl: event.entered.photoUrl,
@@ -129,21 +168,58 @@ export function useMatchReinforcementScreen() {
         showToast(matchFailureMessage(error), "danger");
         return;
       }
+      if (
+        entering &&
+        error instanceof Error &&
+        error.message === "entering_not_active"
+      ) {
+        const teamNumberBefore = donor?.teamNumber ?? 0;
+        setPick(null);
+        const refreshed = await matchQuery.refetch();
+        const fresh = refreshed.data?.reinforcementDonors.find(
+          (item) => item.teamId === choice
+        );
+        if (!fresh || fresh.outfieldCount === 0) {
+          setStep("donor");
+          setChoice(DRAW);
+          setFailureMessage(MATCH_INVALID_DONOR);
+        } else {
+          setFailureMessage(
+            matchReinforcePickGone(entering.displayName, teamNumberBefore)
+          );
+        }
+        setIsSaving(false);
+        return;
+      }
       setIsSaving(false);
       setFailureMessage(matchFailureMessage(error));
     }
+  };
+
+  const resetPick = (next: "donor" | "pick") => {
+    setStep(next);
+    setPick(null);
+    setFailureMessage(null);
   };
 
   return {
     isMissing:
       !match || !teamId || side == null || !hasPerson || name === undefined,
     result,
-    title: result?.title ?? MATCH_REINFORCE_TITLE,
+    step,
+    title,
     supporting:
-      result?.supporting ?? matchReinforceSubtitle(teamNumber, displayName),
+      result?.supporting ??
+      (step === "pick"
+        ? matchReinforcePickSubtitle(
+            donor?.teamNumber ?? 0,
+            teamNumber,
+            displayName
+          )
+        : matchReinforceSubtitle(teamNumber, displayName)),
     initials: result ? initialsOf(result.name) : "",
     photoUrl: result?.photoUrl ?? null,
-    overall: cardOverall(cardsQuery.data, profileId || null),
+    overall: cardOverall(cardsQuery.data, result?.profileId ?? null),
     fromTo: result
       ? `${sortTeamTitle(result.fromTeam)} → ${sortTeamTitle(result.toTeam)}`
       : "",
@@ -170,6 +246,18 @@ export function useMatchReinforcementScreen() {
     isBusy: isSaving,
     failureMessage,
     confirm: () => void draw(),
+    canPick,
+    pickRows,
+    pick,
+    onPick: setPick,
+    openPick: () => resetPick("pick"),
+    backToDonor: () => resetPick("donor"),
+    confirmPick: () => {
+      const entering = donor?.outfield.find(
+        (item) => item.person.personId === pick
+      )?.person;
+      if (entering) void draw(entering);
+    },
     backToMatch: () => router.dismissTo(`/racha/${id}/event/${eventId}/match`),
     cancel: close,
   };

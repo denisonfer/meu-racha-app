@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import {
   BottomSheet,
   Button,
@@ -12,6 +12,9 @@ import { TermHelp } from "../../components/term-help";
 import {
   MATCH_REINFORCE_BACK,
   MATCH_REINFORCE_DRAW,
+  MATCH_REINFORCE_PICK,
+  MATCH_REINFORCE_PICK_BACK,
+  MATCH_REINFORCE_PICK_CONFIRM,
 } from "../../utils/racha-messages";
 import { useMatchReinforcementScreen } from "./use-match-reinforcement-screen";
 
@@ -32,6 +35,14 @@ export const MatchReinforcementScreen = () => {
     isBusy,
     failureMessage,
     confirm,
+    step,
+    canPick,
+    pickRows,
+    pick,
+    onPick,
+    openPick,
+    backToDonor,
+    confirmPick,
     backToMatch,
     cancel,
   } = useMatchReinforcementScreen();
@@ -46,7 +57,7 @@ export const MatchReinforcementScreen = () => {
           <Text color="muted" style={styles.shrink}>
             {supporting}
           </Text>
-          {result ? null : <TermHelp term="reinforcement" />}
+          {result || step === "pick" ? null : <TermHelp term="reinforcement" />}
         </View>
       }
       hasCloseButton={false}
@@ -70,14 +81,57 @@ export const MatchReinforcementScreen = () => {
           </View>
           <Button title={MATCH_REINFORCE_BACK} onPress={backToMatch} />
         </View>
+      ) : step === "pick" ? (
+        <View style={styles.body}>
+          <ScrollView style={styles.list}>
+            <OptionList
+              options={pickRows.map((row) => ({
+                value: row.value,
+                title: row.title,
+                description: row.description,
+                leading: (
+                  <PlayerCardMini
+                    width={44}
+                    overall={row.overall}
+                    initials={row.initials}
+                    photoUri={row.photoUrl}
+                  />
+                ),
+              }))}
+              value={pick ?? ""}
+              onChange={onPick}
+              isDisabled={isBusy}
+            />
+          </ScrollView>
+          <NoticeBanner tone="warning" text={consequence} />
+          {failureMessage ? (
+            <Text preset="small" color="errorText" accessibilityRole="alert">
+              {failureMessage}
+            </Text>
+          ) : null}
+          <Button
+            title={MATCH_REINFORCE_PICK_CONFIRM}
+            onPress={confirmPick}
+            isDisabled={isBusy || !pick}
+            isLoading={isBusy}
+          />
+          <Button
+            title={MATCH_REINFORCE_PICK_BACK}
+            preset="outline"
+            isDisabled={isBusy}
+            onPress={backToDonor}
+          />
+        </View>
       ) : (
         <View style={styles.body}>
-          <OptionList
-            options={options}
-            value={choice}
-            onChange={onChoice}
-            isDisabled={isBusy}
-          />
+          <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+            <OptionList
+              options={options}
+              value={choice}
+              onChange={onChoice}
+              isDisabled={isBusy}
+            />
+          </ScrollView>
           <NoticeBanner tone="warning" text={consequence} />
           {failureMessage ? (
             <Text preset="small" color="errorText" accessibilityRole="alert">
@@ -90,6 +144,15 @@ export const MatchReinforcementScreen = () => {
             isDisabled={isBusy}
             isLoading={isBusy}
           />
+          {canPick ? (
+            <Button
+              title={MATCH_REINFORCE_PICK}
+              preset="text"
+              isDisabled={isBusy}
+              onPress={openPick}
+              style={styles.textButton}
+            />
+          ) : null}
           <Button
             title="Cancelar"
             preset="outline"
@@ -106,6 +169,9 @@ const styles = StyleSheet.create({
   body: { gap: theme.space[16] },
   supporting: { flexDirection: "row", alignItems: "center", gap: 4 },
   shrink: { flexShrink: 1 },
+  list: { maxHeight: 360 },
+  // O preset text pinta o fundo da tela, mais escuro que a folha.
+  textButton: { backgroundColor: "transparent" },
   card: {
     flexDirection: "row",
     alignItems: "center",

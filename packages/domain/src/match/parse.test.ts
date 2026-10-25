@@ -111,20 +111,44 @@ describe("parseEventMatch", () => {
     });
   });
 
-  test("doador com um jogador de linha", () => {
+  test("doador com jogadores de linha", () => {
     const portrait = parseEventMatch(MATCH_OPEN_DONOR, photo);
     expect(portrait.reinforcementDonors).toEqual([
       {
         teamId: "88888888-8888-8888-8888-888888888888",
         teamNumber: 4,
         queuePosition: 1,
-        outfieldCount: 1,
+        outfieldCount: 2,
+        outfield: expect.any(Array),
       },
     ]);
     expect(portrait.nextArrival).toMatchObject({
       kind: "queue",
       teamNumber: 4,
     });
+  });
+
+  test("doador traz as pessoas ativas", () => {
+    const outfield =
+      parseEventMatch(MATCH_OPEN_DONOR, photo).reinforcementDonors[0]
+        ?.outfield ?? [];
+    expect(outfield).toHaveLength(2);
+    expect(outfield[0]?.person.profileId).not.toBeNull();
+    expect(outfield[0]?.primaryPosition).toBe("MIDFIELDER");
+    expect(outfield[1]?.person.guestId).not.toBeNull();
+    expect(outfield[1]?.primaryPosition).toBe("ANY");
+  });
+
+  test("doador sem outfield (retrato antigo) vira lista vazia", () => {
+    const old = {
+      ...MATCH_OPEN_DONOR,
+      reinforcement_donors: [
+        { ...MATCH_OPEN_DONOR.reinforcement_donors[0]!, outfield: undefined },
+      ],
+    };
+    expect(
+      parseEventMatch(old, photo).reinforcementDonors[0]?.outfield
+    ).toEqual([]);
   });
 
   test("saída própria pendente", () => {

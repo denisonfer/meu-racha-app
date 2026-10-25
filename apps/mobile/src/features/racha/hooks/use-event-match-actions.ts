@@ -258,6 +258,8 @@ export function useEventMatchActions(rachaId: string, eventId: string) {
       profileId?: string | null;
       guestId?: string | null;
       donorTeamId?: string | null;
+      enteringProfileId?: string | null;
+      enteringGuestId?: string | null;
     }) => rachaApi.reinforceEventMatch(vars),
     onSettled: settle,
   });

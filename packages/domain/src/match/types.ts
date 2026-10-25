@@ -1,5 +1,7 @@
 /** Retrato da Partida — camelCase do jsonb de get_event_match. */
 
+import type { TPosition } from "../profile/types";
+
 export type TMatchEventStatus = "upcoming" | "active" | "finished";
 
 export type TMatchPortraitState = "open" | "ready";
@@ -76,11 +78,17 @@ export type TMatchLineupEntry = {
   leftByRed: boolean;
 };
 
+export type TMatchDonorPlayer = {
+  person: TMatchPerson;
+  primaryPosition: TPosition;
+};
+
 export type TMatchReinforcementDonor = {
   teamId: string;
   teamNumber: number;
   queuePosition: number;
   outfieldCount: number;
+  outfield: TMatchDonorPlayer[];
 };
 
 export type TMatchPendingReinforcement = {
