@@ -22,7 +22,22 @@
       "allowBackup": false,
       "predictiveBackGestureEnabled": false,
       "package": "app.meuracha",
-      "googleServicesFile": "./google-services.json"
+      "versionCode": 2,
+      "googleServicesFile": "./google-services.json",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "meu-racha.pages.dev",
+              "pathPrefix": "/r/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "plugins": [
       "expo-router",
