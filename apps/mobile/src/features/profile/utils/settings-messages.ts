@@ -55,6 +55,13 @@ export const DELETED_ACCOUNT_NAME = "Conta apagada";
 export const deleteAccountMemberCount = (n: number) =>
   n === 1 ? "1 membro" : `${n} membros`;
 export const DELETE_ACCOUNT_RETRY = "Tentar de novo";
+export const DELETE_ACCOUNT_PRO_TITLE = "Assinatura Pro ativa";
+export const DELETE_ACCOUNT_PRO_TEXT =
+  "Sua assinatura Pro continua sendo cobrada pela Google Play. Cancele lá antes de apagar a conta.";
+// no iPhone a loja não é citada
+export const DELETE_ACCOUNT_PRO_TEXT_IOS =
+  "Sua assinatura Pro continua sendo cobrada onde você assinou. Cancele lá antes de apagar a conta.";
+export const DELETE_ACCOUNT_PRO_ACTION = "Abrir assinaturas na Google Play";
 export const SETTINGS_SAFETY = "Segurança e ajuda";
 export const BLOCKED_PEOPLE = "Pessoas bloqueadas";
 export const BLOCKED_PEOPLE_TEXT =
@@ -70,3 +77,11 @@ export const UNBLOCK = "Desbloquear";
 export const CONTACT_US = "Fale conosco";
 export const CONTACT_EMAIL = "denison91.dev@gmail.com";
 export const CONTACT_COPIED = "E-mail copiado.";
+export const SETTINGS_SUBSCRIPTION = "Assinatura";
+export const PRO_ROW = "Pro";
+export const PRO_ROW_FREE = "Conhecer";
+export const PRO_ROW_SOON = "Em breve";
+export const proRowTrial = (date: string) => `Em teste até ${date}`;
+export const PRO_ROW_ACTIVE = "Ativo";
+export const proRowEnds = (date: string) => `Até ${date}`;
+export const PRO_ROW_BILLING = "Problema na cobrança";

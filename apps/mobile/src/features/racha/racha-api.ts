@@ -327,7 +327,7 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
   const { data, error, status } = await supabase
     .from("racha")
     .select(
-      "id, name, invite_code, place, weekday, kickoff_time, is_paid, price, monthly_price, spot_limit, payer_target, outfield_per_team, game_mode, max_consecutive_wins, tie_rule, tie_return_order, consider_position, match_duration_min, yellow_card_mode, yellow_out_min, min_age, members:member(count), me:member(role), pending:join_request(count)"
+      "id, name, invite_code, place, weekday, kickoff_time, is_paid, price, monthly_price, spot_limit, payer_target, outfield_per_team, game_mode, max_consecutive_wins, tie_rule, tie_return_order, consider_position, match_duration_min, yellow_card_mode, yellow_out_min, min_age, admin_limit, members:member(count), me:member(role), pending:join_request(count)"
     )
     .eq("id", id)
     .eq("members.is_active", true)
@@ -350,6 +350,7 @@ async function getRacha(id: string, userId: string): Promise<TRacha> {
     memberCount: data.members[0]?.count ?? 0,
     pendingCount: data.pending[0]?.count ?? 0,
     minAge: data.min_age,
+    adminLimit: data.admin_limit,
     place: data.place,
     weekday: data.weekday,
     kickoffHour,

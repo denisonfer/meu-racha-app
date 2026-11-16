@@ -1,4 +1,7 @@
-import { isAllowedSupabaseUrl } from "@/lib/resolve-environment";
+import {
+  isAllowedSupabaseUrl,
+  optionalRevenuecatKey,
+} from "@/lib/resolve-environment";
 import type { TSupabaseConfig } from "@/lib/environment";
 
 export class DevHubError extends Error {
@@ -27,10 +30,11 @@ export function toStagingConfig(
     throw new DevHubError(isUnauthorized ? "invalidKey" : "network");
   }
 
-  const { url, anonKey } = (data ?? {}) as Partial<TSupabaseConfig>;
+  const { url, anonKey, revenuecatKey } = (data ??
+    {}) as Partial<TSupabaseConfig>;
   // Config que o app não aceitaria na abertura travaria o reinício: nem grava.
   if (!url || !anonKey || !isAllowedSupabaseUrl(url, isDev))
     throw new DevHubError("network");
 
-  return { url, anonKey };
+  return { url, anonKey, ...optionalRevenuecatKey(revenuecatKey) };
 }

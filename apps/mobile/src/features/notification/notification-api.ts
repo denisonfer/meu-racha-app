@@ -70,18 +70,38 @@ export async function setPushEnabled(enabled: boolean): Promise<void> {
 }
 
 const openedNotificationSchema = z.object({
-  kind: z.enum(NOTIFICATION_KINDS),
+  kind: z.string(),
   racha_id: z.string(),
   event_id: z.string().nullable(),
-  target: z.enum(NOTIFICATION_TARGETS),
+  target: z.string(),
 });
 
-export type TOpenedNotification = {
-  kind: TNotification["kind"];
-  target: TNotification["target"];
-  rachaId: string;
-  eventId: string | null;
-};
+export type TOpenedNotification =
+  | {
+      kind: TNotification["kind"];
+      target: TNotification["target"];
+      rachaId: string;
+      eventId: string | null;
+    }
+  | { kind: "unknown" };
+
+const isOneOf = <T extends string>(
+  values: readonly T[],
+  value: string
+): value is T => (values as readonly string[]).includes(value);
+
+// kind ou target de um servidor mais novo: o toque abre a aba Avisos em vez de falhar
+export function toOpenedNotification(data: unknown): TOpenedNotification {
+  const parsed = openedNotificationSchema.safeParse(data);
+  if (!parsed.success) throw new Error(NOTIFICATION_PAYLOAD_INVALID);
+  const { kind, target, racha_id, event_id } = parsed.data;
+  if (
+    !isOneOf(NOTIFICATION_KINDS, kind) ||
+    !isOneOf(NOTIFICATION_TARGETS, target)
+  )
+    return { kind: "unknown" };
+  return { kind, target, rachaId: racha_id, eventId: event_id };
+}
 
 // marca só este Aviso como visto e devolve o destino calculado agora
 async function openNotification(id: string): Promise<TOpenedNotification> {
@@ -89,14 +109,7 @@ async function openNotification(id: string): Promise<TOpenedNotification> {
     p_id: id,
   });
   if (error) throw toCodedError(error, status);
-  const parsed = openedNotificationSchema.safeParse(data);
-  if (!parsed.success) throw new Error(NOTIFICATION_PAYLOAD_INVALID);
-  return {
-    kind: parsed.data.kind,
-    target: parsed.data.target,
-    rachaId: parsed.data.racha_id,
-    eventId: parsed.data.event_id,
-  };
+  return toOpenedNotification(data);
 }
 
 export const notificationApi = {

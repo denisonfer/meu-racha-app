@@ -18,6 +18,8 @@ export const DeleteAccountScreen = () => {
     loseRachas,
     ownedRachas,
     conducting,
+    proWarning,
+    openPlaySubscriptions,
     isDeleting,
     failureMessage,
     confirm,
@@ -40,6 +42,8 @@ export const DeleteAccountScreen = () => {
     return (
       <DeleteAccountConfirm
         loseRachas={loseRachas}
+        proWarning={proWarning}
+        onOpenPlaySubscriptions={openPlaySubscriptions}
         isBusy={isDeleting}
         failureMessage={failureMessage}
         onConfirm={confirm}

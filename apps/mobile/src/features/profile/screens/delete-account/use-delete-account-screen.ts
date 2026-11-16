@@ -1,7 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useNavigation, type Href } from "expo-router";
 import { useState } from "react";
+import { Linking, Platform } from "react-native";
 import { signOutDeletedAccount, useSession } from "@/features/auth";
+import { playSubscriptionsUrl, useMyPlan } from "@/features/plan";
 import { useBottomSheetClose, useToast } from "@/ui/components";
 import { profileApi } from "../../profile-api";
 import {
@@ -29,6 +31,7 @@ export function useDeleteAccountScreen() {
     gcTime: 0,
     staleTime: 0,
   });
+  const { data: plan } = useMyPlan();
   const [isDeleting, setIsDeleting] = useState(false);
   const [failureMessage, setFailureMessage] = useState<string | null>(null);
 
@@ -73,6 +76,15 @@ export function useDeleteAccountScreen() {
     loseRachas: check.data ? loseRachasLine(check.data.rachaCount) : null,
     ownedRachas: check.data?.ownedRachas ?? [],
     conducting: check.data?.conducting ?? [],
+    // a assinatura sobrevive à conta: avisa enquanto ela renova, sem bloquear
+    proWarning:
+      plan?.isPro && plan.willRenew
+        ? Platform.OS === "android"
+          ? ("android" as const)
+          : ("ios" as const)
+        : null,
+    openPlaySubscriptions: () =>
+      void Linking.openURL(playSubscriptionsUrl(plan?.productId ?? null)),
     isDeleting,
     failureMessage,
     confirm: () => void confirm(),

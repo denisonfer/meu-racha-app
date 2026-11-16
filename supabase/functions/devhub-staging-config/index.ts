@@ -32,5 +32,9 @@ Deno.serve(async (req) => {
   if (typeof body?.key !== "string") return unauthorized();
   if (!(await sameKey(body.key, devhubKey))) return unauthorized();
 
-  return Response.json({ url, anonKey });
+  // Opcional: sem ela o app abre o Homolog, só sem a compra do Pro.
+  const revenuecatKey = Deno.env.get("STAGING_REVENUECAT_KEY");
+  return Response.json(
+    revenuecatKey ? { url, anonKey, revenuecatKey } : { url, anonKey }
+  );
 });

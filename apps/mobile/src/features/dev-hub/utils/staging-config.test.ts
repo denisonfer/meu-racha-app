@@ -32,6 +32,22 @@ describe("toStagingConfig", () => {
     expect(toStagingConfig({ data, error: null }, false)).toEqual(data);
   });
 
+  test("devolve a revenuecatKey quando vem na resposta", () => {
+    const data = {
+      url: "https://x.supabase.co",
+      anonKey: "k",
+      revenuecatKey: "goog_x",
+    };
+    expect(toStagingConfig({ data, error: null }, false)).toEqual(data);
+  });
+
+  test("sem revenuecatKey na resposta, o config sai sem o campo", () => {
+    const data = { url: "https://x.supabase.co", anonKey: "k" };
+    expect(
+      "revenuecatKey" in toStagingConfig({ data, error: null }, false)
+    ).toBe(false);
+  });
+
   test("401 vira invalidKey", () => {
     expect(
       kindOf(() =>

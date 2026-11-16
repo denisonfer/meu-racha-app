@@ -7,6 +7,8 @@ export type TOptionListOption<V extends string> = {
   value: V;
   title: string;
   description?: string;
+  // terceira linha, em destaque: ex. a economia do plano anual
+  detail?: string;
   leading?: ReactNode;
 };
 
@@ -67,6 +69,11 @@ export function OptionList<V extends string>({
                   {option.description}
                 </Text>
               ) : null}
+              {option.detail ? (
+                <Text preset="small" style={styles.detail}>
+                  {option.detail}
+                </Text>
+              ) : null}
             </View>
           </Pressable>
         );
@@ -121,4 +128,5 @@ const styles = StyleSheet.create({
     fontFamily: "Manrope-Bold",
     lineHeight: 22,
   },
+  detail: { fontFamily: "Manrope-Bold" },
 });

@@ -1483,8 +1483,9 @@ export type Database = {
           weekday: number | null;
           yellow_card_mode: Database["public"]["Enums"]["yellow_card_mode"];
           yellow_out_min: number;
+          admin_limit: number | null;
         };
-        ComputedFields: never;
+        ComputedFields: "admin_limit";
         Insert: {
           consider_position?: boolean;
           created_at?: string;
@@ -1767,6 +1768,54 @@ export type Database = {
           },
         ];
       };
+      subscription: {
+        Row: {
+          billing_issue_at: string | null;
+          expires_at: string;
+          is_sandbox: boolean;
+          is_trial: boolean;
+          product_id: string;
+          profile_id: string;
+          store: string;
+          sync_source: string;
+          synced_at: string;
+          will_renew: boolean;
+        };
+        ComputedFields: never;
+        Insert: {
+          billing_issue_at?: string | null;
+          expires_at: string;
+          is_sandbox: boolean;
+          is_trial: boolean;
+          product_id: string;
+          profile_id: string;
+          store: string;
+          sync_source: string;
+          synced_at?: string;
+          will_renew: boolean;
+        };
+        Update: {
+          billing_issue_at?: string | null;
+          expires_at?: string;
+          is_sandbox?: boolean;
+          is_trial?: boolean;
+          product_id?: string;
+          profile_id?: string;
+          store?: string;
+          sync_source?: string;
+          synced_at?: string;
+          will_renew?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscription_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: true;
+            referencedRelation: "profile";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1805,6 +1854,15 @@ export type Database = {
           p_stars: number;
         };
         Returns: string;
+      };
+      admin_limit: {
+        Args: {
+          r: Omit<
+            Database["public"]["Tables"]["racha"]["Row"],
+            Database["public"]["Tables"]["racha"]["ComputedFields"]
+          >;
+        };
+        Returns: number;
       };
       approve_join_request: {
         Args: { p_request_id: string; p_stars: number; p_super_star: boolean };
@@ -1914,6 +1972,19 @@ export type Database = {
           outfield_per_team: number;
           owner_name: string;
           racha_id: string;
+        }[];
+      };
+      get_my_plan: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          billing_issue_at: string;
+          can_create_racha: boolean;
+          expires_at: string;
+          is_pro: boolean;
+          is_trial: boolean;
+          owned_racha_count: number;
+          product_id: string;
+          will_renew: boolean;
         }[];
       };
       get_my_profile_card: { Args: Record<PropertyKey, never>; Returns: Json };

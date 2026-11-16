@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from "bun:test";
 import type { TNotificationHrefInput } from "../screens/notifications/notification-href";
+import type { TOpenedNotification } from "../notification-api";
 import { handlePushTap, NOTIFICATIONS_TAB_HREF } from "./push-tap";
 
 const sortNotice: TNotificationHrefInput = {
@@ -9,7 +10,7 @@ const sortNotice: TNotificationHrefInput = {
   eventId: "e1",
 };
 
-function deps(open: (id: string) => Promise<TNotificationHrefInput>) {
+function deps(open: (id: string) => Promise<TOpenedNotification>) {
   return { open: mock(open), navigate: mock(), done: mock() };
 }
 
@@ -28,6 +29,17 @@ describe("handlePushTap", () => {
 
   test("destino nulo vai para a aba Avisos", async () => {
     const d = deps(async () => ({ ...sortNotice, target: "racha_deleted" }));
+    await handlePushTap(
+      { responseId: "a", notificationId: "n1" },
+      new Set(),
+      d
+    );
+    expect(d.navigate).toHaveBeenCalledWith(NOTIFICATIONS_TAB_HREF);
+    expect(d.done).toHaveBeenCalledTimes(1);
+  });
+
+  test("Aviso de tipo desconhecido vai para a aba Avisos", async () => {
+    const d = deps(async () => ({ kind: "unknown" }));
     await handlePushTap(
       { responseId: "a", notificationId: "n1" },
       new Set(),

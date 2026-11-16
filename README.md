@@ -128,6 +128,41 @@ O `supabase link` fica gravado no repositório. Relinke antes de cada `db push`,
 
 3. O Free pausa o Homolog depois de 1 semana sem uso. Entre rodadas de teste, reative-o no painel.
 
+### Assinatura Pro (RevenueCat)
+
+Só o Homolog tem projeto RevenueCat nesta etapa; a produção entra junto com a abertura da venda (spec "Lembretes Pro"). A compra roda só no Homolog, pelo Android, com testador de licença da Play.
+
+1. No painel da RevenueCat, crie o projeto do Homolog com o app Android, as credenciais de serviço da Play (levam cerca de 36 horas para valer), o direito `pro` ligado aos dois produtos, uma oferta com os pacotes mensal e anual, e um webhook para a URL da `revenuecat-sync` do Homolog com "HMAC webhook signing" ligado.
+2. Grave os três secrets da função no Homolog. Anote o `REVENUECAT_SYNC_SECRET` num gerenciador de senhas (o Vault precisa do mesmo valor) e use um arquivo temporário fora do repo, apagado depois:
+
+   ```bash
+   bunx supabase link --project-ref <ref-do-homolog>
+   printf 'REVENUECAT_SECRET_KEY=%s\nREVENUECAT_WEBHOOK_SECRET=%s\nREVENUECAT_SYNC_SECRET=%s\n' \
+     '<chave-secreta-da-revenuecat>' '<segredo-hmac-do-webhook>' "$(openssl rand -hex 24)" > "$TMPDIR/revenuecat.env"
+   cat "$TMPDIR/revenuecat.env"   # anote o REVENUECAT_SYNC_SECRET
+   bunx supabase secrets set --env-file "$TMPDIR/revenuecat.env" --project-ref <ref-do-homolog>
+   rm "$TMPDIR/revenuecat.env"
+   bunx supabase functions deploy revenuecat-sync
+   ```
+
+3. No Vault do Homolog (painel, ou SQL com `vault.create_secret`), grave `revenuecat_sync_url` (a URL da `revenuecat-sync`) e `revenuecat_sync_secret` (o valor anotado acima). O job `sync-renewing-subscriptions` (`pg_cron`, minuto 7 de toda hora) chama a função com eles; sem os dois no Vault, o job não faz nada. No ambiente local, `supabase/snippets/revenuecat_local_secrets.sql` grava os dois, no mesmo formato do `push_local_secrets.sql`.
+4. Aplique a migration nos dois projetos (produção e Homolog) antes de publicar o app com versionCode 3: o app novo pede `admin_limit` em toda leitura de racha.
+5. Na produção, grave só `STAGING_REVENUECAT_KEY` (a chave pública Android do projeto do Homolog), junto dos outros `STAGING_*`, para a `devhub-staging-config` devolver `revenuecatKey` ao app. Sem os segredos no Vault, o job da produção não faz nada.
+6. O bundle do domínio mudou (`parseNotifications` descarta tipo desconhecido), então republique a `send-push` nos dois projetos, depois de `bun functions:build`:
+
+   ```bash
+   bunx supabase functions deploy send-push
+   ```
+
+**Conferir e consertar um Plano.** `supabase/snippets/plan_check.sql` tem as consultas: Pro vencido que ainda diz que renova, linhas com problema de cobrança e total de Pro ativos, para comparar com o painel da RevenueCat. Para ressincronizar um Perfil errado, chame a entrada do job com o `profile_id` (sem o filtro das 24 horas):
+
+```bash
+curl -X POST "$SUPABASE_URL/functions/v1/revenuecat-sync" \
+  -H "x-sync-secret: $SYNC_SECRET" \
+  -H "content-type: application/json" \
+  -d '{"profile_id":"<uuid>"}'
+```
+
 ### Loja
 
 Cole o texto abaixo nas Notes for Review da Apple e em "Acesso ao app" do Google Play, e inclua a chave na própria nota (nunca neste repositório):

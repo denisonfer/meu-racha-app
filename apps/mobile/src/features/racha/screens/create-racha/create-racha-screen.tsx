@@ -6,6 +6,7 @@ import {
   Text,
 } from "@/ui/components";
 import { CreateRachaForm } from "../../components/create-racha-form";
+import { PRO_LEARN } from "../../utils/racha-messages";
 import { useCreateRachaScreen } from "./use-create-racha-screen";
 
 export const CreateRachaScreen = () => {
@@ -14,6 +15,8 @@ export const CreateRachaScreen = () => {
     isCreating,
     isBlocked,
     blockedMessage,
+    canLearnPro,
+    openPro,
     failureMessage,
     submit,
   } = useCreateRachaScreen();
@@ -31,13 +34,17 @@ export const CreateRachaScreen = () => {
             {failureMessage}
           </Text>
         ) : null}
-        <Button
-          title="Criar racha"
-          accessibilityLabel={isCreating ? "Criando racha" : "Criar racha"}
-          isLoading={isCreating}
-          isDisabled={isBlocked}
-          onPress={submit}
-        />
+        {canLearnPro ? (
+          <Button preset="secondary" title={PRO_LEARN} onPress={openPro} />
+        ) : (
+          <Button
+            title="Criar racha"
+            accessibilityLabel={isCreating ? "Criando racha" : "Criar racha"}
+            isLoading={isCreating}
+            isDisabled={isBlocked}
+            onPress={submit}
+          />
+        )}
       </ScreenFooter>
     </Screen>
   );

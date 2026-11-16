@@ -1,0 +1,36 @@
+{
+  "request_date": "2026-11-13T12:00:00Z",
+  "request_date_ms": 1794571200000,
+  "subscriber": {
+    "entitlements": {
+      "pro": {
+        "expires_date": "2026-12-13T12:00:00Z",
+        "grace_period_expires_date": null,
+        "product_identifier": "pro:mensal",
+        "purchase_date": "2026-11-13T11:00:00Z"
+      }
+    },
+    "first_seen": "2026-10-13T12:00:00Z",
+    "last_seen": "2026-11-13T12:00:00Z",
+    "management_url": null,
+    "non_subscriptions": {},
+    "original_app_user_id": "00000000-0000-4000-8000-000000000000",
+    "subscriptions": {
+      "pro:mensal": {
+        "auto_resume_date": null,
+        "billing_issues_detected_at": null,
+        "expires_date": "2026-12-13T12:00:00Z",
+        "grace_period_expires_date": null,
+        "is_sandbox": false,
+        "original_purchase_date": "2026-10-13T12:00:00Z",
+        "ownership_type": "PURCHASED",
+        "period_type": "normal",
+        "purchase_date": "2026-11-13T11:00:00Z",
+        "refunded_at": null,
+        "store": "play_store",
+        "store_transaction_id": "GPA.0000-0000-0000-00000",
+        "unsubscribe_detected_at": "2026-11-10T12:00:00Z"
+      }
+    }
+  }
+}

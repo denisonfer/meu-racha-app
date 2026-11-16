@@ -1,8 +1,16 @@
 import { DEFAULT_MIN_AGE, DEFAULT_RACHA_RULES } from "@meu-racha/domain";
+import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { Platform } from "react-native";
+import { useSession } from "@/features/auth";
+import {
+  planKey,
+  PRO_IOS_UNAVAILABLE,
+  purchaseAvailable,
+  useMyPlan,
+} from "@/features/plan";
 import { useCreateRacha } from "../../hooks/use-create-racha";
 import { useCreateRachaForm } from "../../hooks/use-racha-form";
-import { useMyRachas } from "../../hooks/use-my-rachas";
 import { TCreateRachaForm } from "../../racha-form-schema";
 import {
   CREATE_RACHA_FAILED,
@@ -10,12 +18,17 @@ import {
   NAME_NOT_ALLOWED,
   NAME_REQUIRED,
   PLAN_OWNER_LIMIT,
+  PLAN_OWNER_LIMIT_FREE,
+  planOwnerOver,
   yellowShorterThanMatch,
 } from "../../utils/racha-messages";
 
 export function useCreateRachaScreen() {
-  const { data: myRachas } = useMyRachas();
+  const { session } = useSession();
+  const queryClient = useQueryClient();
+  const { data: plan } = useMyPlan();
   const { createRacha, errorCode } = useCreateRacha();
+  const canBuyPro = purchaseAvailable();
 
   const { form, isSubmitting, isSubmitSuccessful, submit, rejectName } =
     useCreateRachaForm({
@@ -31,13 +44,25 @@ export function useCreateRachaScreen() {
 
   const isBlocked =
     !isSubmitSuccessful &&
-    (Boolean(myRachas?.some((racha) => racha.role === "OWNER")) ||
-      isPlanOwnerLimit(errorCode));
+    (plan?.canCreateRacha === false || isPlanOwnerLimit(errorCode));
+
+  const blockedMessage = canBuyPro
+    ? (plan?.ownedRachaCount ?? 0) > 1
+      ? planOwnerOver(plan?.ownedRachaCount ?? 0)
+      : PLAN_OWNER_LIMIT_FREE
+    : Platform.OS === "ios"
+      ? `${PLAN_OWNER_LIMIT_FREE}\n${PRO_IOS_UNAVAILABLE}`
+      : PLAN_OWNER_LIMIT;
 
   const onValid = async (values: TCreateRachaForm) => {
     let id: string;
     try {
       ({ id } = await createRacha(values));
+      if (session) {
+        void queryClient.invalidateQueries({
+          queryKey: planKey(session.userId),
+        });
+      }
     } catch (error) {
       if (error instanceof Error && error.message === "name_not_allowed") {
         rejectName(NAME_NOT_ALLOWED);
@@ -52,7 +77,10 @@ export function useCreateRachaScreen() {
     form,
     isCreating: isSubmitting,
     isBlocked,
-    blockedMessage: PLAN_OWNER_LIMIT,
+    blockedMessage,
+    // no teto com compra disponível, "Conhecer o Pro" toma o lugar do botão morto
+    canLearnPro: isBlocked && canBuyPro,
+    openPro: () => router.push("/settings/pro"),
     failureMessage:
       errorCode &&
       !isPlanOwnerLimit(errorCode) &&

@@ -1,3 +1,4 @@
+import { getPlanStatus, type TMyPlan } from "@meu-racha/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
 import Constants from "expo-constants";
@@ -11,11 +12,38 @@ import {
   usePushEnabled,
   usePushPermission,
 } from "@/features/notification";
+import { planDate, purchaseAvailable, useMyPlan } from "@/features/plan";
 import { openWebPage } from "@/lib/open-web-page";
 import { useToast } from "@/ui/components";
-import { CONTACT_COPIED, CONTACT_EMAIL } from "../../utils/settings-messages";
+import {
+  CONTACT_COPIED,
+  CONTACT_EMAIL,
+  PRO_ROW_ACTIVE,
+  PRO_ROW_BILLING,
+  PRO_ROW_FREE,
+  PRO_ROW_SOON,
+  proRowEnds,
+  proRowTrial,
+} from "../../utils/settings-messages";
 import { pushBanner } from "./push-banner";
 import { pushEnabledOptions } from "./push-enabled-options";
+
+function proSummary(plan: TMyPlan | undefined) {
+  if (!plan) return null;
+  const status = getPlanStatus(plan, new Date());
+  switch (status.kind) {
+    case "free":
+      return { text: purchaseAvailable() ? PRO_ROW_FREE : PRO_ROW_SOON };
+    case "trial":
+      return { text: proRowTrial(planDate(status.until)) };
+    case "renewing":
+      return { text: PRO_ROW_ACTIVE };
+    case "ending":
+      return { text: proRowEnds(planDate(status.until)) };
+    case "billing_issue":
+      return { text: PRO_ROW_BILLING, isWarning: true };
+  }
+}
 
 export function useSettingsScreen() {
   const queryClient = useQueryClient();
@@ -23,6 +51,7 @@ export function useSettingsScreen() {
   const pushEnabled = usePushEnabled();
   const { permission, refresh } = usePushPermission();
   const blockedQuery = useBlockedProfiles();
+  const planQuery = useMyPlan();
   const mutation = useMutation(
     pushEnabledOptions(queryClient, pushEnabledKey, setPushEnabled, (message) =>
       showToast(message, "danger")
@@ -72,6 +101,8 @@ export function useSettingsScreen() {
     blockedCount: blockedQuery.data?.length ?? 0,
     openBlockedPeople: () => router.push("/settings/blocked-people"),
     contactUs: () => void contactUs(),
+    proSummary: proSummary(planQuery.data),
+    openPro: () => router.push("/settings/pro"),
     version: Constants.expoConfig?.version ?? "",
   };
 }

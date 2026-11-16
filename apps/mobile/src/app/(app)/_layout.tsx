@@ -1,6 +1,7 @@
 import { Redirect, Stack, usePathname } from "expo-router";
 import { savePendingDestination, useSession } from "@/features/auth";
 import { usePush } from "@/features/notification";
+import { usePurchasesIdentity } from "@/features/plan";
 import { BOTTOM_SHEET_SCREEN_OPTIONS } from "@/ui/components";
 
 // sem âncora, a folha (1ª declarada) viraria a raiz da pilha
@@ -13,6 +14,7 @@ export default function AppLayout() {
   // só o caminho: nenhuma rota de (app) que abre por link usa parâmetros de busca
   const pathname = usePathname();
   usePush(session?.userId ?? null);
+  usePurchasesIdentity(session?.userId ?? null);
 
   if (isLoading) return null;
   if (!session) {

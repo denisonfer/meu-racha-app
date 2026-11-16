@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import { ConfirmBottomSheet, Icon, Text } from "@/ui/components";
+import { ConfirmBottomSheet, Icon, NoticeBanner, Text } from "@/ui/components";
 import { theme } from "@/ui/theme";
 import {
   DELETE_ACCOUNT_BUSY,
@@ -9,12 +9,18 @@ import {
   DELETE_ACCOUNT_LOSE,
   DELETE_ACCOUNT_LOSE_ACCESS,
   DELETE_ACCOUNT_LOSE_PHOTO,
+  DELETE_ACCOUNT_PRO_ACTION,
+  DELETE_ACCOUNT_PRO_TEXT,
+  DELETE_ACCOUNT_PRO_TEXT_IOS,
+  DELETE_ACCOUNT_PRO_TITLE,
   DELETE_ACCOUNT_TEXT,
   DELETE_ACCOUNT_TITLE,
 } from "../../utils/settings-messages";
 
 type TDeleteAccountConfirmProps = {
   loseRachas: string | null;
+  proWarning: "android" | "ios" | null;
+  onOpenPlaySubscriptions: () => void;
   isBusy: boolean;
   failureMessage: string | null;
   onConfirm: () => void;
@@ -23,6 +29,8 @@ type TDeleteAccountConfirmProps = {
 
 export const DeleteAccountConfirm = ({
   loseRachas,
+  proWarning,
+  onOpenPlaySubscriptions,
   isBusy,
   failureMessage,
   onConfirm,
@@ -63,6 +71,22 @@ export const DeleteAccountConfirm = ({
             <Text style={styles.grow}>{DELETE_ACCOUNT_KEEP_STATS}</Text>
           </View>
         </View>
+        {proWarning === "android" ? (
+          <NoticeBanner
+            tone="warning"
+            title={DELETE_ACCOUNT_PRO_TITLE}
+            text={DELETE_ACCOUNT_PRO_TEXT}
+            actionLabel={DELETE_ACCOUNT_PRO_ACTION}
+            onAction={onOpenPlaySubscriptions}
+          />
+        ) : null}
+        {proWarning === "ios" ? (
+          <NoticeBanner
+            tone="warning"
+            title={DELETE_ACCOUNT_PRO_TITLE}
+            text={DELETE_ACCOUNT_PRO_TEXT_IOS}
+          />
+        ) : null}
       </View>
     </ConfirmBottomSheet>
   );

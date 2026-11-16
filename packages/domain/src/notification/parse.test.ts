@@ -130,14 +130,16 @@ describe("parseNotifications", () => {
     }
   });
 
+  test("descarta item de kind ou target desconhecido sem derrubar a lista", () => {
+    expect(parseNotifications([{ ...COMPLETE, kind: "nope" }])).toEqual([]);
+    expect(parseNotifications([{ ...COMPLETE, target: "gone" }])).toEqual([]);
+    expect(
+      parseNotifications([COMPLETE, { ...COMPLETE, kind: "nope" }, COMPLETE])
+    ).toHaveLength(2);
+  });
+
   test("rejeita jsonb inválido", () => {
     expect(() => parseNotifications(COMPLETE)).toThrow(
-      NOTIFICATION_PAYLOAD_INVALID
-    );
-    expect(() => parseNotifications([{ ...COMPLETE, kind: "nope" }])).toThrow(
-      NOTIFICATION_PAYLOAD_INVALID
-    );
-    expect(() => parseNotifications([{ ...COMPLETE, target: "gone" }])).toThrow(
       NOTIFICATION_PAYLOAD_INVALID
     );
     expect(() =>

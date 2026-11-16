@@ -1,5 +1,4 @@
 import {
-  ADMIN_LIMIT_FREE,
   MATCH_DURATION_MAX,
   MATCH_DURATION_MIN,
   YELLOW_OUT_MAX,
@@ -26,8 +25,13 @@ export const yellowShorterThanMatch = (durationMin: number) =>
   `O amarelo precisa ser menor que a Duração da partida (${durationMin} min).`;
 export const MIN_AGE_INVALID = `De ${MIN_AGE_MIN} a ${MIN_AGE_MAX} anos, ou Sem idade mínima.`;
 
+// sem compra disponível o texto promete o Pro para depois
 export const PLAN_OWNER_LIMIT =
   "No plano grátis você pode ser dono de 1 racha. O Pro chega em breve.";
+export const PLAN_OWNER_LIMIT_FREE = "No plano grátis você é dono de 1 racha.";
+export const planOwnerOver = (count: number) =>
+  `Você é dono de ${count} rachas. No plano grátis o limite é 1.`;
+export const PRO_LEARN = "Conhecer o Pro";
 
 export const CREATE_RACHA_FAILED =
   "Não criou o racha. Toque em Criar racha para tentar de novo.";
@@ -65,8 +69,10 @@ export const RACHA_DELETED = "Racha excluído.";
 export const DELETE_RACHA_FAILED = JOIN_REQUEST_ACTION_FAILED;
 export const NOT_OWNER = "Só o dono pode mudar o racha.";
 
-export const ADMIN_LIMIT_HINT = `Até ${ADMIN_LIMIT_FREE} admins no plano grátis.`;
-export const ADMIN_LIMIT_REACHED = `Já são ${ADMIN_LIMIT_FREE} admins, o máximo no plano grátis.`;
+export const adminLimitHint = (limit: number) =>
+  `Até ${limit} admins no plano grátis.`;
+export const adminLimitReached = (limit: number) =>
+  `Já são ${limit} admins, o máximo no plano grátis.`;
 export const MEMBER_SAVED = RACHA_SAVED;
 export const SAVE_MEMBER_FAILED = SAVE_RACHA_FAILED;
 export const MEMBER_EXPELLED = (name: string) =>
@@ -78,7 +84,7 @@ export const MEMBER_NOT_ALLOWED = "Você não pode mais mudar este membro.";
 export const OWNERSHIP_TRANSFERRED = (name: string) =>
   `${name} agora é o dono do racha.`;
 export const TRANSFER_PLAN_LIMIT = (name: string) =>
-  `${name} já é dono de outro racha. No plano grátis, cada pessoa é dona de um só.`;
+  `${name} já é dono de outro racha e não tem o Pro. No plano grátis, cada pessoa é dona de um racha só.`;
 export const OWNER_HINT_TO_LEAVE =
   "Para sair do racha, passe ele para outro membro em Membros.";
 export const OWNER_CANNOT_LEAVE =

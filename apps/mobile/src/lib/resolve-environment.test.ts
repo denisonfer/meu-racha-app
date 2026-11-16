@@ -61,6 +61,33 @@ describe("resolveEnvironment", () => {
   });
 });
 
+describe("revenuecatKey", () => {
+  const base = { url: "https://staging.example", anonKey: "k" };
+
+  test("valor salvo com a chave devolve a chave", () => {
+    const stored = saved({ ...base, revenuecatKey: "goog_x" });
+    expect(resolveEnvironment(stored, build, false).config.revenuecatKey).toBe(
+      "goog_x"
+    );
+  });
+
+  test("valor salvo antes desta versão segue staging, sem chave", () => {
+    const r = resolveEnvironment(saved(base), build, false);
+    expect(r.name).toBe("staging");
+    expect(r.config.revenuecatKey).toBeUndefined();
+  });
+
+  test("chave que não é texto é ignorada e o resto fica", () => {
+    const r = resolveEnvironment(
+      saved({ ...base, revenuecatKey: 5 }),
+      build,
+      false
+    );
+    expect(r.name).toBe("staging");
+    expect(r.config).toEqual(base);
+  });
+});
+
 describe("isAllowedSupabaseUrl", () => {
   test("https sem diferenciar maiúscula", () => {
     expect(isAllowedSupabaseUrl("HTTPS://x.supabase.co", false)).toBe(true);

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   canLeaveRacha,
+  isAdminCapped,
   memberPermissions,
   TMemberRole,
 } from "./member-permissions";
@@ -128,5 +129,13 @@ describe("canLeaveRacha", () => {
     expect(canLeaveRacha("OWNER")).toBe(false);
     expect(canLeaveRacha("ADMIN")).toBe(true);
     expect(canLeaveRacha("PLAYER")).toBe(true);
+  });
+});
+
+describe("isAdminCapped", () => {
+  test("sem teto nunca trava; com teto trava ao atingir", () => {
+    expect(isAdminCapped(5, null)).toBe(false);
+    expect(isAdminCapped(1, 2)).toBe(false);
+    expect(isAdminCapped(2, 2)).toBe(true);
   });
 });

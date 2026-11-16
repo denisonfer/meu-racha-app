@@ -16,11 +16,13 @@ import {
   PUSH_UNASKED_ACTION,
   PUSH_UNASKED_TEXT,
   PUSH_UNASKED_TITLE,
+  PRO_ROW,
   SETTINGS_ABOUT,
   SETTINGS_ACCOUNT,
   SETTINGS_NOTIFICATIONS,
   SETTINGS_PRIVACY,
   SETTINGS_SAFETY,
+  SETTINGS_SUBSCRIPTION,
   SETTINGS_TERMS,
   SETTINGS_TITLE,
   settingsVersion,
@@ -41,6 +43,8 @@ export const SettingsScreen = () => {
     blockedCount,
     openBlockedPeople,
     contactUs,
+    proSummary,
+    openPro,
     version,
   } = useSettingsScreen();
   const pushText = pushEnabled ? PUSH_ROW_ON : PUSH_ROW_OFF;
@@ -172,6 +176,35 @@ export const SettingsScreen = () => {
 
         <View>
           <Text color="muted" style={styles.sectionTitle}>
+            {SETTINGS_SUBSCRIPTION}
+          </Text>
+          <View style={styles.card}>
+            <Pressable
+              onPress={openPro}
+              accessibilityRole="button"
+              accessibilityLabel={
+                proSummary ? `${PRO_ROW}, ${proSummary.text}` : PRO_ROW
+              }
+              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+            >
+              <Text style={[styles.grow, styles.label]}>{PRO_ROW}</Text>
+              {proSummary ? (
+                <View style={styles.summary}>
+                  {proSummary.isWarning ? (
+                    <Icon name="alert" size={18} color="warning" />
+                  ) : null}
+                  <Text color={proSummary.isWarning ? "warning" : "muted"}>
+                    {proSummary.text}
+                  </Text>
+                </View>
+              ) : null}
+              <Icon name="chevron-right" color="muted" />
+            </Pressable>
+          </View>
+        </View>
+
+        <View>
+          <Text color="muted" style={styles.sectionTitle}>
             {SETTINGS_ACCOUNT}
           </Text>
           <View style={styles.card}>
@@ -228,6 +261,7 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     fontVariant: ["tabular-nums"],
   },
+  summary: { flexDirection: "row", alignItems: "center", gap: 4 },
   pressed: { opacity: 0.8 },
   divider: {
     marginHorizontal: theme.space[16],

@@ -1,5 +1,8 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
+import { useSession } from "@/features/auth";
+import { planKey } from "@/features/plan";
 import { useBottomSheetClose, useToast } from "@/ui/components";
 import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useRacha } from "../../hooks/use-racha";
@@ -28,6 +31,8 @@ export function useTransferOwnershipScreen() {
   const navigation = useNavigation();
   const showToast = useToast();
   const close = useBottomSheetClose();
+  const { session } = useSession();
+  const queryClient = useQueryClient();
 
   // guardados no primeiro render: as consultas recarregam quando o cargo muda e o título não pode sumir
   const [rachaName] = useState(() => racha?.name);
@@ -50,6 +55,12 @@ export function useTransferOwnershipScreen() {
     setIsTransferring(true);
     try {
       await transferOwnership(profileId);
+      // quem passou o racha pode voltar a criar um
+      if (session) {
+        void queryClient.invalidateQueries({
+          queryKey: planKey(session.userId),
+        });
+      }
       // isTransferring fica true: evita o segundo toque e o piscar do botão enquanto a folha fecha
       router.dismissTo(`/racha/${id}`);
       showToast(OWNERSHIP_TRANSFERRED(name), "success");

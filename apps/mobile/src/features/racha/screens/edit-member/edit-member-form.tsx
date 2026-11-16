@@ -13,10 +13,10 @@ import { RoleChip } from "../../components/role-chip";
 import { StarsAndSuperStarField } from "../../components/stars-and-super-star-field";
 import { TMemberRole, TRachaMember } from "../../racha-types";
 import {
-  ADMIN_LIMIT_HINT,
   POSITION_DETAIL_MEMBER_HINT,
   POSITION_DETAIL_SECTION,
   positionDetailMemberPending,
+  PRO_LEARN,
 } from "../../utils/racha-messages";
 import { useEditMemberForm } from "./use-edit-member-screen";
 
@@ -45,6 +45,9 @@ export const EditMemberForm = (props: TEditMemberFormProps) => {
     onRoleChange,
     detailSection,
     isAdminCapped,
+    capHint,
+    canLearnPro,
+    openPro,
     isSaving,
     isDirty,
     failureMessage,
@@ -103,18 +106,28 @@ export const EditMemberForm = (props: TEditMemberFormProps) => {
         ) : null}
 
         {permissions.canChangeRole ? (
-          <ChipGroup
-            label="Cargo"
-            isFullWidth
-            isDisabled={isSaving}
-            value={role}
-            onChange={onRoleChange}
-            options={[
-              { value: "PLAYER", label: "Jogador" },
-              { value: "ADMIN", label: "Admin", isDisabled: isAdminCapped },
-            ]}
-            hint={isAdminCapped ? ADMIN_LIMIT_HINT : undefined}
-          />
+          <View>
+            <ChipGroup
+              label="Cargo"
+              isFullWidth
+              isDisabled={isSaving}
+              value={role}
+              onChange={onRoleChange}
+              options={[
+                { value: "PLAYER", label: "Jogador" },
+                { value: "ADMIN", label: "Admin", isDisabled: isAdminCapped },
+              ]}
+              hint={capHint}
+            />
+            {canLearnPro ? (
+              <Button
+                preset="text"
+                title={PRO_LEARN}
+                onPress={openPro}
+                style={styles.learnPro}
+              />
+            ) : null}
+          </View>
         ) : null}
 
         {permissions.canTransferOwnership || permissions.canExpel ? (
@@ -182,4 +195,5 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.divider,
   },
   zoneButton: { minHeight: 48 },
+  learnPro: { alignSelf: "flex-start" },
 });

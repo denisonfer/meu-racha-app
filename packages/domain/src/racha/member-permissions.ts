@@ -1,8 +1,9 @@
 // espelha update_member e expel_member: o banco decide, isto só diz o que a UI mostra
 export type TMemberRole = "OWNER" | "ADMIN" | "PLAYER";
 
-// teto de Admins do Dono Free (regras 5.2); espelha a conta de update_member
-export const ADMIN_LIMIT_FREE = 2;
+// o teto vem do servidor (null = sem teto); espelha a conta de update_member
+export const isAdminCapped = (adminCount: number, adminLimit: number | null) =>
+  adminLimit !== null && adminCount >= adminLimit;
 
 export type TMemberPermissions = {
   canOpen: boolean;

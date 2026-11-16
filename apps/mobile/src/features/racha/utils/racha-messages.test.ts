@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
   ACTION_FAILED,
+  adminLimitHint,
+  planOwnerOver,
+  TRANSFER_PLAN_LIMIT,
   ATTENDANCE_SPOT_LIMIT,
   FINISH_EVENT_PAYMENTS_NOT_REVIEWED,
   MATCH_ALREADY_OPEN,
@@ -262,5 +265,17 @@ describe("resenhaSummarySegments", () => {
     expect(
       resenhaSummarySegments(5, ["Ana", "Bia"], [false, false], 2)
     ).toEqual([{ text: "5 Partidas · artilheiros Ana e Bia, 2 gols" }]);
+  });
+});
+
+describe("textos do plano", () => {
+  test("tetos com o número vindo do servidor", () => {
+    expect(planOwnerOver(3)).toBe(
+      "Você é dono de 3 rachas. No plano grátis o limite é 1."
+    );
+    expect(adminLimitHint(2)).toBe("Até 2 admins no plano grátis.");
+    expect(TRANSFER_PLAN_LIMIT("Ana")).toBe(
+      "Ana já é dono de outro racha e não tem o Pro. No plano grátis, cada pessoa é dona de um racha só."
+    );
   });
 });

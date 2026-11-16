@@ -1,5 +1,18 @@
 export type TEnvironmentName = "build" | "staging";
-export type TSupabaseConfig = { url: string; anonKey: string };
+export type TSupabaseConfig = {
+  url: string;
+  anonKey: string;
+  // Só o Homolog com chave configurada; produção usa a do build.
+  revenuecatKey?: string;
+};
+
+// Valor salvo por versão anterior não tem o campo; qualquer coisa que não seja
+// texto não vazio some em vez de invalidar o resto do config.
+export function optionalRevenuecatKey(
+  value: unknown
+): { revenuecatKey: string } | Record<string, never> {
+  return typeof value === "string" && value ? { revenuecatKey: value } : {};
+}
 
 // O createClient do supabase-js lança no import se a URL não passa no new URL;
 // fora do __DEV__ só https (mesma trava do supabase.ts).
@@ -15,11 +28,11 @@ export function isAllowedSupabaseUrl(url: string, isDev: boolean): boolean {
 
 function parseStored(stored: string, isDev: boolean): TSupabaseConfig | null {
   try {
-    const { url, anonKey } = JSON.parse(stored) ?? {};
+    const { url, anonKey, revenuecatKey } = JSON.parse(stored) ?? {};
     if (typeof url !== "string" || typeof anonKey !== "string") return null;
     if (!url || !anonKey) return null;
     if (!isAllowedSupabaseUrl(url, isDev)) return null;
-    return { url, anonKey };
+    return { url, anonKey, ...optionalRevenuecatKey(revenuecatKey) };
   } catch {
     return null;
   }

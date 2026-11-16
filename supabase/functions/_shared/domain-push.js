@@ -133,8 +133,12 @@ function notification(value) {
     target: oneOf(raw.target, NOTIFICATION_TARGETS)
   };
 }
+function isKnown(value) {
+  const raw = obj(value);
+  return NOTIFICATION_KINDS.includes(raw.kind) && NOTIFICATION_TARGETS.includes(raw.target);
+}
 function parseNotifications(json) {
-  return list(json).map(notification);
+  return list(json).filter(isKnown).map(notification);
 }
 
 // packages/domain/src/format/brl-mask.ts

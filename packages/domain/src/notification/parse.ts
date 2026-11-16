@@ -118,7 +118,17 @@ function notification(value: unknown): TNotification {
   };
 }
 
+// kind ou target de uma versão mais nova do servidor: o app antigo descarta
+// o item em vez de derrubar a lista inteira. Os demais defeitos seguem lançando.
+function isKnown(value: unknown): boolean {
+  const raw = obj(value);
+  return (
+    (NOTIFICATION_KINDS as readonly unknown[]).includes(raw.kind) &&
+    (NOTIFICATION_TARGETS as readonly unknown[]).includes(raw.target)
+  );
+}
+
 /** Retorno de get_notifications. Array vazio é quem não tem Aviso. */
 export function parseNotifications(json: unknown): TNotification[] {
-  return list(json).map(notification);
+  return list(json).filter(isKnown).map(notification);
 }

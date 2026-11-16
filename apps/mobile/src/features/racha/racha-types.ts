@@ -37,6 +37,8 @@ export type TRacha = {
   memberCount: number;
   pendingCount: number;
   minAge: number | null;
+  // teto de Admins do plano do Dono; null = sem teto (Pro)
+  adminLimit: number | null;
   place: string;
   weekday: number | null;
   kickoffHour: number | null;

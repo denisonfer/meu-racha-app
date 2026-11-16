@@ -403,6 +403,10 @@ verify_jwt = false
 [functions.devhub-staging-config]
 verify_jwt = false
 
+# Webhook da RevenueCat e job do pg_cron chegam sem JWT: a função decide pelo cabeçalho.
+[functions.revenuecat-sync]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

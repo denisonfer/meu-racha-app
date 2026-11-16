@@ -1,6 +1,6 @@
 import {
-  ADMIN_LIMIT_FREE,
   asksPositionDetail,
+  isAdminCapped,
   memberPermissions,
   type TPositionDetail,
 } from "@meu-racha/domain";
@@ -12,8 +12,9 @@ import {
 } from "expo-router";
 import { usePreventRemove } from "expo-router/react-navigation";
 import { useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import { useSession } from "@/features/auth";
+import { PRO_IOS_UNAVAILABLE, purchaseAvailable } from "@/features/plan";
 import { useToast } from "@/ui/components";
 import { useHasRachaAccess } from "../../hooks/use-has-racha-access";
 import { useLeaveOnNoAccess } from "../../hooks/use-leave-on-no-access";
@@ -31,7 +32,8 @@ import {
 } from "../../utils/position-detail-view";
 import type { TPositionSlot } from "../../utils/racha-labels";
 import {
-  ADMIN_LIMIT_REACHED,
+  adminLimitHint,
+  adminLimitReached,
   DISCARD_CHANGES_TITLE,
   MEMBER_GONE,
   MEMBER_NOT_ALLOWED,
@@ -202,8 +204,16 @@ export function useEditMemberForm({
     permissions.canEditStars ||
     (isGoalkeeper && (permissions.canChangeRole || permissions.canExpel));
 
-  const isAdminCapped =
-    initial.role === "PLAYER" && adminCount >= ADMIN_LIMIT_FREE;
+  const adminLimit = rachaQuery.data?.adminLimit ?? null;
+  const isCapped =
+    initial.role === "PLAYER" && isAdminCapped(adminCount, adminLimit);
+  const canBuyPro = purchaseAvailable();
+  const capHint =
+    isCapped && adminLimit !== null
+      ? Platform.OS === "ios"
+        ? `${adminLimitHint(adminLimit)} ${PRO_IOS_UNAVAILABLE}`
+        : adminLimitHint(adminLimit)
+      : undefined;
 
   // só com a tela em foco: com a folha de expulsar por cima, a expulsão precisa
   // conseguir remover esta tela mesmo com mudança pendente
@@ -262,7 +272,13 @@ export function useEditMemberForm({
         setFailure(POSITION_DETAIL_MISMATCH);
       } else if (code === "admin_limit") {
         setRole(initial.role);
-        setFailure(ADMIN_LIMIT_REACHED);
+        // o servidor só recusa no plano grátis: sem teto no cache, ele está velho
+        setFailure(
+          adminLimit !== null
+            ? adminLimitReached(adminLimit)
+            : SAVE_MEMBER_FAILED
+        );
+        void rachaQuery.refetch();
       } else if (code === "not_member") {
         showToast(MEMBER_GONE);
         setIsLeaving(true);
@@ -308,7 +324,11 @@ export function useEditMemberForm({
           },
         }
       : null,
-    isAdminCapped,
+    isAdminCapped: isCapped,
+    capHint,
+    // o teto é do plano do Dono, e só o Dono muda cargo
+    canLearnPro: isCapped && canBuyPro,
+    openPro: () => router.push("/settings/pro"),
     isSaving,
     isDirty,
     failureMessage: failure,

@@ -1,0 +1,13 @@
+{
+  "request_date": "2026-11-13T12:00:00Z",
+  "request_date_ms": 1794571200000,
+  "subscriber": {
+    "entitlements": {},
+    "first_seen": "2026-10-13T12:00:00Z",
+    "last_seen": "2026-11-13T12:00:00Z",
+    "management_url": null,
+    "non_subscriptions": {},
+    "original_app_user_id": "00000000-0000-4000-8000-000000000000",
+    "subscriptions": {}
+  }
+}
